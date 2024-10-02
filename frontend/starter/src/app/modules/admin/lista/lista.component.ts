@@ -2,6 +2,8 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 // Define la interfaz para los elementos de la tabla
 export interface PeriodicElement {
@@ -24,7 +26,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
     standalone   : true,
     templateUrl  : './lista.component.html',
     encapsulation: ViewEncapsulation.None,
-    imports: [MatTableModule, MatToolbarModule, MatIconModule]
+    imports: [MatTableModule, MatToolbarModule, MatIconModule, MatInputModule, MatPaginatorModule]
 })
 export class ListaComponent
 {

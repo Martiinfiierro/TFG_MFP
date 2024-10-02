@@ -11,9 +11,12 @@
                   <mat-icon>library_add</mat-icon>
                 </button>
                 <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
-                  <mat-icon>download</mat-icon>
+                  <mat-icon class="primero">download</mat-icon>
                 </button>
-              </mat-toolbar>
+                <mat-form-field appearance="outline">
+                  <input matInput type="search" placeholder="Buscar..." aria-label="Buscar">
+                </mat-form-field>
+            </mat-toolbar>
 
             <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
@@ -60,6 +63,12 @@
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
             </table>
+            <div class="paginas" style="text-align: center;">
+              <mat-paginator [length]="100"
+                [pageSize]="5"
+                aria-label="Select page">
+              </mat-paginator>
+            </div>
               
         </div>
 
