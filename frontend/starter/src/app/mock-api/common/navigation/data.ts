@@ -12,33 +12,33 @@ export const defaultNavigation: FuseNavigationItem[] = [
 ];
 export const compactNavigation: FuseNavigationItem[] = [
     {
-        id   : 'example',
-        title: 'Example',
+        id   : 'grafo',
+        title: 'Grafo',
         type : 'basic',
         icon : 'heroicons_outline:chart-pie',
-        link : '/example'
+        link : '/grafo'
     }
 ];
 export const futuristicNavigation: FuseNavigationItem[] = [
     {
-        id   : 'example',
-        title: 'Example',
+        id   : 'grafo',
+        title: 'Grafo',
         type : 'basic',
         icon : 'heroicons_outline:chart-pie',
-        link : '/example'
+        link : '/grafo'
     }
 ];
 export const horizontalNavigation: FuseNavigationItem[] = [
     {
         id   : 'grafo',
-        title: 'grafo',
+        title: 'Grafo',
         type : 'basic',
         icon : 'heroicons_outline:chart-pie',
         link : '/grafo'
     },
     {
         id   : 'lista',
-        title: 'lista',
+        title: 'Lista',
         type : 'basic',
         icon : 'heroicons_outline:list-bullet',
         link : '/lista'
