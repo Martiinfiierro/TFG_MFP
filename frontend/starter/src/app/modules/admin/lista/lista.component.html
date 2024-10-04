@@ -13,15 +13,19 @@
           <div class="header-lista">
             <span style="font-size: xx-large;">LISTA DE NODOS</span>
             <span class="spacer2"></span>
-            <button mat-icon-button class="example-icon favorite-icon" (click)="anadirNodo()" aria-label="Example icon-button with heart icon">
-              <mat-icon>library_add</mat-icon>
-            </button>
-            <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
-              <mat-icon class="primero">download</mat-icon>
-            </button>
-            <mat-form-field appearance="outline">
-              <input matInput type="search" placeholder="Buscar..." aria-label="Buscar">
-            </mat-form-field>
+            <div class="boton-contenedor">
+              <button mat-fab extended class="example-icon favorite-icon" (click)="anadirNodo()" style="background-color: white; color: grey; margin-right: 5px; height: 30%;">
+                <mat-icon>library_add</mat-icon>Añadir Nodo
+              </button>
+            </div>
+            <div class="boton-contenedor">
+              <button mat-fab extended class="example-icon" style="background-color: white; color: grey; margin-right: 10px; height: 30%;">
+                <mat-icon class="primero">download</mat-icon>Descargar
+              </button>
+            </div>
+            <div>
+              <input class="buscador" type="search" placeholder="Buscar...">
+            </div>
           </div>
             <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 

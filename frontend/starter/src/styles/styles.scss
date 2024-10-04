@@ -18,11 +18,28 @@
 
 .checkbox{
     background-color: white;
-    border-radius: 5em;
+    border-radius: 1em;
+}
+
+.buscador{
+    border: grey solid 1px;
+    border-radius: 20px;
+    background-color: white;
+    padding: 5px;
+    height: 85%;
+}
+
+.checkbox > mat-checkbox{
+    display:block;
 }
 
 .header-lista{
     display: flex;
+    margin-bottom: 10px;
+}
+
+.boton-contenedor{
+    justify-content: center;
 }
 
 .dialog{

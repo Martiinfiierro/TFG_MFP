@@ -40,7 +40,15 @@ const ELEMENT_DATA: PeriodicElement[] = [
     standalone   : true,
     templateUrl  : './lista.component.html',
     encapsulation: ViewEncapsulation.None,
-    imports: [MatTableModule, MatToolbarModule, MatIconModule, MatInputModule, MatPaginatorModule, MatButtonToggleModule]
+    imports: [
+      MatTableModule, 
+      MatToolbarModule, 
+      MatIconModule, 
+      MatInputModule, 
+      MatPaginatorModule, 
+      MatButtonToggleModule,
+      MatButtonModule
+    ]
 })
 export class ListaComponent
 {
