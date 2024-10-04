@@ -4,7 +4,22 @@
     <div class="flex-auto p-6 sm:p-10">
 
         <!-- CONTENT GOES HERE -->
-        <div>Hola</div>
+        <div class="cabecera">
+            <div>
+                <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
+                    <mat-button-toggle value="bold">Grafo <mat-icon>bubble_chart</mat-icon></mat-button-toggle>
+                    <mat-button-toggle value="italic" (click)="irALista()">Lista <mat-icon>list</mat-icon></mat-button-toggle>
+                </mat-button-toggle-group>
+            </div>
+            <span class="spacer"></span>
+            <div class="checkbox">
+                <mat-checkbox>Mapa</mat-checkbox>
+                <mat-checkbox>Conexiones</mat-checkbox>
+            </div>
+        </div>
+        <div>
+
+        </div>
 
     </div>
 

@@ -3,10 +3,48 @@
 /*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
 /* ----------------------------------------------------------------------------------------------------- */
 
-.example-spacer {
+.spacer {
+    flex: 1 auto;
+}
+
+.spacer2 {
     flex: 1 1 auto;
 }
 
-.paginas{
+.cabecera, .header-dialog{
+    display: flex;
+    margin-bottom: 40px;
+}
+
+.checkbox{
+    background-color: white;
+    border-radius: 5em;
+}
+
+.header-lista{
+    display: flex;
+}
+
+.dialog{
+    width: 1000px;
+    height: 550px;
+}
+
+.box{
     text-align: center;
+}
+
+.datos{
+    display: flex;
+}
+
+.datos-grid{
+    width: 50%;
+    height: 100%;
+    align-items: center;
+}
+
+.estado-interno{
+    width: 50%;
+    height: 100%;
 }
