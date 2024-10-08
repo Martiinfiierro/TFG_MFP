@@ -88,7 +88,7 @@ export class ListaComponent
 
 @Component({
   selector: 'dialogDatos',
-  templateUrl: './dialogControlador.html',
+  templateUrl: '../dialogs/dialogControlador.html',
   standalone: true,
   encapsulation: ViewEncapsulation.None,
   imports: [
@@ -112,7 +112,7 @@ export class DialogControlador{
 
 @Component({
   selector: 'dialogDatos',
-  templateUrl: './dialogProcesador.html',
+  templateUrl: '../dialogs/dialogControlador.html',
   standalone: true,
   encapsulation: ViewEncapsulation.None,
   imports: [
@@ -136,7 +136,7 @@ export class DialogProcesador {
 
 @Component({
   selector: 'dialogDatos',
-  templateUrl: './dialogBalanceador.html',
+  templateUrl: '../dialogs/dialogControlador.html',
   standalone: true,
   encapsulation: ViewEncapsulation.None,
   imports: [
