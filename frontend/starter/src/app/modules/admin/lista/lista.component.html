@@ -27,11 +27,11 @@
               <input class="buscador" type="search" placeholder="Buscar...">
             </div>
           </div>
-            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+            <table mat-table [dataSource]="dataSource" mat-elevation-z8>
 
-                <ng-container matColumnDef="tipo_nodo">
+                <ng-container matColumnDef="tipoNodo">
                   <th mat-header-cell *matHeaderCellDef> Tipo Nodo </th>
-                  <td mat-cell *matCellDef="let element">{{element.tipo_nodo}}</td>
+                  <td mat-cell *matCellDef="let element">{{element.tipoNodo}}</td>
                 </ng-container>
               
                 <ng-container matColumnDef="url">
@@ -73,7 +73,7 @@
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
             </table>
             <div class="paginas" style="text-align: center;">
-              <mat-paginator [length]="100"
+              <mat-paginator [length]="listaNodos.length"
                 [pageSize]="5"
                 aria-label="Select page">
               </mat-paginator>
