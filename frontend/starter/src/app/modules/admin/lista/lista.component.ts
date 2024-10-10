@@ -179,6 +179,15 @@ export class ListaComponent
     });
   }
 
+  actualizarEstadoNodo(tipo:any, nombre:any, status: any){
+    for(let i = 0; i < this.listaNodos.length; i++){
+      if(this.listaNodos[i].nombre == nombre && this.listaNodos[i].tipo_nodo == tipo){
+        this.listaNodos[i].status = status;
+        console.log(this.listaNodos[i]);
+      }
+    }
+  }
+
   actualizarDataSource(nodos: NodeData[]){
     this.listaNodos = [];
     for(let nodo of nodos){
@@ -222,15 +231,13 @@ export class ListaComponent
     // Consultamos el balanceador principal
     this.http.readDebug(this.config.balancerMain.url).subscribe({
       next: (val: any) => {
-        this.componentsStatus.mainBalancer = true;
+        this.actualizarEstadoNodo('Balanceador', 'Main', true);
         this.mainBalancerState = val;
-        //console.log(val.Data.receivedMessages)
-        // Volvemos a programar la lectura
         timer(this.readTime).subscribe(() => this.updateMainBalancerState());
 
       },
       error: (err) => {
-        this.componentsStatus.mainBalancer = false;
+        this.actualizarEstadoNodo('Balanceador', 'Main', false);
         // console.log('updateMainBalancerState no devuelve state')
         // Volvemos a programar la lectura
         timer(this.readTime).subscribe(() => this.updateMainBalancerState());
