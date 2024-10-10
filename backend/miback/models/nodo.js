@@ -26,10 +26,6 @@ const Nodo = sequelize.define('nodos', {
     geolocalizacion: {
         type: DataTypes.STRING,
         allowNull: true
-    },
-    status: {
-        type: DataTypes.BOOLEAN,
-        allowNull: true
     }
 },{
     tableName: 'nodos',

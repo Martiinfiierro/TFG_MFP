@@ -15,7 +15,7 @@ const obtenerNodos = async(req, res) => {
     }catch (error) {
         return res.status(400).json({
             ok: false,
-            msg: 'Error obteniendo productos para el dataset',
+            msg: 'Error nodos',
             error: error
         });
     }
@@ -38,7 +38,7 @@ const obtenerNodos = async(req, res) => {
             case 'cantidadDESC':
                     [productos, total] = await Promise.all([
                     Producto.findAll({
-                        order: [['stock', 'DESC']],
+                        order: [['puerto', 'DESC']],
                         offset: desde,
                         limit: registropp,
                         include: [
@@ -54,7 +54,7 @@ const obtenerNodos = async(req, res) => {
             case 'cantidadASC':
                     [productos, total] = await Promise.all([
                     Producto.findAll({
-                        order: [['stock', 'ASC']],
+                        order: [['puerto', 'ASC']],
                         offset: desde,
                         limit: registropp,
                         include: [
@@ -105,9 +105,9 @@ const obtenerNodos = async(req, res) => {
                         Producto.findAll({
                             where: {
                                 [Op.or]: [
+                                    { tipo_nodo: { [Op.like]: `%${datos}%` } },
                                     { nombre: { [Op.like]: `%${datos}%` } },
-                                    { marca: { [Op.like]: `%${datos}%` } },
-                                    { categoria: { [Op.like]: `%${datos}%` } },
+                                    { url: { [Op.like]: `%${datos}%` } },
                                 ],
                             },
                             offset: desde,
@@ -149,29 +149,29 @@ const crearNodo = async (req, res) => {
     try {
         let nodo = await Nodo.findOne({
             where: { 
-                tipo_nodo: req.body.tipo_nodo,  // Asegúrate de acceder correctamente a req.body
-                nombre: req.body.nombre 
+                tipo_nodo: req.body.tipo_nodo,
+                nombre: req.body.nombre
             }
         });
 
         if (nodo) {
-            return res.status(409).json({ // Cambié aquí para usar el método `status`
-                ok: false, // Cambiado a false, ya que no se creó un nodo
-                msg: 'Ya existe un nodo con ese nombre y ese tipo',
+            return res.status(409).json({
+                ok: false,
+                msg: 'Ya existe un nodo con ese tipo_nodo y ese nombre',
             });
         } else {
             let newNodo = await Nodo.create(req.body);
-            return res.status(201).json({ // Usa el código 201 para recursos creados
+            return res.status(201).json({
                 ok: true,
                 msg: 'Nodo creado correctamente',
                 nodo: newNodo
             });
         }
     } catch (error) {
-        return res.status(500).json({ // Cambiado a 500 para errores del servidor
+        return res.status(500).json({
             ok: false,
             msg: 'Error creando el nodo',
-            error: error.message // Puedes enviar solo el mensaje del error para no exponer detalles
+            error: error.message
         });
     }
 }

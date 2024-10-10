@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, inject, OnInit } from '@angular/core';
+import { Component, ViewEncapsulation, inject, EventEmitter, Output } from '@angular/core';
 import { ApiService } from 'app/services/api.service';
 import { timer } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -9,6 +9,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDialogModule } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   MAT_DIALOG_DATA,
@@ -22,6 +25,7 @@ import {
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
+import { HttpClient } from '@angular/common/http';
 
 // Define la interfaz para los elementos de la tabla
 export interface NodeData {
@@ -45,7 +49,8 @@ export interface NodeData {
       MatInputModule, 
       MatPaginatorModule, 
       MatButtonToggleModule,
-      MatButtonModule
+      MatButtonModule,
+      CommonModule
     ]
 })
 export class ListaComponent
@@ -130,6 +135,14 @@ export class ListaComponent
     }
   });
 
+  componentsStatus = {
+    mainBalancer: false,
+    subsBalancer: false,
+    mainCoordinator: false,
+    subsCoordinator: false,
+    processors: Array(this.numProcessors).fill(false)
+  }
+
   localhost = 'http://localhost'
   config = {
     balancerMain: { baseurl: this.localhost, port: 3100, url: this.localhost + ":3100" },
@@ -167,13 +180,13 @@ export class ListaComponent
   }
 
   actualizarDataSource(nodos: NodeData[]){
+    this.listaNodos = [];
     for(let nodo of nodos){
       this.listaNodos.push(nodo);
     }
     this.dataSource.data = this.listaNodos;
   }
 
-  // Configuramos los datos de los procesadores
   iniProccesors() {
     const iniPort = 4001;
     this.config.processor.splice(0, this.config.processor.length);
@@ -183,46 +196,24 @@ export class ListaComponent
     }
   }
 
-  show(val: any) {
-    return JSON.stringify(val)
-  }
-
   updateProcessors(i:any) {
     //console.log('Inicio updateProcessors:',i);
     this.http.readDebug(this.config.processor[i].url).subscribe({
         next: (val: any) => {
-          const node: NodeData = {
-            tipo_nodo: 'Procesador',
-            url: val.Data.internalConfig.urlCoordinatorMain, // Cambia esto según tu estructura
-            puerto: val.Data.internalConfig.port.toString(),
-            nombre: `Procesador ${i + 1}`,
-            geolocalizacion: 'N/A',
-            status: true, // Cambia esto si tienes información de geolocalización
-          };
-          this.http.postNodo(node).subscribe(
-            (respuesta) => {
-              console.log('Datos recibidos del servidor:', respuesta);
-              // Aquí puedes manejar la respuesta como desees
-            },
-            (error) => {
-              console.error('Error al enviar los datos:', error);
-            }
-          );
-          const listaProv: NodeData[] = [];
-          listaProv.push(node);
-          this.actualizarDataSource(listaProv);
-          
+          console.log('Process:',val)
+          this.componentsStatus.processors[i] = true;
+          this.processorsState[i] = val;
           // Volvemos a programar la lectura
           timer(this.readTime).subscribe(() => this.updateProcessors(i));
 
         },
         error: (err) => {
+          this.componentsStatus.processors[i] = false;
           console.log('updateProcessors no devuelve state')
           // Volvemos a programar la lectura
           timer(this.readTime).subscribe(() => this.updateProcessors(i));
         }
       });
-  
   }
 
   // Actualizar estado de mainBlanacer
@@ -231,30 +222,16 @@ export class ListaComponent
     // Consultamos el balanceador principal
     this.http.readDebug(this.config.balancerMain.url).subscribe({
       next: (val: any) => {
-        const node: NodeData = {
-          tipo_nodo: 'Balanceador',
-          nombre: 'Balanceador Principal',
-          url: 'hola',
-          puerto: val.Data.internalConfig.port.toString(),
-          geolocalizacion: 'N/A',
-          status: true,  // Cambia esto si tienes información de geolocalización
-        };
-        this.http.postNodo(node).subscribe(
-          (respuesta) => {
-            //Añadimos al datasource
-            const listaProv: NodeData[] = [];
-            listaProv.push(node);
-            this.actualizarDataSource(listaProv);
-          },
-          (error) => {
-            console.error('Error al enviar los datos:', error);
-          }
-        );
-
+        this.componentsStatus.mainBalancer = true;
+        this.mainBalancerState = val;
+        //console.log(val.Data.receivedMessages)
+        // Volvemos a programar la lectura
         timer(this.readTime).subscribe(() => this.updateMainBalancerState());
 
       },
       error: (err) => {
+        this.componentsStatus.mainBalancer = false;
+        // console.log('updateMainBalancerState no devuelve state')
         // Volvemos a programar la lectura
         timer(this.readTime).subscribe(() => this.updateMainBalancerState());
       }
@@ -267,31 +244,14 @@ export class ListaComponent
     // Consultamos el balanceador principal
     this.http.readDebug(this.config.balancerSubs.url).subscribe({
       next: (val: any) => {
-        const node: NodeData = {
-          tipo_nodo: 'Balanceador',
-          url: val.Data.internalConfig.urlMain,
-          puerto: val.Data.internalConfig.port.toString(),
-          nombre: 'Balanceador Sustituto',
-          geolocalizacion: 'N/A',
-          status: true,  // Cambia esto si tienes información de geolocalización
-        };
-        this.http.postNodo(node).subscribe(
-          (respuesta) => {
-            //Añadimos al datasource
-            const listaProv: NodeData[] = [];
-            listaProv.push(node);
-            this.actualizarDataSource(listaProv);
-          },
-          (error) => {
-            console.error('Error al enviar los datos:', error);
-          }
-        );
-        
+        this.componentsStatus.subsBalancer = true;
+        this.subsBalancerState = val;
         // Volvemos a programar la lectura
         timer(this.readTime).subscribe(() => this.updateSubsBalancerState());
 
       },
       error: (err) => {
+        this.componentsStatus.subsBalancer = false;
         // console.log('updateSubsBalancerState no devuelve state')
         // Volvemos a programar la lectura
         timer(this.readTime).subscribe(() => this.updateSubsBalancerState());
@@ -306,31 +266,15 @@ export class ListaComponent
     // Consultamos el balanceador principal
     this.http.readDebug(this.config.coordinatorMain.url).subscribe({
       next: (val: any) => {
-        const node: NodeData = {
-          tipo_nodo: 'Controlador',
-          url: 'prueba',
-          puerto: val.Data.internalConfig.port.toString(),
-          nombre: 'Controlador Principal',
-          geolocalizacion: 'N/A',
-          status: true,  // Cambia esto si tienes información de geolocalización
-        };
-        this.http.postNodo(node).subscribe(
-          (respuesta) => {
-            //Añadimos al datasource
-            const listaProv: NodeData[] = [];
-            listaProv.push(node);
-            this.actualizarDataSource(listaProv);
-          },
-          (error) => {
-            console.error('Error al enviar los datos:', error);
-          }
-        );
-
+        //console.log(val)
+        this.componentsStatus.mainCoordinator = true;
+        this.mainCoordinatorState = val;
         // Volvemos a programar la lectura
         timer(this.readTime).subscribe(() => this.updateMainCoordinatorState());
 
       },
       error: (err) => {
+        this.componentsStatus.mainCoordinator = false;
         // console.log('updateMainCoordinatorState no devuelve state')
         // Volvemos a programar la lectura
         timer(this.readTime).subscribe(() => this.updateMainCoordinatorState());
@@ -345,39 +289,25 @@ export class ListaComponent
     // Consultamos el balanceador principal
     this.http.readDebug(this.config.coordinatorSubs.url).subscribe({
       next: (val: any) => {
+        this.componentsStatus.subsCoordinator = true;
         this.subsCoordinatorState = val;
-        const node: NodeData = {
-          tipo_nodo: 'Controlador',
-          url: 'prueba',
-          puerto: val.Data.internalConfig.port.toString(),
-          nombre: 'Controlador Sustituto',
-          geolocalizacion: 'N/A',
-          status: true,  // Cambia esto si tienes información de geolocalización
-        };
-        this.http.postNodo(node).subscribe(
-          (respuesta) => {
-            //Añadimos al datasource
-            const listaProv: NodeData[] = [];
-            listaProv.push(node);
-            this.actualizarDataSource(listaProv);
-          },
-          (error) => {
-            console.error('Error al enviar los datos:', error);
-          }
-        );
-
+        console.log(this.componentsStatus.subsCoordinator)
         // Volvemos a programar la lectura
         timer(this.readTime).subscribe(() => this.updateSubsCoordinatorState());
 
       },
       error: (err) => {
-        //console.log('updateSubsCoordinatorState no devuelve state')
+        this.componentsStatus.subsCoordinator = false;
+        console.log(this.componentsStatus.subsCoordinator)
+        // console.log('updateSubsCoordinatorState no devuelve state')
         // Volvemos a programar la lectura
         timer(this.readTime).subscribe(() => this.updateSubsCoordinatorState());
       }
     }
     );
   }
+
+  //Botones
 
     irAGrafo(): void {
         this.router.navigate(['/grafo']); // Navega a la ruta 'grafo'
@@ -400,6 +330,10 @@ export class ListaComponent
 
     anadirNodo(): void {
       const dialogRef = this.dialog.open(AnadirNodo, {
+      });
+
+      dialogRef.componentInstance.dialogClosed.subscribe(() => {
+        this.getNodos(); // Llamar a getNodos() cuando se cierre el diálogo
       });
     }
 }
@@ -477,7 +411,7 @@ export class DialogBalanceador {
 }
 @Component({
   selector: 'dialogDatos',
-  templateUrl: './anadirNodo.html',
+  templateUrl: '../dialogs/anadirNodo.html',
   standalone: true,
   encapsulation: ViewEncapsulation.None,
   imports: [
@@ -489,14 +423,46 @@ export class DialogBalanceador {
     MatGridListModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    MatSelectModule,
+    CommonModule,
+    MatDialogModule,
+    FormsModule
   ],
 })
 
 export class AnadirNodo{
+  @Output() dialogClosed = new EventEmitter<void>(); 
+  options = [
+    { value: 'Balanceador', viewValue: 'Balanceador' },
+    { value: 'Controlador', viewValue: 'Controlador' },
+    { value: 'Procesador', viewValue: 'Procesador' },
+  ];
+
+  selectedOption: string;
+  puerto: string;
+  url: string;
+  nombre: string;
+  geolocalizacion: string;
+
   readonly dialogRef = inject(MatDialogRef<AnadirNodo>);
 
+  constructor(private http: ApiService){}
+
+  anadirNodo(){
+    const nodoData = {
+      tipo_nodo: this.selectedOption,
+      nombre: this.nombre,
+      puerto: this.puerto,
+      url: this.url,
+      geolocalizacion: this.geolocalizacion
+    }
+    this.http.postNodo(nodoData).subscribe();
+    this.cerrarDialog();
+  }
+
   cerrarDialog(): void {
+    this.dialogClosed.emit();
     this.dialogRef.close();
   }
 }
