@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../database/conexionDB'); // Archivo que contiene la configuración de Sequelize y la conexión a la base de datos
 
-const Nodo = sequelize.define('nodos', {
+const Nodo = sequelize.define('Nodo', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,

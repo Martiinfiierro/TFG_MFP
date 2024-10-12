@@ -24,6 +24,10 @@ export class ApiService {
      return this.http.get(this.urlAPI + '/nodos', { headers: this.headers });
   }
 
+  getNodo(id: any): Observable<any>{
+    return this.http.get(this.urlAPI + '/nodo/' + id, { headers: this.headers });
+  }
+
   postNodo(datosNodo: any): Observable<any>{
     return this.http.post(this.urlAPI + '/nodo', datosNodo, { headers: this.headers });
   }

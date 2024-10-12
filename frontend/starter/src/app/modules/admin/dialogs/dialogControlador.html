@@ -1,6 +1,6 @@
-<div class="dialog">
+<div class="dialog" *ngIf="nodo">
     <div class="header-dialog">
-        <h1 mat-dialog-title style="font-size: xx-large"><strong>Controlador 1</strong></h1>
+        <h1 mat-dialog-title style="font-size: xx-large"><strong>{{nodo.nombre}}</strong></h1>
         <span class="spacer"></span>
         <button class="close" mat-mini-fab (click)="cerrarDialog()"><mat-icon>close</mat-icon></button>
     </div>
@@ -12,7 +12,7 @@
                         <ng-container matGridContent>
                             <div class="box">
                                 <h2><strong>Puerto</strong></h2>
-                                <p>3000</p>
+                                <p>{{nodo.puerto}}</p>
                             </div>
                         </ng-container>
                     </mat-grid-tile>
@@ -20,7 +20,7 @@
                         <ng-container matGridContent>
                             <div class="box">
                                 <h2><strong>URL</strong></h2>
-                                <p>https://www.example.com</p>
+                                <p>{{nodo.url}}</p>
                             </div>
                         </ng-container>
                     </mat-grid-tile>
@@ -35,8 +35,8 @@
                     <mat-grid-tile>
                         <ng-container matGridContent class="box">
                             <div class="box">
-                                <h2><strong>Geolocalozación</strong></h2>
-                                <p>Ubicación 1</p>
+                                <h2><strong>Geolocalización</strong></h2>
+                                <p>{{nodo.geolocalizacion}}</p>
                             </div>
                         </ng-container>
                     </mat-grid-tile>

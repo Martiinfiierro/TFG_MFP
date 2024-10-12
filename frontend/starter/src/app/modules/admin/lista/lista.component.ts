@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, inject, EventEmitter, Output } from '@angular/core';
+import { Component, ViewEncapsulation, inject, EventEmitter, Output, Inject } from '@angular/core';
 import { ApiService } from 'app/services/api.service';
 import { timer } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -29,6 +29,7 @@ import { HttpClient } from '@angular/common/http';
 
 // Define la interfaz para los elementos de la tabla
 export interface NodeData {
+  id: number,
   tipo_nodo: string;
   nombre: string;
   url: string;
@@ -320,18 +321,12 @@ export class ListaComponent
         this.router.navigate(['/grafo']); // Navega a la ruta 'grafo'
     }
 
-    dialogoControlador(): void {
-      const dialogRef = this.dialog.open(DialogControlador, {
-      });
-    }
-
-    dialogoProcesador(): void {
-      const dialogRef = this.dialog.open(DialogProcesador, {
-      });
-    }
-
-    dialogoBalanceador(): void {
-      const dialogRef = this.dialog.open(DialogBalanceador, {
+    dialogo(tipo: any, id: any): void {
+      const dialogRef = this.dialog.open(Dialog, {
+        data: {
+          id: id,
+          tipo: tipo
+        }
       });
     }
 
@@ -340,14 +335,14 @@ export class ListaComponent
       });
 
       dialogRef.componentInstance.dialogClosed.subscribe(() => {
-        this.getNodos(); // Llamar a getNodos() cuando se cierre el diálogo
+        this.getNodos();
       });
     }
 }
 
 @Component({
   selector: 'dialogDatos',
-  templateUrl: '../dialogs/dialogControlador.html',
+  templateUrl: '../dialogs/dialog.html',
   standalone: true,
   encapsulation: ViewEncapsulation.None,
   imports: [
@@ -357,60 +352,30 @@ export class ListaComponent
     MatDialogClose,
     MatIconModule,
     MatGridListModule,
-    MatButtonModule
+    MatButtonModule,
+    CommonModule
   ],
 })
 
-export class DialogControlador{
-  readonly dialogRef = inject(MatDialogRef<DialogControlador>);
+export class Dialog{
+  readonly dialogRef = inject(MatDialogRef<Dialog>);
+  nodo: NodeData;
+  tipo: any;
 
-  cerrarDialog(): void {
-    this.dialogRef.close();
+  constructor(private http: ApiService, @Inject(MAT_DIALOG_DATA) private data: any) {
   }
-}
 
-@Component({
-  selector: 'dialogDatos',
-  templateUrl: '../dialogs/dialogControlador.html',
-  standalone: true,
-  encapsulation: ViewEncapsulation.None,
-  imports: [
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
-    MatIconModule,
-    MatGridListModule,
-    MatButtonModule
-  ],
-})
-
-export class DialogProcesador {
-  readonly dialogRef = inject(MatDialogRef<DialogProcesador>);
-
-  cerrarDialog(): void {
-    this.dialogRef.close();
+  ngOnInit(): void {
+    this.tipo = this.data.tipo;
+    this.http.getNodo(this.data.id).subscribe(
+      (data) => {
+        this.nodo = data.nodo;
+      },
+      (error) => {
+        console.error('Error al obtener el nodo', error);
+      }
+    );
   }
-}
-
-@Component({
-  selector: 'dialogDatos',
-  templateUrl: '../dialogs/dialogControlador.html',
-  standalone: true,
-  encapsulation: ViewEncapsulation.None,
-  imports: [
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
-    MatIconModule,
-    MatGridListModule,
-    MatButtonModule
-  ],
-})
-
-export class DialogBalanceador {
-  readonly dialogRef = inject(MatDialogRef<DialogBalanceador>);
 
   cerrarDialog(): void {
     this.dialogRef.close();

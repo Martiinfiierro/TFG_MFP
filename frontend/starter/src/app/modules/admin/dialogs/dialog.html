@@ -35,12 +35,18 @@
                     <mat-grid-tile>
                         <ng-container matGridContent class="box">
                             <div class="box">
-                                <h2><strong>Geolocalozación</strong></h2>
+                                <h2><strong>Geolocalización</strong></h2>
                                 <p>{{nodo.geolocalizacion}}</p>
                             </div>
                         </ng-container>
                     </mat-grid-tile>
                 </mat-grid-list>
+                <ng-container *ngIf="tipo=='Controlador'" matGridContent class="box">
+                    <div class="box">
+                        <h2><strong>Procesos Activos</strong></h2>
+                        <p>23</p>
+                    </div>
+                </ng-container>
             </div>
             <div class="estado-interno">
                 <ng-container matGridContent class="box">

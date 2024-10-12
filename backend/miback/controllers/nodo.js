@@ -21,6 +21,32 @@ const obtenerNodos = async(req, res) => {
     }
 };
 
+const obtenerNodoID = async(req, res) => {
+    try{
+        let id = req.params.id;
+        let nodo = await Nodo.findOne({ where: { id: id }});;
+
+        if (!nodo){
+            return res.status(404).json({
+              ok: false,
+              msg: `Nodo con id ${id} no encontrado`,
+            });
+        }
+      
+        return res.json({
+            ok: true,
+            msg: 'getNodoID',
+            nodo: nodo,
+        });
+    }catch (error) {
+        return res.status(400).json({
+            ok: false,
+            msg: 'Error nodo ID',
+            error: error
+        });
+    }
+};
+
 /*const buscarProducto = async(req, res) => {
     const datos = req.params.datos;
 
@@ -176,4 +202,4 @@ const crearNodo = async (req, res) => {
     }
 }
 
-module.exports = { obtenerNodos, crearNodo };
+module.exports = { obtenerNodos, obtenerNodoID, crearNodo };
