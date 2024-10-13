@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, inject, EventEmitter, Output, Inject } from '@angular/core';
+import { Component, ViewEncapsulation, inject, EventEmitter, Output, Inject, ViewChild } from '@angular/core';
 import { ApiService } from 'app/services/api.service';
 import { timer } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -7,6 +7,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
@@ -63,6 +64,7 @@ export class ListaComponent
   listaNodos: NodeData[] = [];
   displayedColumns: string[] = ['tipo_nodo', 'url', 'puerto', 'nombre', 'geolocalizacion', 'actions'];
   dataSource = new MatTableDataSource<NodeData>(this.listaNodos);
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   // States to show
   mainBalancerState = {
@@ -173,6 +175,10 @@ export class ListaComponent
     this.getNodos();
   }
 
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+  }
+
   getNodos(){
     this.http.getNodos()
       .subscribe((result) =>{
@@ -189,11 +195,8 @@ export class ListaComponent
     }
   }
 
-  actualizarDataSource(nodos: NodeData[]){
-    this.listaNodos = [];
-    for(let nodo of nodos){
-      this.listaNodos.push(nodo);
-    }
+  actualizarDataSource(nodos: NodeData[]) {
+    this.listaNodos = nodos;
     this.dataSource.data = this.listaNodos;
   }
 
@@ -421,7 +424,7 @@ export class AnadirNodo{
 
   constructor(private http: ApiService){}
 
-  anadirNodo(){
+  async anadirNodo(){
     const nodoData = {
       tipo_nodo: this.selectedOption,
       nombre: this.nombre,
@@ -429,7 +432,7 @@ export class AnadirNodo{
       url: this.url,
       geolocalizacion: this.geolocalizacion
     }
-    this.http.postNodo(nodoData).subscribe();
+    await this.http.postNodo(nodoData);
     this.cerrarDialog();
   }
 

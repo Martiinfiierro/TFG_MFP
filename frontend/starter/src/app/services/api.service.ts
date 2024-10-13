@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpHeaders } from '@angular/common/http';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +29,12 @@ export class ApiService {
     return this.http.get(this.urlAPI + '/nodo/' + id, { headers: this.headers });
   }
 
-  postNodo(datosNodo: any): Observable<any>{
-    return this.http.post(this.urlAPI + '/nodo', datosNodo, { headers: this.headers });
+  async postNodo(datosNodo: any): Promise<any>{try {
+    const response = await lastValueFrom(this.http.post(this.urlAPI + '/nodo', datosNodo, { headers: this.headers }));
+      return response;
+    } catch (error) {
+      console.error('Error al enviar los datos del nodo', error);
+      throw error;
+    }
   }
 }

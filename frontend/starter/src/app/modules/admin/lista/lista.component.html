@@ -76,7 +76,7 @@
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
             </table>
             <div class="paginas" style="text-align: center;">
-              <mat-paginator [length]="listaNodos.length"
+              <mat-paginator [length]="dataSource.data.length"
                 [pageSize]="5"
                 aria-label="Select page">
               </mat-paginator>
