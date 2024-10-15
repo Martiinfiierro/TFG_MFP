@@ -159,7 +159,7 @@ export class DialogBalanceador {
 }
 @Component({
   selector: 'dialogDatos',
-  templateUrl: './anadirNodo.html',
+  templateUrl: '../dialogs/anadirNodo.html',
   standalone: true,
   encapsulation: ViewEncapsulation.None,
   imports: [
