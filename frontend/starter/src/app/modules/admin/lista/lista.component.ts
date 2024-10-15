@@ -26,7 +26,6 @@ import {
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
-import { HttpClient } from '@angular/common/http';
 
 // Define la interfaz para los elementos de la tabla
 export interface NodeData {
@@ -321,7 +320,7 @@ export class ListaComponent
   //Botones
 
     irAGrafo(): void {
-        this.router.navigate(['/grafo']); // Navega a la ruta 'grafo'
+        this.router.navigate(['/grafo']);
     }
 
     dialogo(tipo: any, id: any): void {
