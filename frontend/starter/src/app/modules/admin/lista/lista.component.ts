@@ -367,6 +367,10 @@ export class Dialog{
   constructor(private http: ApiService, @Inject(MAT_DIALOG_DATA) private data: any) {
   }
 
+  cerrarDialog(): void {
+    this.dialogRef.close();
+  }
+
   ngOnInit(): void {
     this.tipo = this.data.tipo;
     this.http.getNodo(this.data.id).subscribe(
@@ -379,9 +383,6 @@ export class Dialog{
     );
   }
 
-  cerrarDialog(): void {
-    this.dialogRef.close();
-  }
 }
 @Component({
   selector: 'dialogDatos',
@@ -406,7 +407,8 @@ export class Dialog{
 })
 
 export class AnadirNodo{
-  @Output() dialogClosed = new EventEmitter<void>(); 
+  @Output() dialogClosed = new EventEmitter<void>();
+
   options = [
     { value: 'Balanceador', viewValue: 'Balanceador' },
     { value: 'Controlador', viewValue: 'Controlador' },
