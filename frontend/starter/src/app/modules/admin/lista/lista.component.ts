@@ -415,7 +415,7 @@ export class AnadirNodo{
     { value: 'Procesador', viewValue: 'Procesador' },
   ];
 
-  selectedOption: string;
+  tipoNodo: string;
   puerto: string;
   url: string;
   nombre: string;
@@ -427,7 +427,7 @@ export class AnadirNodo{
 
   async anadirNodo(){
     const nodoData = {
-      tipo_nodo: this.selectedOption,
+      tipo_nodo: this.tipoNodo,
       nombre: this.nombre,
       puerto: this.puerto,
       url: this.url,

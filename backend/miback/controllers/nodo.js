@@ -13,9 +13,9 @@ const obtenerNodos = async(req, res) => {
             nodos: nodos,
         });
     }catch (error) {
-        return res.status(400).json({
+        return res.status(500).json({
             ok: false,
-            msg: 'Error nodos',
+            msg: 'Error en get all nodos',
             error: error
         });
     }
@@ -29,7 +29,7 @@ const obtenerNodoID = async(req, res) => {
         if (!nodo){
             return res.status(404).json({
               ok: false,
-              msg: `Nodo con id ${id} no encontrado`,
+              msg: `Nodo con id ${id} no existe`,
             });
         }
       
@@ -39,9 +39,9 @@ const obtenerNodoID = async(req, res) => {
             nodo: nodo,
         });
     }catch (error) {
-        return res.status(400).json({
+        return res.status(500).json({
             ok: false,
-            msg: 'Error nodo ID',
+            msg: 'Error en get nodo ID',
             error: error
         });
     }
@@ -183,11 +183,11 @@ const crearNodo = async (req, res) => {
         if (nodo) {
             return res.status(409).json({
                 ok: false,
-                msg: 'Ya existe un nodo con ese tipo_nodo y ese nombre',
+                msg: 'Ya existe un nodo con ese tipo de nodo y ese nombre',
             });
         } else {
             let newNodo = await Nodo.create(req.body);
-            return res.status(201).json({
+            return res.status(200).json({
                 ok: true,
                 msg: 'Nodo creado correctamente',
                 nodo: newNodo
