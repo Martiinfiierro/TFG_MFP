@@ -144,7 +144,7 @@ export class LandingComponent implements OnInit {
     //console.log('Inicio updateProcessors:',i);
     this.http.readDebug(this.config.processor[i].url).subscribe({
         next: (val: any) => {
-          //console.log('Process:',val)
+          console.log('Process:',val)
           this.componentsStatus.processors[i] = true;
           this.processorsState[i] = val;
           // Volvemos a programar la lectura
@@ -153,7 +153,7 @@ export class LandingComponent implements OnInit {
         },
         error: (err) => {
           this.componentsStatus.processors[i] = false;
-          //console.log('updateProcessors no devuelve state')
+          console.log('updateProcessors no devuelve state')
           // Volvemos a programar la lectura
           timer(this.readTime).subscribe(() => this.updateProcessors(i));
         }

@@ -1,9 +1,11 @@
-<div class="flex flex-col flex-auto min-w-0">
-
+<div class="flex flex-col flex-auto min-w-0 relative">
     <!-- Main -->
-    <div class="flex-auto p-6 sm:p-10">
+    <div class="flex-auto p-6 sm:p-10 relative">
 
-        <!-- CONTENT GOES HERE -->
+        <!-- Contenedor del Grafo (fondo) -->
+        <div id="grafo" class="grafo-fondo"></div>
+
+        <!-- CONTENIDO PRINCIPAL -->
         <div class="cabecera">
             <div>
                 <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
@@ -17,10 +19,5 @@
                 <mat-checkbox>Conexiones</mat-checkbox>
             </div>
         </div>
-        <div>
-
-        </div>
-
     </div>
-
 </div>

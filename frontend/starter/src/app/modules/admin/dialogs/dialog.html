@@ -1,0 +1,61 @@
+<div class="dialog" *ngIf="nodo">
+    <div class="header-dialog">
+        <h1 mat-dialog-title style="font-size: xx-large"><strong>{{nodo.nombre}}</strong></h1>
+        <span class="spacer"></span>
+        <button class="close" mat-mini-fab (click)="cerrarDialog()"><mat-icon>close</mat-icon></button>
+    </div>
+    <mat-dialog-content>
+        <div class="datos">
+            <div class="datos-grid">
+                <mat-grid-list cols="2" rowHeight="2:1">
+                    <mat-grid-tile>
+                        <ng-container matGridContent>
+                            <div class="box">
+                                <h2><strong>Puerto</strong></h2>
+                                <p>{{nodo.puerto}}</p>
+                            </div>
+                        </ng-container>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <ng-container matGridContent>
+                            <div class="box">
+                                <h2><strong>URL</strong></h2>
+                                <p>{{nodo.url}}</p>
+                            </div>
+                        </ng-container>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <ng-container matGridContent>
+                            <div class="box">
+                                <h2><strong>Última consulta</strong></h2>
+                                <p>09/02/2023 11:21</p>
+                            </div>
+                        </ng-container>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <ng-container matGridContent class="box">
+                            <div class="box">
+                                <h2><strong>Geolocalización</strong></h2>
+                                <p>{{nodo.geolocalizacion}}</p>
+                            </div>
+                        </ng-container>
+                    </mat-grid-tile>
+                </mat-grid-list>
+                <ng-container *ngIf="tipo=='Controlador'" matGridContent class="box">
+                    <div class="box">
+                        <h2><strong>Procesos Activos</strong></h2>
+                        <p>23</p>
+                    </div>
+                </ng-container>
+            </div>
+            <div class="estado-interno">
+                <ng-container matGridContent class="box">
+                    <div class="box">
+                        <h2><strong>Estado Interno</strong></h2>
+                        <p>Texto</p>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </mat-dialog-content>
+</div>

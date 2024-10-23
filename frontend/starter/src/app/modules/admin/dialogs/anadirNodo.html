@@ -2,7 +2,9 @@
     <div class="header-dialog">
         <h1 mat-dialog-title style="font-size: xx-large"><strong>Añadir Nodo</strong></h1>
         <span class="spacer"></span>
-        <button class="close" mat-mini-fab (click)="cerrarDialog()"><mat-icon>close</mat-icon></button>
+        <button class="close" mat-mini-fab (click)="cerrarDialog()">
+            <mat-icon>close</mat-icon>
+        </button>
     </div>
     <mat-dialog-content>
         <mat-grid-list cols="2" rowHeight="4:1">
@@ -10,7 +12,11 @@
                 <ng-container matGridContent>     
                     <mat-form-field>
                         <mat-label>Tipo de nodo</mat-label>
-                        <input matInput type="text"/>
+                        <mat-select [(ngModel)]="tipoNodo">
+                            <mat-option *ngFor="let option of options" [value]="option.value">
+                              {{ option.viewValue }}
+                            </mat-option>
+                        </mat-select>
                     </mat-form-field>
                 </ng-container>
             </mat-grid-tile>
@@ -18,7 +24,7 @@
                 <ng-container matGridContent>     
                     <mat-form-field>
                         <mat-label>Puerto</mat-label>
-                        <input matInput type="text"/>
+                        <input matInput type="text" [(ngModel)]="puerto"/>
                     </mat-form-field>
                 </ng-container>
             </mat-grid-tile>
@@ -26,7 +32,7 @@
                 <ng-container matGridContent>     
                     <mat-form-field>
                         <mat-label>URL</mat-label>
-                        <input matInput type="text"/>
+                        <input matInput type="text" [(ngModel)]="url"/>
                     </mat-form-field>
                 </ng-container>
             </mat-grid-tile>
@@ -34,7 +40,15 @@
                 <ng-container matGridContent>     
                     <mat-form-field>
                         <mat-label>Nombre</mat-label>
-                        <input matInput type="text"/>
+                        <mat-select *ngIf="tipoNodo === 'Balanceador'" [(ngModel)]="nombre">
+                            <mat-option value="Balanceador Main">Balanceador Main</mat-option>
+                            <mat-option value="Balanceador Subs">Balanceador Subs</mat-option>
+                        </mat-select>
+                        <mat-select *ngIf="tipoNodo === 'Controlador'" [(ngModel)]="nombre">
+                            <mat-option value="Controlador Main">Controlador Main</mat-option>
+                            <mat-option value="Controlador Subs">Controlador Subs</mat-option>
+                        </mat-select>
+                        <input *ngIf="tipoNodo !== 'balanceador' && tipoNodo !== 'controlador'" matInput type="text" [(ngModel)]="nombre"/>
                     </mat-form-field>
                 </ng-container>
             </mat-grid-tile>
@@ -42,12 +56,14 @@
                 <ng-container matGridContent>     
                     <mat-form-field>
                         <mat-label>Geolocalización</mat-label>
-                        <input matInput type="text"/>
+                        <input matInput type="text" [(ngModel)]="geolocalizacion"/>
                     </mat-form-field>
                 </ng-container>
             </mat-grid-tile>
             <mat-grid-tile>
-                <button matButton>Añadir</button>
+                <ng-container matGridContent>     
+                    <button (click)="anadirNodo()" class="anadir" mat-button>Añadir</button>
+                </ng-container>
             </mat-grid-tile>
         </mat-grid-list>
     </mat-dialog-content>
