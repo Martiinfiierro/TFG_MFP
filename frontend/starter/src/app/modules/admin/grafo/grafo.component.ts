@@ -1,6 +1,6 @@
 import { Component, ViewEncapsulation, inject, Inject } from '@angular/core';
 import { GrafoService } from 'app/services/grafo.service';
-import { CommonModule } from '@angular/common';
+import { Dialog } from '../dialogs/dialog.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -133,13 +133,14 @@ export class GrafoComponent{
         coordinatorSubs: { baseurl: this.localhost, port: 3001, url: this.localhost + ":3001" },
         processor: [{ baseurl: '', port: 0, url: '' }]
     }
-    readonly dialog = inject(MatDialog);
+
+    myChart: any = null;
 
     //Variables temporizador
     readTime = 3000;
     idTimer: any;
 
-    constructor(private router: Router, private http: GrafoService) {}
+    constructor(private router: Router, private http: GrafoService, private dialog: MatDialog) {}
 
     irALista(): void {
         this.router.navigate(['/lista']); // Navega a la ruta 'grafo'
@@ -166,7 +167,7 @@ export class GrafoComponent{
         this.updateGrafo();
     }
 
-    updateGrafo(){
+    async updateGrafo(){
         this.http.getNodos().subscribe( data => {
             let datosNodos: GrafoData[] = [];
             let j = 0;
@@ -227,16 +228,44 @@ export class GrafoComponent{
                         break;
                 }
             }
-            console.log(datosNodos)
-            this.initChart(datosNodos);
+            if (this.myChart) {
+                this.myChart.setOption({
+                    series: [{
+                        data: datosNodos.map((res: any) => {
+                            let { nodo, status } = res;
+                            let { tipo_nodo } = nodo;
+                            let symbol = tipo_nodo === 'Balanceador' ? 'square' : tipo_nodo === 'Controlador' ? 'circle' : 'diamond';
+                            let size = tipo_nodo === 'Procesador' ? 35 : 50;
+                            let color = tipo_nodo === 'Balanceador' ? '#1E90FF' : tipo_nodo === 'Controlador' ? '#FFA500' : '#A75DB3'
+                            if (!status) {
+                                color = this.grey(color);
+                            }
+            
+                            return { 
+                                name: nodo.nombre, 
+                                symbolSize: size, 
+                                symbol, 
+                                itemStyle: { 
+                                    color 
+                                }, 
+                                tipo_nodo, 
+                                id: nodo.id 
+                            };
+                        })
+                    }]
+                });
+            }
+            else{
+                this.initChart(datosNodos);
+            }
             timer(this.readTime).subscribe(() => this.updateGrafo());
         });
     }   
 
     initChart(data: any): void {
         const chartDom = document.getElementById('grafo'); // Asigna el elemento del HTML con id="grafo"
-        const myChart = echarts.init(chartDom!); // Asegura que el elemento no sea nulo
-    
+        this.myChart = echarts.init(chartDom!); // Asegura que el elemento no sea nulo
+
         // Define las opciones del gráfico
         const option = {
             tooltip: {},
@@ -287,10 +316,10 @@ export class GrafoComponent{
         };
     
         // Establece las opciones del gráfico
-        myChart.setOption(option);
+        this.myChart.setOption(option);
     
         // Manejar clic en los nodos
-        myChart.on('click', (params) => {
+        this.myChart.on('click', (params) => {
             if (params.dataType === 'node') {
                 const nodoId = (params.data as any).id;
                 const tipoNodo = (params.data as any).tipo_nodo;
@@ -461,45 +490,3 @@ export class GrafoComponent{
         });
     }
 }
-
-@Component({
-    selector: 'dialogDatos',
-    templateUrl: '../dialogs/dialog.html',
-    standalone: true,
-    encapsulation: ViewEncapsulation.None,
-    imports: [
-      MatDialogTitle,
-      MatDialogContent,
-      MatDialogActions,
-      MatDialogClose,
-      MatIconModule,
-      MatGridListModule,
-      MatButtonModule,
-      CommonModule
-    ],
-  })
-  
-  export class Dialog{
-    readonly dialogRef = inject(MatDialogRef<Dialog>);
-    nodo: NodeData;
-    tipo: any;
-  
-    constructor(private http: GrafoService, @Inject(MAT_DIALOG_DATA) private data: any) {
-    }
-  
-    cerrarDialog(): void {
-      this.dialogRef.close();
-    }
-  
-    ngOnInit(): void {
-      this.tipo = this.data.tipo;
-      this.http.getNodo(this.data.id).subscribe(
-        (data) => {
-          this.nodo = data.nodo;
-        },
-        (error) => {
-          console.error('Error al obtener el nodo', error);
-        }
-      );
-    }
-  }
