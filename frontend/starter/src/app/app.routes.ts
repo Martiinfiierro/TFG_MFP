@@ -59,9 +59,7 @@ export const appRoutes: Route[] = [
         data: {
             layout: 'empty'
         },
-        children: [
-            {path: 'home', loadChildren: () => import('app/modules/landing/home/home.routes')},
-        ]
+        
     },
 
     // Admin routes

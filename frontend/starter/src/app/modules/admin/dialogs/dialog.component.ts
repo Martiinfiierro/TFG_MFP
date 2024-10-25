@@ -12,7 +12,15 @@ import {
 } from '@angular/material/dialog';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatButtonModule } from '@angular/material/button';
-import { NodeData } from '../grafo/grafo.component';
+
+interface NodeData{
+  id: any,
+  tipo_nodo: any,
+  nombre: any,
+  puerto: any,
+  url: any,
+  geolocalizacion: any
+}
 
 @Component({
     selector: 'dialogDatos',
