@@ -94,18 +94,30 @@ export class GrafoComponent{
                             }),
 
                             links: res.reduce((acc: any[], item2: any) => {
-                                const { nodo, status } = item2;
+                                const { nodo, datos, status } = item2;
                     
                                 // Enlaces de Controladores a Procesadores
-                                if (nodo.tipo_nodo === 'Controlador' && status === true && nodo.nombre === 'main') {
-                                    res.forEach((nodoTarget: any) => {
-                                        if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
-                                            acc.push({
-                                                source: String(nodo.id),
-                                                target: String(nodoTarget.nodo.id)
-                                            });
-                                        }
-                                    });
+                                if (nodo.tipo_nodo === 'Controlador'){
+                                    if(nodo.nombre === 'main' && status === true && !datos.Data.coordinatorSubsActive) {
+                                        res.forEach((nodoTarget: any) => {
+                                            if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
+                                                acc.push({
+                                                    source: String(nodo.id),
+                                                    target: String(nodoTarget.nodo.id)
+                                                });
+                                            }
+                                        });
+                                    }
+                                    else if(nodo.nombre === 'subs' && status === true && datos.Data.coordinatorSubsActive){
+                                        res.forEach((nodoTarget: any) => {
+                                            if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
+                                                acc.push({
+                                                    source: String(nodo.id),
+                                                    target: String(nodoTarget.nodo.id)
+                                                });
+                                            }
+                                        });
+                                    }
                                 }
                     
                                 // Enlace de Balanceadores y Controladores "subs" hacia "main"
