@@ -27,8 +27,9 @@ interface GrafoData {
 
 export class GrafoComponent{
     //Variables temporizador
-    readTime = 3000;
+    readTime = 1000;
     idTimer: any;
+    activarConexiones: boolean = true;
   
     myChart: any = null;
 
@@ -49,6 +50,17 @@ export class GrafoComponent{
 
     ngOnInit(){
         this.initChart();
+    }
+
+    conexiones(event: any){
+        this.activarConexiones = !event.checked;
+        if(!this.activarConexiones){
+            this.myChart.setOption({
+                series: [{
+                    links: [],
+                }]
+            })
+        }
     }
     
     updateGrafo() {
@@ -97,37 +109,39 @@ export class GrafoComponent{
                                 const { nodo, datos, status } = item2;
                     
                                 // Enlaces de Controladores a Procesadores
-                                if (nodo.tipo_nodo === 'Controlador'){
-                                    if(nodo.nombre === 'main' && status === true && !datos.Data.coordinatorSubsActive) {
-                                        res.forEach((nodoTarget: any) => {
-                                            if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
-                                                acc.push({
-                                                    source: String(nodo.id),
-                                                    target: String(nodoTarget.nodo.id)
-                                                });
-                                            }
-                                        });
+                                if(this.activarConexiones === true){
+                                    if (nodo.tipo_nodo === 'Controlador'){
+                                        if(nodo.nombre === 'main' && status === true && !datos.Data.coordinatorSubsActive) {
+                                            res.forEach((nodoTarget: any) => {
+                                                if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
+                                                    acc.push({
+                                                        source: String(nodo.id),
+                                                        target: String(nodoTarget.nodo.id)
+                                                    });
+                                                }
+                                            });
+                                        }
+                                        else if(nodo.nombre === 'subs' && status === true && datos.Data.coordinatorSubsActive){
+                                            res.forEach((nodoTarget: any) => {
+                                                if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
+                                                    acc.push({
+                                                        source: String(nodo.id),
+                                                        target: String(nodoTarget.nodo.id)
+                                                    });
+                                                }
+                                            });
+                                        }
                                     }
-                                    else if(nodo.nombre === 'subs' && status === true && datos.Data.coordinatorSubsActive){
-                                        res.forEach((nodoTarget: any) => {
-                                            if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
-                                                acc.push({
-                                                    source: String(nodo.id),
-                                                    target: String(nodoTarget.nodo.id)
-                                                });
-                                            }
-                                        });
-                                    }
-                                }
-                    
-                                // Enlace de Balanceadores y Controladores "subs" hacia "main"
-                                if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
-                                    const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
-                                    if (nodoTarget) {
-                                        acc.push({
-                                            source: String(nodo.id),
-                                            target: String(nodoTarget.nodo.id)
-                                        });
+                        
+                                    // Enlace de Balanceadores y Controladores "subs" hacia "main"
+                                    if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
+                                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
+                                        if (nodoTarget) {
+                                            acc.push({
+                                                source: String(nodo.id),
+                                                target: String(nodoTarget.nodo.id)
+                                            });
+                                        }
                                     }
                                 }
                                 return acc;
