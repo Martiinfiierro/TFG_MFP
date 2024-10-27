@@ -108,20 +108,32 @@ export class GrafoComponent{
                             links: res.reduce((acc: any[], item2: any) => {
                                 const { nodo, datos, status } = item2;
                     
-                                // Enlaces de Controladores a Procesadores
                                 if(this.activarConexiones === true){
-                                    if (nodo.tipo_nodo === 'Controlador'){
-                                        if(nodo.nombre === 'main' && status === true && !datos.Data.coordinatorSubsActive) {
-                                            res.forEach((nodoTarget: any) => {
-                                                if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
-                                                    acc.push({
-                                                        source: String(nodo.id),
-                                                        target: String(nodoTarget.nodo.id)
-                                                    });
-                                                }
+                                    //Enlaces de Balanceadores y Controladores "subs"-->"main"
+                                    if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
+                                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
+                                        if (nodoTarget) {
+                                            acc.push({
+                                                source: String(nodo.id),
+                                                target: String(nodoTarget.nodo.id)
                                             });
                                         }
-                                        else if(nodo.nombre === 'subs' && status === true && datos.Data.coordinatorSubsActive){
+                                    }
+
+                                    //Enlaces Contrladores-->Procesadores
+                                    if (nodo.tipo_nodo === 'Controlador' && nodo.nombre === 'main' && status === true) {
+                                        res.forEach((nodoTarget: any) => {
+                                            if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
+                                                acc.push({
+                                                    source: String(nodo.id),
+                                                    target: String(nodoTarget.nodo.id)
+                                                });
+                                            }
+                                        });
+                                    }
+                                    else if(nodo.tipo_nodo === 'Controlador' && nodo.nombre === 'subs' && status === true){
+                                        const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
+                                        if(nodoMain){
                                             res.forEach((nodoTarget: any) => {
                                                 if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
                                                     acc.push({
@@ -132,16 +144,46 @@ export class GrafoComponent{
                                             });
                                         }
                                     }
-                        
-                                    // Enlace de Balanceadores y Controladores "subs" hacia "main"
-                                    if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
-                                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
-                                        if (nodoTarget) {
+
+                                    //Enlaces Balanceadores-->Controladores
+                                    if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true){
+                                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+                                        if(nodoTarget){
                                             acc.push({
                                                 source: String(nodo.id),
                                                 target: String(nodoTarget.nodo.id)
                                             });
                                         }
+                                        else{
+                                            const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                                            if(nodoTarget){
+                                                acc.push({
+                                                    source: String(nodo.id),
+                                                    target: String(nodoTarget.nodo.id)
+                                                });
+                                            }
+                                        }
+                                    }
+                                    else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
+                                         const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
+                                         if(nodoMain){
+                                             const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+                                             if(nodoTarget){
+                                                acc.push({
+                                                    source: String(nodo.id),
+                                                    target: String(nodoTarget.nodo.id)
+                                                });
+                                             }
+                                             else{
+                                                 const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                                                 if(nodoTarget){
+                                                     acc.push({
+                                                         source: String(nodo.id),
+                                                         target: String(nodoTarget.nodo.id)
+                                                     });
+                                                 }
+                                             }
+                                         }
                                     }
                                 }
                                 return acc;
