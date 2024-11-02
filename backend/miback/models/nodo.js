@@ -23,7 +23,11 @@ const Nodo = sequelize.define('Nodo', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    geolocalizacion: {
+    latitud: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    longitud: {
         type: DataTypes.STRING,
         allowNull: true
     }

@@ -53,11 +53,17 @@
                 </ng-container>
             </mat-grid-tile>
             <mat-grid-tile>
-                <ng-container matGridContent>     
-                    <mat-form-field>
-                        <mat-label>Geolocalización</mat-label>
-                        <input matInput type="text" [(ngModel)]="geolocalizacion"/>
-                    </mat-form-field>
+                <ng-container matGridContent style="display: flex;">
+                    <div>
+                        <mat-form-field floatLabel="always">
+                            <mat-label>Geolocalización</mat-label>
+                            <input matInput type="text" placeholder="Latitud" [(ngModel)]="latitud"/>
+                        </mat-form-field>
+                          
+                        <mat-form-field floatLabel="always">
+                            <input matInput type="text" placeholder="Longitud" [(ngModel)]="longitud"/>
+                        </mat-form-field>
+                    </div>                            
                 </ng-container>
             </mat-grid-tile>
             <mat-grid-tile>

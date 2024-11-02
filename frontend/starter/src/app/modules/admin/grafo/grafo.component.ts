@@ -11,7 +11,10 @@ import { MatDialog } from '@angular/material/dialog';
 import * as echarts from 'echarts';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { forkJoin, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators'
+import { catchError, map } from 'rxjs/operators';
+import mapa from '!!raw-loader!../../../../assets/data/map.geojson';
+
+
 interface GrafoData {
     nodo: any;
     datos: any;
@@ -194,7 +197,7 @@ export class GrafoComponent{
                 timer(this.readTime).subscribe(() => this.updateGrafo());
             });
         });
-    } 
+    }
     
     initChart(): void {
         this.http.getNodos().subscribe((res) => {
@@ -215,6 +218,9 @@ export class GrafoComponent{
             forkJoin(requests).subscribe((res: any) => {
                 const chartDom = document.getElementById('grafo');
                 this.myChart = echarts.init(chartDom!);
+
+                const jsonMapa = JSON.parse(mapa);
+                echarts.registerMap('mimapa', jsonMapa);
     
                 // Procesa los nodos para `data`
                 const data = res.map((item: any) => {
@@ -233,7 +239,9 @@ export class GrafoComponent{
                         symbolSize: size, 
                         symbol, 
                         itemStyle: { color }, 
-                        tipo_nodo
+                        tipo_nodo,
+                        x: nodo.longitud,
+                        y: nodo.latitud
                     };
                 });
     
@@ -281,10 +289,26 @@ export class GrafoComponent{
                 // Configuración de opciones de ECharts
                 const option = {
                     tooltip: {},
+                    geo: {
+                        map: 'mimapa',
+                        roam: true,
+                        label: {
+                            show: true
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                areaColor: 'transparent' // Mantiene el color del área igual al pasar el mouse
+                            },
+                            label: {
+                                show: false
+                            }
+                        }                
+                    },
                     series: [
                         {
                             type: 'graph',
                             layout: 'force',
+                            coordinateSystem: 'geo',
                             force: {
                                 repulsion: 500,
                                 edgeLength: [50, 200]
@@ -310,7 +334,7 @@ export class GrafoComponent{
                                 curveness: 0.3
                             },
                             edgeSymbol: ['none', 'arrow'],
-                            edgeSymbolSize: [4, 10], 
+                            edgeSymbolSize: [4, 10],
                         }
                     ]
                 };

@@ -33,8 +33,8 @@ export interface NodeData {
   nombre: string;
   url: string;
   puerto: string;
-  geolocalizacion: string;
-  status: boolean;
+  latitud: string;
+  longitud: string;
 }
 
 @Component({
@@ -214,7 +214,8 @@ export class AnadirNodo{
   puerto: string;
   url: string;
   nombre: string;
-  geolocalizacion: string;
+  latitud: string;
+  longitud: string;
 
   readonly dialogRef = inject(MatDialogRef<AnadirNodo>);
 
@@ -226,7 +227,8 @@ export class AnadirNodo{
       nombre: this.nombre,
       url: this.url,
       puerto: this.puerto,
-      geolocalizacion: this.geolocalizacion
+      latitud: this.latitud,
+      longitud: this.longitud
     }
     await this.http.postNodo(nodoData);
     this.cerrarDialog();

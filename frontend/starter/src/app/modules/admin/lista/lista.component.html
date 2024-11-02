@@ -48,11 +48,14 @@
                   <th mat-header-cell *matHeaderCellDef> Nombre </th>
                   <td mat-cell *matCellDef="let element">{{element.nombre}}</td>
                 </ng-container>
-
+                
                 <ng-container matColumnDef="geolocalizacion">
                     <th mat-header-cell *matHeaderCellDef> Geolocalización </th>
-                    <td mat-cell *matCellDef="let element">{{element.geolocalizacion}}</td>
+                    <td mat-cell *matCellDef="let element">
+                        Latitud: {{element.latitud}} <br> Longitud: {{element.longitud}}
+                    </td>
                 </ng-container>
+              
 
                 <ng-container matColumnDef="actions">
                     <th mat-header-cell *matHeaderCellDef> Actions </th>

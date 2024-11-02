@@ -19,7 +19,8 @@ router.post('/nodo', [
     check('nombre', "El nombre está vacío").not().isEmpty(),
     check('url', "La url está vacía").not().isEmpty(),
     check('puerto', "El puerto está vacío").not().isEmpty(),
-    check('geolocalizacion', "La geolocalización está vacía").not().isEmpty(),
+    check('latitud', "La latitud está vacía").not().isEmpty(),
+    check('longitud', "La longitud está vacía").not().isEmpty(),
     validarCampos,
 ], crearNodo);
 
