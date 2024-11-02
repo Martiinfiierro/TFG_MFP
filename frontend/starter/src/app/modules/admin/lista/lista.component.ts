@@ -110,6 +110,30 @@ export class ListaComponent{
         this.getNodos();
       });
     }
+    
+    descargar(): void {
+      // Llama al servicio para obtener los datos
+      this.http.getNodos().subscribe(
+        (data) => {
+          // Convierte los datos a una cadena JSON
+          const jsonData = JSON.stringify(data, null, 2);
+          const blob = new Blob([jsonData], { type: 'application/json' });
+          const url = window.URL.createObjectURL(blob);
+  
+          // Crea un enlace temporal para descargar el archivo
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'listaNodos.json';
+          a.click();
+  
+          // Limpia la URL del objeto
+          window.URL.revokeObjectURL(url);
+        },
+        (error) => {
+          console.error('Error al descargar el JSON:', error);
+        }
+      );
+    }
 }
 
 @Component({
