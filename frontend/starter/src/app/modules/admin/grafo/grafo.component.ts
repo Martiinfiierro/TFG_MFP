@@ -104,7 +104,8 @@ export class GrafoComponent{
                                     symbol, 
                                     itemStyle: { color }, 
                                     tipo_nodo, 
-                                    id: nodo.id 
+                                    id: nodo.id,
+                                    value: [nodo.longitud, nodo.latitud],
                                 };
                             }),
 
@@ -217,10 +218,9 @@ export class GrafoComponent{
             );
             forkJoin(requests).subscribe((res: any) => {
                 const chartDom = document.getElementById('grafo');
-                this.myChart = echarts.init(chartDom!);
-
                 const jsonMapa = JSON.parse(mapa);
                 echarts.registerMap('mimapa', jsonMapa);
+                this.myChart = echarts.init(chartDom!);
     
                 // Procesa los nodos para `data`
                 const data = res.map((item: any) => {
@@ -240,8 +240,7 @@ export class GrafoComponent{
                         symbol, 
                         itemStyle: { color }, 
                         tipo_nodo,
-                        x: nodo.longitud,
-                        y: nodo.latitud
+                        value: [nodo.longitud, nodo.latitud]
                     };
                 });
     
