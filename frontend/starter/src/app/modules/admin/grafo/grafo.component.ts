@@ -12,9 +12,6 @@ import * as echarts from 'echarts';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import mapa from '!!raw-loader!../../../../assets/data/map.geojson';
-
-
 interface GrafoData {
     nodo: any;
     datos: any;
@@ -33,19 +30,16 @@ export class GrafoComponent{
     readTime = 1000;
     idTimer: any;
     activarConexiones: boolean = true;
-    mostrarMapa: boolean = true;
-  
     myChart: any = null;
-    jsonMapa: any;
-
-    vBal = 0;
-    vCon = 0;
-    vProc = 0;
 
     constructor(private router: Router, private http: GrafoService, private dialog: MatDialog) {}
 
     irALista(): void {
         this.router.navigate(['/lista']); // Navega a la ruta 'grafo'
+    }
+
+    irAMapa():void{
+        this.router.navigate(['/mapa']); // Navega a la ruta 'grafo'
     }
 
     dialogo(tipo: any, id: any): void {
@@ -59,7 +53,6 @@ export class GrafoComponent{
 
     ngOnInit(){
         this.initChart();
-        this.jsonMapa = JSON.parse(mapa);
     }
 
     conexiones(event: any){
@@ -73,50 +66,6 @@ export class GrafoComponent{
         }
     }
 
-    mapa() {
-        this.mostrarMapa = !this.mostrarMapa;
-        if(!this.mostrarMapa){
-            echarts.registerMap('mimapa', this.jsonMapa);
-            this.myChart.setOption({
-                geo: {
-                    map: 'mimapa',
-                    roam: true,
-                    label: {
-                        show: true
-                    },
-                    emphasis: {
-                        itemStyle: {
-                            areaColor: 'transparent'
-                        },
-                        label: {
-                            show: false
-                        }
-                    },
-                    show: true               
-                },
-                series: [{
-                    coordinateSystem: 'geo',
-                }]
-            })
-        }
-        else{
-            this.myChart.setOption({
-                geo: {
-                    show: false
-                },
-                series: [{
-                    type: 'graph',
-                    layout: 'force',
-                    force: {
-                        repulsion: 500,
-                        edgeLength: [50, 200]
-                    },
-                    roam: true,
-                }]  
-            })
-        }
-    }
-    
     updateGrafo() {
         this.http.getNodos().subscribe((res) =>{
             const requests = res.nodos.map((nodo: any) => 
@@ -175,8 +124,8 @@ export class GrafoComponent{
                                         }
                                     }
 
-                                    //Enlaces Contrladores-->Procesadores
-                                    if (nodo.tipo_nodo === 'Controlador' && nodo.nombre === 'main' && status === true) {
+                                    //Enlaces Balanceadores-->Procesadores
+                                    if (nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true) {
                                         res.forEach((nodoTarget: any) => {
                                             if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
                                                 acc.push({
@@ -186,7 +135,7 @@ export class GrafoComponent{
                                             }
                                         });
                                     }
-                                    else if(nodo.tipo_nodo === 'Controlador' && nodo.nombre === 'subs' && status === true){
+                                    else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
                                         const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
                                         if(nodoMain){
                                             res.forEach((nodoTarget: any) => {
@@ -250,31 +199,6 @@ export class GrafoComponent{
             });
         });
     }
-
-    ubicar(tipo_nodo: any){
-        let suma = 100;
-        let bal = 100;
-        let con = 400;
-        let proc = 700;
-        let x: number, y: any;
-
-        switch (tipo_nodo) {
-            case 'Balanceador':
-                x = bal;
-                y = this.vBal + suma;
-                return [x,y];
-            case 'Controlador':
-                x = con;
-                y = this.vCon + suma;
-                return [x,y];
-            case 'Procesador':
-                x = proc;
-                y = this.vProc + suma;
-                return [x, y];
-            default:
-                return null; // O un valor por defecto
-        }
-    }
     
     initChart(): void {
         this.http.getNodos().subscribe((res) => {
@@ -294,7 +218,6 @@ export class GrafoComponent{
             );
             forkJoin(requests).subscribe((res: any) => {
                 const chartDom = document.getElementById('grafo');
-                echarts.registerMap('mimapa', this.jsonMapa);
                 this.myChart = echarts.init(chartDom!);
     
                 // Procesa los nodos para `data`
@@ -323,8 +246,8 @@ export class GrafoComponent{
                 const links = res.reduce((acc: any[], item2: any) => {
                     const { nodo, status } = item2;
         
-                    // Enlaces de Controladores a Procesadores
-                    if (nodo.tipo_nodo === 'Controlador' && status === true && nodo.nombre === 'main') {
+                    // Enlaces de Balanceadores a Procesadores
+                    if (nodo.tipo_nodo === 'Balanceador' && status === true && nodo.nombre === 'main') {
                         res.forEach((nodoTarget: any) => {
                             if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
                                 acc.push({
@@ -334,8 +257,8 @@ export class GrafoComponent{
                             }
                         });
                     }
-                    else if (nodo.tipo_nodo === 'Controlador' && status === false && nodo.nombre === 'main') {
-                        if(nodo.tipo_nodo === 'Controlador' && status === true && nodo.nombre === 'subs'){
+                    else if (nodo.tipo_nodo === 'Balanceador' && status === false && nodo.nombre === 'main') {
+                        if(nodo.tipo_nodo === 'Balanceador' && status === true && nodo.nombre === 'subs'){
                             res.forEach((nodoTarget: any) => {
                                 if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
                                     acc.push({
@@ -357,25 +280,52 @@ export class GrafoComponent{
                             });
                         }
                     }
+
+                    //Controlador --> Balanceador
+                    if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true){
+                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+                        if(nodoTarget){
+                            acc.push({
+                                source: String(nodo.id),
+                                target: String(nodoTarget.nodo.id)
+                            });
+                        }
+                        else{
+                            const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                            if(nodoTarget){
+                                acc.push({
+                                    source: String(nodo.id),
+                                    target: String(nodoTarget.nodo.id)
+                                });
+                            }
+                        }
+                    }
+                    else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
+                         const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
+                         if(nodoMain){
+                             const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+                             if(nodoTarget){
+                                acc.push({
+                                    source: String(nodo.id),
+                                    target: String(nodoTarget.nodo.id)
+                                });
+                             }
+                             else{
+                                 const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                                 if(nodoTarget){
+                                     acc.push({
+                                         source: String(nodo.id),
+                                         target: String(nodoTarget.nodo.id)
+                                     });
+                                 }
+                             }
+                         }
+                    }
                     return acc;
                 }, []);
     
-                // Configuración de opciones de EChartsconst option = {
                 const option = {
                     tooltip: {},
-                    geo: {
-                        map: 'mimapa',
-                        roam: true,
-                        layout: 'none',
-                        label: {
-                            show: true
-                        },
-                        scaleLimit: {
-                            min: 1,
-                            max: 3
-                        },
-                        show: false           
-                    },
                     series: [
                         {
                             type: 'graph',
@@ -384,7 +334,6 @@ export class GrafoComponent{
                                 repulsion: 500,
                                 edgeLength: [50, 200]
                             },
-                            //coordinateSystem: 'geo',
                             roam: true,
                             scaleLimit: {
                                 min: 0.5,

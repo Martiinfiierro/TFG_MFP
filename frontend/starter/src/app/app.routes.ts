@@ -73,7 +73,8 @@ export const appRoutes: Route[] = [
         },
         children: [
             {path: 'grafo', loadChildren: () => import('app/modules/admin/grafo/grafo.routes')},
-            {path: 'lista', loadChildren: () => import('app/modules/admin/lista/lista.routes')}
+            {path: 'lista', loadChildren: () => import('app/modules/admin/lista/lista.routes')},
+            {path: 'mapa', loadChildren: () => import('app/modules/admin/mapa/mapa.routes')}
         ]
     }
 ];

@@ -1,0 +1,23 @@
+{
+    "controller": {
+        "colorA": "#000",
+        "colorD": "#FFF",
+        "nameMain": "C main",
+        "nameSubs": "C subs",
+        "shape": "circle",
+        "size": ""
+    },
+    "balancer": {
+        "colorA": "#000",
+        "colorD": "#FFF",
+        "nameMain": "B main",
+        "nameSubs": "B subs",
+        "size": ""
+    },
+    "processor": {
+        "colorA": "#000",
+        "colorD": "#FFF",
+        "shape": "diamond",
+        "size": ""
+    }
+}

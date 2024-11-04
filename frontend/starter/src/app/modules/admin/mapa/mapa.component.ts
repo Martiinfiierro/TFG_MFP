@@ -25,6 +25,7 @@ import {
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
+import * as L from 'leaflet';
 
 // Define la interfaz para los elementos de la tabla
 export interface NodeData {
@@ -38,9 +39,9 @@ export interface NodeData {
 }
 
 @Component({
-    selector     : 'lista',
+    selector     : 'mapa',
     standalone   : true,
-    templateUrl  : './lista.component.html',
+    templateUrl  : './mapa.component.html',
     encapsulation: ViewEncapsulation.None,
     imports: [
       MatTableModule, 
@@ -53,38 +54,25 @@ export interface NodeData {
       CommonModule
     ]
 })
-export class ListaComponent{
-
-  //Lista
-  listaNodos: NodeData[] = [];
-  displayedColumns: string[] = ['tipo_nodo', 'url', 'puerto', 'nombre', 'geolocalizacion', 'actions'];
-  dataSource = new MatTableDataSource<NodeData>(this.listaNodos);
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-
+export class MapaComponent{
   //Dialogo
   readonly dialog = inject(MatDialog);
 
 
   constructor(private http: GrafoService, private router: Router) { }
 
+  map!: L.Map;
+
   ngOnInit(): void {
-    this.getNodos();
+    this.initMap();
   }
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-  }
+  initMap(): void {
+    this.map = L.map('map').setView([0, 0], 2);
 
-  getNodos(){
-    this.http.getNodos()
-      .subscribe((result) =>{
-        this.actualizarDataSource(result.nodos);
-    });
-  }
-
-  actualizarDataSource(nodos: NodeData[]) {
-    this.listaNodos = nodos;
-    this.dataSource.data = this.listaNodos;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(this.map);
   }
 
   //Botones
@@ -93,8 +81,8 @@ export class ListaComponent{
         this.router.navigate(['/grafo']);
     }
 
-    irAMapa():void{
-      this.router.navigate(['/mapa']);
+    irALista(): void {
+      this.router.navigate(['/lista']);
   }
 
     dialogo(tipo: any, id: any): void {
@@ -104,39 +92,6 @@ export class ListaComponent{
           tipo: tipo
         }
       });
-    }
-
-    anadirNodo(): void {
-      const dialogRef = this.dialog.open(AnadirNodo, {
-      });
-
-      dialogRef.componentInstance.dialogClosed.subscribe(() => {
-        this.getNodos();
-      });
-    }
-    
-    descargar(): void {
-      // Llama al servicio para obtener los datos
-      this.http.getNodos().subscribe(
-        (data) => {
-          // Convierte los datos a una cadena JSON
-          const jsonData = JSON.stringify(data, null, 2);
-          const blob = new Blob([jsonData], { type: 'application/json' });
-          const url = window.URL.createObjectURL(blob);
-  
-          // Crea un enlace temporal para descargar el archivo
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'listaNodos.json';
-          a.click();
-  
-          // Limpia la URL del objeto
-          window.URL.revokeObjectURL(url);
-        },
-        (error) => {
-          console.error('Error al descargar el JSON:', error);
-        }
-      );
     }
 }
 

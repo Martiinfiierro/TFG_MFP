@@ -42,5 +42,12 @@ export const horizontalNavigation: FuseNavigationItem[] = [
         type : 'basic',
         icon : 'heroicons_outline:list-bullet',
         link : '/lista'
+    },
+    {
+        id   : 'mapa',
+        title: 'Mapa',
+        type : 'basic',
+        icon : 'heroicons_outline:list-bullet',
+        link : '/mapa'
     }
 ];

@@ -3,6 +3,18 @@
 /*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
 /* ----------------------------------------------------------------------------------------------------- */
 /* Grafo como fondo */
+
+#map {
+    width: 1250px;
+    height: 500px;
+}
+
+#contenedor-mapa {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .grafo-fondo {
     position: absolute;
     top: 0;
