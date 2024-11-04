@@ -15,7 +15,7 @@
             </div>
             <span class="spacer"></span>
             <div class="checkbox">
-                <mat-checkbox>Mapa</mat-checkbox><br>
+                <mat-checkbox (change)="mapa()">Mapa</mat-checkbox><br>
                 <mat-checkbox (change)="conexiones($event)" >Desactivar conexiones</mat-checkbox>
             </div>
         </div>

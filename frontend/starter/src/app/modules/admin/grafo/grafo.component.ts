@@ -33,8 +33,14 @@ export class GrafoComponent{
     readTime = 1000;
     idTimer: any;
     activarConexiones: boolean = true;
+    mostrarMapa: boolean = true;
   
     myChart: any = null;
+    jsonMapa: any;
+
+    vBal = 0;
+    vCon = 0;
+    vProc = 0;
 
     constructor(private router: Router, private http: GrafoService, private dialog: MatDialog) {}
 
@@ -53,6 +59,7 @@ export class GrafoComponent{
 
     ngOnInit(){
         this.initChart();
+        this.jsonMapa = JSON.parse(mapa);
     }
 
     conexiones(event: any){
@@ -62,6 +69,50 @@ export class GrafoComponent{
                 series: [{
                     links: [],
                 }]
+            })
+        }
+    }
+
+    mapa() {
+        this.mostrarMapa = !this.mostrarMapa;
+        if(!this.mostrarMapa){
+            echarts.registerMap('mimapa', this.jsonMapa);
+            this.myChart.setOption({
+                geo: {
+                    map: 'mimapa',
+                    roam: true,
+                    label: {
+                        show: true
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            areaColor: 'transparent'
+                        },
+                        label: {
+                            show: false
+                        }
+                    },
+                    show: true               
+                },
+                series: [{
+                    coordinateSystem: 'geo',
+                }]
+            })
+        }
+        else{
+            this.myChart.setOption({
+                geo: {
+                    show: false
+                },
+                series: [{
+                    type: 'graph',
+                    layout: 'force',
+                    force: {
+                        repulsion: 500,
+                        edgeLength: [50, 200]
+                    },
+                    roam: true,
+                }]  
             })
         }
     }
@@ -199,6 +250,31 @@ export class GrafoComponent{
             });
         });
     }
+
+    ubicar(tipo_nodo: any){
+        let suma = 100;
+        let bal = 100;
+        let con = 400;
+        let proc = 700;
+        let x: number, y: any;
+
+        switch (tipo_nodo) {
+            case 'Balanceador':
+                x = bal;
+                y = this.vBal + suma;
+                return [x,y];
+            case 'Controlador':
+                x = con;
+                y = this.vCon + suma;
+                return [x,y];
+            case 'Procesador':
+                x = proc;
+                y = this.vProc + suma;
+                return [x, y];
+            default:
+                return null; // O un valor por defecto
+        }
+    }
     
     initChart(): void {
         this.http.getNodos().subscribe((res) => {
@@ -218,8 +294,7 @@ export class GrafoComponent{
             );
             forkJoin(requests).subscribe((res: any) => {
                 const chartDom = document.getElementById('grafo');
-                const jsonMapa = JSON.parse(mapa);
-                echarts.registerMap('mimapa', jsonMapa);
+                echarts.registerMap('mimapa', this.jsonMapa);
                 this.myChart = echarts.init(chartDom!);
     
                 // Procesa los nodos para `data`
@@ -285,33 +360,31 @@ export class GrafoComponent{
                     return acc;
                 }, []);
     
-                // Configuración de opciones de ECharts
+                // Configuración de opciones de EChartsconst option = {
                 const option = {
                     tooltip: {},
                     geo: {
                         map: 'mimapa',
                         roam: true,
+                        layout: 'none',
                         label: {
                             show: true
                         },
-                        emphasis: {
-                            itemStyle: {
-                                areaColor: 'transparent' // Mantiene el color del área igual al pasar el mouse
-                            },
-                            label: {
-                                show: false
-                            }
-                        }                
+                        scaleLimit: {
+                            min: 1,
+                            max: 3
+                        },
+                        show: false           
                     },
                     series: [
                         {
                             type: 'graph',
                             layout: 'force',
-                            coordinateSystem: 'geo',
                             force: {
                                 repulsion: 500,
                                 edgeLength: [50, 200]
                             },
+                            //coordinateSystem: 'geo',
                             roam: true,
                             scaleLimit: {
                                 min: 0.5,
