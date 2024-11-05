@@ -247,18 +247,8 @@ export class GrafoComponent{
                     const { nodo, status } = item2;
         
                     // Enlaces de Balanceadores a Procesadores
-                    if (nodo.tipo_nodo === 'Balanceador' && status === true && nodo.nombre === 'main') {
-                        res.forEach((nodoTarget: any) => {
-                            if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
-                                acc.push({
-                                    source: nodo.id,
-                                    target: nodoTarget.nodo.id
-                                });
-                            }
-                        });
-                    }
-                    else if (nodo.tipo_nodo === 'Balanceador' && status === false && nodo.nombre === 'main') {
-                        if(nodo.tipo_nodo === 'Balanceador' && status === true && nodo.nombre === 'subs'){
+                    if(this.activarConexiones === true){
+                        if (nodo.tipo_nodo === 'Balanceador' && status === true && nodo.nombre === 'main') {
                             res.forEach((nodoTarget: any) => {
                                 if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
                                     acc.push({
@@ -268,58 +258,70 @@ export class GrafoComponent{
                                 }
                             });
                         }
-                    }
-        
-                    // Enlace de Balanceadores y Controladores "subs" hacia "main"
-                    if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
-                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
-                        if (nodoTarget) {
-                            acc.push({
-                                source: nodo.id,
-                                target: nodoTarget.nodo.id
-                            });
+                        else if (nodo.tipo_nodo === 'Balanceador' && status === false && nodo.nombre === 'main') {
+                            if(nodo.tipo_nodo === 'Balanceador' && status === true && nodo.nombre === 'subs'){
+                                res.forEach((nodoTarget: any) => {
+                                    if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
+                                        acc.push({
+                                            source: nodo.id,
+                                            target: nodoTarget.nodo.id
+                                        });
+                                    }
+                                });
+                            }
                         }
-                    }
+            
+                        // Enlace de Balanceadores y Controladores "subs" hacia "main"
+                        if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
+                            const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
+                            if (nodoTarget) {
+                                acc.push({
+                                    source: nodo.id,
+                                    target: nodoTarget.nodo.id
+                                });
+                            }
+                        }
 
-                    //Controlador --> Balanceador
-                    if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true){
-                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
-                        if(nodoTarget){
-                            acc.push({
-                                source: String(nodo.id),
-                                target: String(nodoTarget.nodo.id)
-                            });
-                        }
-                        else{
-                            const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                        //Controlador --> Balanceador
+                        if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true){
+                            const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
                             if(nodoTarget){
                                 acc.push({
                                     source: String(nodo.id),
                                     target: String(nodoTarget.nodo.id)
                                 });
                             }
+                            else{
+                                const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                                if(nodoTarget){
+                                    acc.push({
+                                        source: String(nodo.id),
+                                        target: String(nodoTarget.nodo.id)
+                                    });
+                                }
+                            }
                         }
-                    }
-                    else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
-                         const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
-                         if(nodoMain){
-                             const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
-                             if(nodoTarget){
-                                acc.push({
-                                    source: String(nodo.id),
-                                    target: String(nodoTarget.nodo.id)
-                                });
-                             }
-                             else{
-                                 const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
-                                 if(nodoTarget){
-                                     acc.push({
-                                         source: String(nodo.id),
-                                         target: String(nodoTarget.nodo.id)
-                                     });
-                                 }
-                             }
-                         }
+                        else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
+                            const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
+                            if(nodoMain){
+                                const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+                                if(nodoTarget){
+                                    acc.push({
+                                        source: String(nodo.id),
+                                        target: String(nodoTarget.nodo.id)
+                                    });
+                                }
+                                else{
+                                    const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                                    if(nodoTarget){
+                                        acc.push({
+                                            source: String(nodo.id),
+                                            target: String(nodoTarget.nodo.id)
+                                        });
+                                    }
+                                }
+                            }
+                        }
                     }
                     return acc;
                 }, []);
