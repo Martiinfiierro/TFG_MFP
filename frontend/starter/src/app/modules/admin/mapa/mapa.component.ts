@@ -65,6 +65,23 @@ export class MapaComponent{
 
   ngOnInit(): void {
     this.initMap();
+    this.loadNodos();
+  }
+
+  loadNodos(){
+    this.http.getNodos().subscribe((data: any) => {
+      data.nodos.forEach((nodo: any) => {
+        const customIcon = L.icon({
+          iconUrl: 'assets/map/ordenador.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34]
+        });
+        const marker = L.marker([nodo.latitud, nodo.longitud], { icon: customIcon }).addTo(this.map);
+        marker.bindPopup(`<b>${nodo.nombre}</b>`);
+        marker.bindTooltip(nodo.nombre, { permanent: true, direction: 'top', offset: [0, -20] });
+      });
+    });
   }
 
   initMap(): void {
