@@ -83,115 +83,119 @@ export class GrafoComponent{
                 )
             );
             forkJoin(requests).subscribe((res: any) => {
+                const data = res.map((item: any) => {
+                    const { nodo, status } = item;
+                    const { tipo_nodo } = nodo;
+                    const symbol = tipo_nodo === 'Balanceador' ? 'square' : tipo_nodo === 'Controlador' ? 'circle' : 'diamond';
+                    const size = tipo_nodo === 'Procesador' ? 35 : 50;
+                    let color = tipo_nodo === 'Balanceador' ? '#1E90FF' : tipo_nodo === 'Controlador' ? '#FFA500' : '#A75DB3';
+
+                    if (!status) {
+                        color = this.grey(color);
+                    }
+
+                    return { 
+                        name: nodo.nombre, 
+                        symbolSize: size, 
+                        symbol, 
+                        itemStyle: { color }, 
+                        tipo_nodo, 
+                        id: nodo.id,
+                        value: [nodo.longitud, nodo.latitud],
+                        visible: nodo.visible
+                    };
+                });
+                const links = res.reduce((acc: any[], item2: any) => {
+                    const { nodo, datos, status } = item2;
+        
+                    if(this.activarConexiones === true){
+                        //Enlaces de Balanceadores y Controladores "subs"-->"main"
+                        if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
+                            const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
+                            if (nodoTarget) {
+                                acc.push({
+                                    source: String(nodo.id),
+                                    target: String(nodoTarget.nodo.id)
+                                });
+                            }
+                        }
+
+                        //Enlaces Balanceadores-->Procesadores
+                        if (nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true) {
+                            res.forEach((nodoTarget: any) => {
+                                if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
+                                    acc.push({
+                                        source: String(nodo.id),
+                                        target: String(nodoTarget.nodo.id)
+                                    });
+                                }
+                            });
+                        }
+                        else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
+                            const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
+                            if(nodoMain){
+                                res.forEach((nodoTarget: any) => {
+                                    if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
+                                        acc.push({
+                                            source: String(nodo.id),
+                                            target: String(nodoTarget.nodo.id)
+                                        });
+                                    }
+                                });
+                            }
+                        }
+
+                        //Enlaces Balanceadores-->Controladores
+                        if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true){
+                            const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+                            if(nodoTarget){
+                                acc.push({
+                                    source: String(nodo.id),
+                                    target: String(nodoTarget.nodo.id)
+                                });
+                            }
+                            else{
+                                const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                                if(nodoTarget){
+                                    acc.push({
+                                        source: String(nodo.id),
+                                        target: String(nodoTarget.nodo.id)
+                                    });
+                                }
+                            }
+                        }
+                        else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
+                             const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
+                             if(nodoMain){
+                                 const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+                                 if(nodoTarget){
+                                    acc.push({
+                                        source: String(nodo.id),
+                                        target: String(nodoTarget.nodo.id)
+                                    });
+                                 }
+                                 else{
+                                     const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                                     if(nodoTarget){
+                                         acc.push({
+                                             source: String(nodo.id),
+                                             target: String(nodoTarget.nodo.id)
+                                         });
+                                     }
+                                 }
+                             }
+                        }
+                    }
+                    return acc;
+                }, [])
                 this.myChart.setOption({
                     series: [
                         {
-                            data: res.map((item: any) => {
-                                const { nodo, status } = item;
-                                const { tipo_nodo } = nodo;
-            
-                                const symbol = tipo_nodo === 'Balanceador' ? 'square' : tipo_nodo === 'Controlador' ? 'circle' : 'diamond';
-                                const size = tipo_nodo === 'Procesador' ? 35 : 50;
-                                let color = tipo_nodo === 'Balanceador' ? '#1E90FF' : tipo_nodo === 'Controlador' ? '#FFA500' : '#A75DB3';
-            
-                                if (!status) {
-                                    color = this.grey(color);
-                                }
-            
-                                return { 
-                                    name: nodo.nombre, 
-                                    symbolSize: size, 
-                                    symbol, 
-                                    itemStyle: { color }, 
-                                    tipo_nodo, 
-                                    id: nodo.id,
-                                    value: [nodo.longitud, nodo.latitud],
-                                };
-                            }),
-
-                            links: res.reduce((acc: any[], item2: any) => {
-                                const { nodo, datos, status } = item2;
-                    
-                                if(this.activarConexiones === true){
-                                    //Enlaces de Balanceadores y Controladores "subs"-->"main"
-                                    if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
-                                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
-                                        if (nodoTarget) {
-                                            acc.push({
-                                                source: String(nodo.id),
-                                                target: String(nodoTarget.nodo.id)
-                                            });
-                                        }
-                                    }
-
-                                    //Enlaces Balanceadores-->Procesadores
-                                    if (nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true) {
-                                        res.forEach((nodoTarget: any) => {
-                                            if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
-                                                acc.push({
-                                                    source: String(nodo.id),
-                                                    target: String(nodoTarget.nodo.id)
-                                                });
-                                            }
-                                        });
-                                    }
-                                    else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
-                                        const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
-                                        if(nodoMain){
-                                            res.forEach((nodoTarget: any) => {
-                                                if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
-                                                    acc.push({
-                                                        source: String(nodo.id),
-                                                        target: String(nodoTarget.nodo.id)
-                                                    });
-                                                }
-                                            });
-                                        }
-                                    }
-
-                                    //Enlaces Balanceadores-->Controladores
-                                    if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true){
-                                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
-                                        if(nodoTarget){
-                                            acc.push({
-                                                source: String(nodo.id),
-                                                target: String(nodoTarget.nodo.id)
-                                            });
-                                        }
-                                        else{
-                                            const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
-                                            if(nodoTarget){
-                                                acc.push({
-                                                    source: String(nodo.id),
-                                                    target: String(nodoTarget.nodo.id)
-                                                });
-                                            }
-                                        }
-                                    }
-                                    else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
-                                         const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
-                                         if(nodoMain){
-                                             const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
-                                             if(nodoTarget){
-                                                acc.push({
-                                                    source: String(nodo.id),
-                                                    target: String(nodoTarget.nodo.id)
-                                                });
-                                             }
-                                             else{
-                                                 const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
-                                                 if(nodoTarget){
-                                                     acc.push({
-                                                         source: String(nodo.id),
-                                                         target: String(nodoTarget.nodo.id)
-                                                     });
-                                                 }
-                                             }
-                                         }
-                                    }
-                                }
-                                return acc;
-                            }, [])
+                            data: data.filter((node: any) => node.visible !== false),
+                            links: links.map((link: any) => ({
+                                source: String(link.source),
+                                target: String(link.target),
+                            })),
                         }
                     ]
                 });
@@ -224,13 +228,14 @@ export class GrafoComponent{
                 const data = res.map((item: any) => {
                     const { nodo, status } = item;
                     const { tipo_nodo } = nodo;
+
                     const symbol = tipo_nodo === 'Balanceador' ? 'square' : tipo_nodo === 'Controlador' ? 'circle' : 'diamond';
                     const size = tipo_nodo === 'Procesador' ? 35 : 50;
                     let color = tipo_nodo === 'Balanceador' ? '#1E90FF' : tipo_nodo === 'Controlador' ? '#FFA500' : '#A75DB3';
                     if (!status) {
                         color = this.grey(color);
                     }
-    
+        
                     return { 
                         id: nodo.id,
                         name: nodo.nombre, 
@@ -238,28 +243,18 @@ export class GrafoComponent{
                         symbol, 
                         itemStyle: { color }, 
                         tipo_nodo,
-                        value: [nodo.longitud, nodo.latitud]
+                        value: [nodo.longitud, nodo.latitud],
+                        visible: nodo.visible
                     };
                 });
     
                 // Construye enlaces `links`
                 const links = res.reduce((acc: any[], item2: any) => {
                     const { nodo, status } = item2;
-        
-                    // Enlaces de Balanceadores a Procesadores
-                    if(this.activarConexiones === true){
-                        if (nodo.tipo_nodo === 'Balanceador' && status === true && nodo.nombre === 'main') {
-                            res.forEach((nodoTarget: any) => {
-                                if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
-                                    acc.push({
-                                        source: nodo.id,
-                                        target: nodoTarget.nodo.id
-                                    });
-                                }
-                            });
-                        }
-                        else if (nodo.tipo_nodo === 'Balanceador' && status === false && nodo.nombre === 'main') {
-                            if(nodo.tipo_nodo === 'Balanceador' && status === true && nodo.nombre === 'subs'){
+                    
+                        // Enlaces de Balanceadores a Procesadores
+                        if(this.activarConexiones === true){
+                            if (nodo.tipo_nodo === 'Balanceador' && status === true && nodo.nombre === 'main') {
                                 res.forEach((nodoTarget: any) => {
                                     if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
                                         acc.push({
@@ -269,41 +264,32 @@ export class GrafoComponent{
                                     }
                                 });
                             }
-                        }
-            
-                        // Enlace de Balanceadores y Controladores "subs" hacia "main"
-                        if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
-                            const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
-                            if (nodoTarget) {
-                                acc.push({
-                                    source: nodo.id,
-                                    target: nodoTarget.nodo.id
-                                });
-                            }
-                        }
-
-                        //Controlador --> Balanceador
-                        if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true){
-                            const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
-                            if(nodoTarget){
-                                acc.push({
-                                    source: String(nodo.id),
-                                    target: String(nodoTarget.nodo.id)
-                                });
-                            }
-                            else{
-                                const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
-                                if(nodoTarget){
-                                    acc.push({
-                                        source: String(nodo.id),
-                                        target: String(nodoTarget.nodo.id)
+                            else if (nodo.tipo_nodo === 'Balanceador' && status === false && nodo.nombre === 'main') {
+                                if(nodo.tipo_nodo === 'Balanceador' && status === true && nodo.nombre === 'subs'){
+                                    res.forEach((nodoTarget: any) => {
+                                        if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
+                                            acc.push({
+                                                source: nodo.id,
+                                                target: nodoTarget.nodo.id
+                                            });
+                                        }
                                     });
                                 }
                             }
-                        }
-                        else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
-                            const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
-                            if(nodoMain){
+                
+                            // Enlace de Balanceadores y Controladores "subs" hacia "main"
+                            if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
+                                const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
+                                if (nodoTarget) {
+                                    acc.push({
+                                        source: nodo.id,
+                                        target: nodoTarget.nodo.id
+                                    });
+                                }
+                            }
+
+                            //Controlador --> Balanceador
+                            if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true){
                                 const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
                                 if(nodoTarget){
                                     acc.push({
@@ -321,9 +307,30 @@ export class GrafoComponent{
                                     }
                                 }
                             }
+                            else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
+                                const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
+                                if(nodoMain){
+                                    const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+                                    if(nodoTarget){
+                                        acc.push({
+                                            source: String(nodo.id),
+                                            target: String(nodoTarget.nodo.id)
+                                        });
+                                    }
+                                    else{
+                                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                                        if(nodoTarget){
+                                            acc.push({
+                                                source: String(nodo.id),
+                                                target: String(nodoTarget.nodo.id)
+                                            });
+                                        }
+                                    }
+                                }
+                            }
                         }
-                    }
-                    return acc;
+                        return acc;
+                    
                 }, []);
     
                 const option = {
@@ -345,7 +352,7 @@ export class GrafoComponent{
                                 show: true,
                                 position: 'inside'
                             },
-                            data: data,
+                            data: data.filter((node: any) => node.visible !== false),
                             links: links.map((link: any) => ({
                                 source: String(link.source),
                                 target: String(link.target),
