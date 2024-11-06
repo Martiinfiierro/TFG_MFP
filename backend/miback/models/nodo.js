@@ -30,6 +30,9 @@ const Nodo = sequelize.define('Nodo', {
     longitud: {
         type: DataTypes.STRING,
         allowNull: true
+    },
+    visible: {
+        type: DataTypes.BOOLEAN,
     }
 },{
     tableName: 'nodos',

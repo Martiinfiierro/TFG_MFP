@@ -21,6 +21,7 @@ router.post('/nodo', [
     check('puerto', "El puerto está vacío").not().isEmpty(),
     check('latitud', "La latitud está vacía").not().isEmpty(),
     check('longitud', "La longitud está vacía").not().isEmpty(),
+    check('visible', "El campo visible está vacío").not().isEmpty(),
     validarCampos,
 ], crearNodo);
 

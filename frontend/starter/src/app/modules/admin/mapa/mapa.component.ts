@@ -88,27 +88,30 @@ export class MapaComponent{
         )
       );
       forkJoin(requests).subscribe((res2: any) => {
+        console.log(res2)
         res2.map((item: any) => {
-          let iconUrl = '';
-          if(!item.status){
-              iconUrl = 'assets/map/ordenador-gris.png';
+          if(item.nodo.visible){
+            let iconUrl = '';
+            if(!item.status){
+                iconUrl = 'assets/map/ordenador-gris.png';
+            }
+            else{
+              iconUrl = 'assets/map/ordenador.png';
+            }
+            const customIcon = L.icon({
+              iconUrl: iconUrl,
+              iconSize: [30, 30],
+              iconAnchor: [22, 41],
+              popupAnchor: [1, -34]
+            })
+            const marker = L.marker([item.nodo.latitud, item.nodo.longitud], { icon: customIcon }).addTo(this.map);
+            marker.bindTooltip(item.nodo.nombre, { 
+              permanent: true, 
+              direction: 'bottom',
+              offset: [-7, -12]  
+            });
+            marker.on('click', () => this.dialogo(item.nodo.tipo_nodo, item.nodo.id));
           }
-          else{
-            iconUrl = 'assets/map/ordenador.png';
-          }
-          const customIcon = L.icon({
-            iconUrl: iconUrl,
-            iconSize: [30, 30],
-            iconAnchor: [22, 41],
-            popupAnchor: [1, -34]
-          })
-          const marker = L.marker([item.nodo.latitud, item.nodo.longitud], { icon: customIcon }).addTo(this.map);
-          marker.bindTooltip(item.nodo.nombre, { 
-            permanent: true, 
-            direction: 'bottom',
-            offset: [-10, -12]  
-          });
-          marker.on('click', () => this.dialogo(item.nodo.tipo_nodo, item.nodo.id));
         })
       })
     });
@@ -183,66 +186,5 @@ export class Dialog{
         console.error('Error al obtener el nodo', error);
       }
     );
-  }
-
-}
-@Component({
-  selector: 'dialogDatos',
-  templateUrl: '../dialogs/anadirNodo.html',
-  standalone: true,
-  encapsulation: ViewEncapsulation.None,
-  imports: [
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
-    MatIconModule,
-    MatGridListModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatSelectModule,
-    CommonModule,
-    MatDialogModule,
-    FormsModule
-  ],
-})
-
-export class AnadirNodo{
-  @Output() dialogClosed = new EventEmitter<void>();
-
-  options = [
-    { value: 'Balanceador', viewValue: 'Balanceador' },
-    { value: 'Controlador', viewValue: 'Controlador' },
-    { value: 'Procesador', viewValue: 'Procesador' },
-  ];
-
-  tipoNodo: string;
-  puerto: string;
-  url: string;
-  nombre: string;
-  latitud: string;
-  longitud: string;
-
-  readonly dialogRef = inject(MatDialogRef<AnadirNodo>);
-
-  constructor(private http: GrafoService){}
-
-  async anadirNodo(){
-    const nodoData = {
-      tipo_nodo: this.tipoNodo,
-      nombre: this.nombre,
-      url: this.url,
-      puerto: this.puerto,
-      latitud: this.latitud,
-      longitud: this.longitud
-    }
-    await this.http.postNodo(nodoData);
-    this.cerrarDialog();
-  }
-
-  cerrarDialog(): void {
-    this.dialogClosed.emit();
-    this.dialogRef.close();
   }
 }

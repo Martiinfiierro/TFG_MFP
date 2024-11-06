@@ -2,7 +2,7 @@
     <div class="header-dialog">
         <h1 mat-dialog-title style="font-size: xx-large"><strong>Añadir Nodo</strong></h1>
         <span class="spacer"></span>
-        <button class="close" mat-mini-fab (click)="cerrarDialog()">
+        <button mat-mini-fab (click)="cerrarDialog()">
             <mat-icon>close</mat-icon>
         </button>
     </div>
@@ -65,12 +65,20 @@
                         </mat-form-field>
                     </div>                            
                 </ng-container>
-            </mat-grid-tile>
-            <mat-grid-tile>
+            </mat-grid-tile><mat-grid-tile>
                 <ng-container matGridContent>     
-                    <button (click)="anadirNodo()" class="anadir" mat-button>Añadir</button>
+                    <mat-form-field>
+                        <mat-label>Visiblidad</mat-label>
+                        <mat-select [(ngModel)]="visible">
+                            <mat-option [value]="true">Activada</mat-option>
+                            <mat-option [value]="false">Desactivada</mat-option>
+                        </mat-select>
+                    </mat-form-field>
                 </ng-container>
             </mat-grid-tile>
         </mat-grid-list>
+        <div id="botonAN">     
+            <button (click)="anadirNodo()" class="anadir" >Añadir</button>
+        </div>
     </mat-dialog-content>
 </div>

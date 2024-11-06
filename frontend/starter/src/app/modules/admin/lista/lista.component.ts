@@ -35,6 +35,7 @@ export interface NodeData {
   puerto: string;
   latitud: string;
   longitud: string;
+  visible: boolean;
 }
 
 @Component({
@@ -220,19 +221,22 @@ export class AnadirNodo{
   nombre: string;
   latitud: string;
   longitud: string;
+  visible: boolean = true;
 
   readonly dialogRef = inject(MatDialogRef<AnadirNodo>);
 
   constructor(private http: GrafoService){}
 
   async anadirNodo(){
+    
     const nodoData = {
       tipo_nodo: this.tipoNodo,
       nombre: this.nombre,
       url: this.url,
       puerto: this.puerto,
       latitud: this.latitud,
-      longitud: this.longitud
+      longitud: this.longitud,
+      visible: this.visible
     }
     await this.http.postNodo(nodoData);
     this.cerrarDialog();

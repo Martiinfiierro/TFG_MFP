@@ -93,7 +93,7 @@
 }
 
 .anadir{
-    background-color: rgb(10, 10, 66);
+    background-color: #394353;
     color: white;
     padding-left: 25px;
     padding-right: 25px;
@@ -101,4 +101,13 @@
     padding-bottom: 15px;
     border-radius: 1em;
     font-size: medium;
+    transition: transform 0.3s ease;
+}
+
+.anadir:hover{
+    transform: scale(1.2);
+}
+
+#botonAN{
+    text-align: center;
 }
