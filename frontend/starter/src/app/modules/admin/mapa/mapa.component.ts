@@ -13,6 +13,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { catchError, map } from 'rxjs/operators';
+import { timer } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -57,7 +60,7 @@ export interface NodeData {
 export class MapaComponent{
   //Dialogo
   readonly dialog = inject(MatDialog);
-
+  readTime = 3000;
 
   constructor(private http: GrafoService, private router: Router) { }
 
@@ -69,19 +72,47 @@ export class MapaComponent{
   }
 
   cargarNodos(){
-    this.http.getNodos().subscribe((data: any) => {
-      data.nodos.forEach((nodo: any) => {
-        const customIcon = L.icon({
-          iconUrl: 'assets/map/ordenador.png',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34]
-        });
-        const marker = L.marker([nodo.latitud, nodo.longitud], { icon: customIcon }).addTo(this.map);
-        //marker.bindPopup(`<b>${nodo.nombre}</b>`);
-        marker.bindTooltip(nodo.nombre, { permanent: true, direction: 'top', offset: [0, -20] });
-      });
+    this.http.getNodos().subscribe((res: any) => {
+      const requests = res.nodos.map((nodo: any) => 
+        this.http.readDebug(nodo.url).pipe(
+            map((val: any) => ({
+                nodo: nodo,
+                datos: val,
+                status: true
+            })),
+            catchError(() => of({
+                nodo: nodo,
+                datos: '',
+                status: false
+            }))
+        )
+      );
+      forkJoin(requests).subscribe((res2: any) => {
+        res2.map((item: any) => {
+          let iconUrl = '';
+          if(!item.status){
+              iconUrl = 'assets/map/ordenador-gris.png';
+          }
+          else{
+            iconUrl = 'assets/map/ordenador.png';
+          }
+          const customIcon = L.icon({
+            iconUrl: iconUrl,
+            iconSize: [30, 30],
+            iconAnchor: [22, 41],
+            popupAnchor: [1, -34]
+          })
+          const marker = L.marker([item.nodo.latitud, item.nodo.longitud], { icon: customIcon }).addTo(this.map);
+          marker.bindTooltip(item.nodo.nombre, { 
+            permanent: true, 
+            direction: 'bottom',
+            offset: [-10, -12]  
+          });
+          marker.on('click', () => this.dialogo(item.nodo.tipo_nodo, item.nodo.id));
+        })
+      })
     });
+    timer(this.readTime).subscribe(() => this.cargarNodos());
   }
 
   initMap(): void {

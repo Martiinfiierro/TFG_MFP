@@ -27,7 +27,7 @@ interface GrafoData {
 
 export class GrafoComponent{
     //Variables temporizador
-    readTime = 1000;
+    readTime = 3000;
     idTimer: any;
     activarConexiones: boolean = true;
     myChart: any = null;
@@ -195,9 +195,9 @@ export class GrafoComponent{
                         }
                     ]
                 });
-                timer(this.readTime).subscribe(() => this.updateGrafo());
             });
         });
+        timer(this.readTime).subscribe(() => this.updateGrafo());
     }
     
     initChart(): void {
