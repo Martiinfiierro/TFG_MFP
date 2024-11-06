@@ -65,10 +65,10 @@ export class MapaComponent{
 
   ngOnInit(): void {
     this.initMap();
-    this.loadNodos();
+    this.cargarNodos();
   }
 
-  loadNodos(){
+  cargarNodos(){
     this.http.getNodos().subscribe((data: any) => {
       data.nodos.forEach((nodo: any) => {
         const customIcon = L.icon({
@@ -78,7 +78,7 @@ export class MapaComponent{
           popupAnchor: [1, -34]
         });
         const marker = L.marker([nodo.latitud, nodo.longitud], { icon: customIcon }).addTo(this.map);
-        marker.bindPopup(`<b>${nodo.nombre}</b>`);
+        //marker.bindPopup(`<b>${nodo.nombre}</b>`);
         marker.bindTooltip(nodo.nombre, { permanent: true, direction: 'top', offset: [0, -20] });
       });
     });
