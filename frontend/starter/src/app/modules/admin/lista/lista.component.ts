@@ -83,7 +83,6 @@ export class ListaComponent{
   }
 
   actualizarDataSource(nodos: NodeData[]) {
-    console.log(nodos)
     this.listaNodos = nodos;
     this.dataSource.data = this.listaNodos;
   }
@@ -109,6 +108,18 @@ export class ListaComponent{
 
     anadirNodo(): void {
       const dialogRef = this.dialog.open(AnadirNodo, {
+      });
+
+      dialogRef.componentInstance.dialogClosed.subscribe(() => {
+        this.getNodos();
+      });
+    }
+
+    actualizarNodo(nodo: any): void {
+      const dialogRef = this.dialog.open(ActualizarNodo, {
+        data: {
+          nodo: nodo
+        }
       });
 
       dialogRef.componentInstance.dialogClosed.subscribe(() => {
@@ -282,6 +293,90 @@ export class AnadirNodo{
     }
     await this.http.postNodo(nodoData);
     this.cerrarDialog();
+  }
+
+  cerrarDialog(): void {
+    this.dialogClosed.emit();
+    this.dialogRef.close();
+  }
+}
+
+
+@Component({
+  selector: 'dialogDatos',
+  templateUrl: '../dialogs/actualizarNodo.html',
+  standalone: true,
+  encapsulation: ViewEncapsulation.None,
+  imports: [
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
+    MatIconModule,
+    MatGridListModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSelectModule,
+    CommonModule,
+    MatDialogModule,
+    FormsModule
+  ],
+})
+
+export class ActualizarNodo{
+  @Output() dialogClosed = new EventEmitter<void>();
+  nodo: NodeData;
+
+  id: number;
+  tipoNodo: string;
+  puerto: string;
+  url: string;
+  nombre: string;
+  latitud: string;
+  longitud: string;
+  visible: boolean;
+
+  readonly dialogRef = inject(MatDialogRef<AnadirNodo>);
+
+  constructor(private http: GrafoService, @Inject(MAT_DIALOG_DATA) private data: any){}
+
+  ngOnInit(): void {
+    this.http.getNodo(this.data.nodo.id).subscribe(
+      (data) => {
+        this.nodo = data.nodo
+        this.tipoNodo = data.nodo.tipo_nodo;
+        this.nombre = data.nodo.nombre;
+        this.url = data.nodo.url;
+        this.puerto = data.nodo.puerto;
+        this.latitud = data.nodo.latitud;
+        this.longitud = data.nodo.longitud;
+        this.visible = data.nodo.visible;
+      },
+      (error) => {
+        console.error('Error al obtener el nodo', error);
+      }
+    );
+  }
+
+  async actualizarNodo(){
+    const nodoAct = {
+      id: this.data.nodo.id,
+      tipo_nodo: this.tipoNodo,
+      nombre: this.nombre,
+      url: this.url,
+      puerto: this.puerto,
+      latitud: this.latitud,
+      longitud: this.longitud,
+      visible: this.visible
+    }
+    try {
+      console.log(nodoAct)
+      await this.http.putNodo(nodoAct);
+      this.cerrarDialog();
+    } catch (error) {
+      console.error('Error al actualizar la visibilidad del nodo', error);
+    }
   }
 
   cerrarDialog(): void {

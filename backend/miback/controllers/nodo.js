@@ -187,6 +187,11 @@ const crearNodo = async (req, res) => {
                 msg: 'Nodo creado correctamente',
                 nodo: newNodo
             });
+        } else{
+            return res.status(409).json({
+                ok: false,
+                msg: `Ya existe un nodo con nombre ${req.body.nombre} y tipo de nodo ${req.body.tipo_nodo}`
+            });
         }
     } catch (error) {
         return res.status(500).json({
@@ -204,20 +209,34 @@ const actualizarNodo = async (req, res) => {
         let nodo = await Nodo.findByPk(id);
 
         if (nodo) {
-            await nodo.update({
-                tipo_nodo: tipo_nodo,
-                nombre: nombre,
-                url: url,
-                puerto: puerto,
-                latitud: latitud,
-                longitud: longitud,
-                visible: visible
-            });
-            return res.status(200).json({
-                ok: true,
-                msg: 'Nodo actulizado correctamente',
-                nodo: nodo
-            });
+            let comprobacionTNyN = await Nodo.findOne({
+                where: {
+                    id: { [Op.ne]: id },
+                    tipo_nodo: tipo_nodo,
+                    nombre: nombre,
+                }
+            })
+            if(!comprobacionTNyN){
+                await nodo.update({
+                    tipo_nodo: tipo_nodo,
+                    nombre: nombre,
+                    url: url,
+                    puerto: puerto,
+                    latitud: latitud,
+                    longitud: longitud,
+                    visible: visible
+                });
+                return res.status(200).json({
+                    ok: true,
+                    msg: 'Nodo actulizado correctamente',
+                    nodo: nodo
+                });
+            } else{
+                return res.status(409).json({
+                    ok: false,
+                    msg: `Ya existe un nodo con nombre ${nombre} y tipo de nodo ${tipo_nodo}`
+                });
+            }
         } else {
             return res.status(404).json({
                 ok: false,

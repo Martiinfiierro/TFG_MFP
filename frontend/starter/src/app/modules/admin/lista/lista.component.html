@@ -70,7 +70,7 @@
                       <button *ngIf="element.visible" [style.background-color]="'grey'" mat-mini-fab (click)="noVisible(element)" aria-label="Boton para visualizar">
                           <mat-icon>visibility</mat-icon>
                       </button>
-                      <button [style.background-color]="'orange'" mat-mini-fab aria-label="Boton para editar">
+                      <button [style.background-color]="'orange'" (click)="actualizarNodo(element)" mat-mini-fab aria-label="Boton para editar">
                           <mat-icon>edit</mat-icon>
                       </button>
                     </td>
