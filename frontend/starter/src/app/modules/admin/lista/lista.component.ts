@@ -65,7 +65,6 @@ export class ListaComponent{
   //Dialogo
   readonly dialog = inject(MatDialog);
 
-
   constructor(private http: GrafoService, private router: Router) { }
 
   ngOnInit(): void {
@@ -84,6 +83,7 @@ export class ListaComponent{
   }
 
   actualizarDataSource(nodos: NodeData[]) {
+    console.log(nodos)
     this.listaNodos = nodos;
     this.dataSource.data = this.listaNodos;
   }
@@ -138,6 +138,48 @@ export class ListaComponent{
           console.error('Error al descargar el JSON:', error);
         }
       );
+    }
+
+    async visible(nodo: any) {
+      const nodoAct: NodeData = {
+        id: nodo.id,
+        tipo_nodo: nodo.tipo_nodo,
+        nombre: nodo.nombre,
+        url: nodo.url,
+        puerto: nodo.puerto,
+        latitud: nodo.latitud,
+        longitud: nodo.longitud,
+        visible: true
+      };
+
+      try {
+        console.log(nodoAct);
+        await this.http.putNodo(nodoAct);
+        this.getNodos();
+      } catch (error) {
+        console.error('Error al actualizar la visibilidad del nodo', error);
+      }
+    }
+    
+    async noVisible(nodo: any){
+      const nodoAct: NodeData = {
+        id: nodo.id,
+        tipo_nodo: nodo.tipo_nodo,
+        nombre: nodo.nombre,
+        url: nodo.url,
+        puerto: nodo.puerto,
+        latitud: nodo.latitud,
+        longitud: nodo.longitud,
+        visible: false
+      }
+
+      try {
+        console.log(nodoAct);
+        await this.http.putNodo(nodoAct);
+        this.getNodos();
+      } catch (error) {
+        console.error('Error al actualizar la visibilidad del nodo', error);
+      }
     }
 }
 

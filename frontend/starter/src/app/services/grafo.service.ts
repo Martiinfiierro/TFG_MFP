@@ -35,4 +35,14 @@ export class GrafoService {
       throw error;
     }
   }
+
+  async putNodo(datosNodo: any): Promise<any> {
+    try {
+      const response = await lastValueFrom(this.http.put(this.urlAPI + '/nodo/' + datosNodo.id, datosNodo));
+      return response;
+    } catch (error) {
+      console.error('Error al actualizar los datos del nodo', error);
+      throw error;
+    }
+  }
 }

@@ -197,4 +197,42 @@ const crearNodo = async (req, res) => {
     }
 }
 
-module.exports = { obtenerNodos, obtenerNodoID, crearNodo };
+const actualizarNodo = async (req, res) => {
+    try {
+        let id = req.params.id
+        let { tipo_nodo, nombre, url, puerto, latitud, longitud, visible } = req.body;
+        let nodo = await Nodo.findByPk(id);
+
+        if (nodo) {
+            await nodo.update({
+                tipo_nodo: tipo_nodo,
+                nombre: nombre,
+                url: url,
+                puerto: puerto,
+                latitud: latitud,
+                longitud: longitud,
+                visible: visible
+            });
+            return res.status(200).json({
+                ok: true,
+                msg: 'Nodo actulizado correctamente',
+                nodo: nodo
+            });
+        } else {
+            return res.status(404).json({
+                ok: false,
+                msg: 'Nodo no encontrado'
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error actualizando el nodo',
+            error: error.message
+        });
+    }
+}
+
+
+
+module.exports = { obtenerNodos, obtenerNodoID, crearNodo, actualizarNodo };
