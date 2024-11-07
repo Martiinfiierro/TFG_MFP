@@ -26,6 +26,11 @@ export class GrafoService {
     return this.http.get(this.urlAPI + '/nodo/' + id);
   }
 
+  buscarNodos(datos: any): Observable<any>{
+    console.log(datos)
+    return this.http.get(this.urlAPI + '/nodos/' + datos);
+  }
+
   async postNodo(datosNodo: any): Promise<any>{
     try {
       const response = await lastValueFrom(this.http.post(this.urlAPI + '/nodo', datosNodo));

@@ -1,8 +1,9 @@
-import { Component, ViewEncapsulation, inject, EventEmitter, Output, Inject, ViewChild } from '@angular/core';
+import { Component, ViewEncapsulation, inject, EventEmitter, Output, Inject, ViewChild} from '@angular/core';
 import { GrafoService } from 'app/services/grafo.service';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { FormControl } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -11,6 +12,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
+import { ReactiveFormsModule } from '@angular/forms'
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
@@ -51,7 +53,8 @@ export interface NodeData {
       MatPaginatorModule, 
       MatButtonToggleModule,
       MatButtonModule,
-      CommonModule
+      CommonModule,
+      ReactiveFormsModule
     ]
 })
 export class ListaComponent{
@@ -65,10 +68,16 @@ export class ListaComponent{
   //Dialogo
   readonly dialog = inject(MatDialog);
 
-  constructor(private http: GrafoService, private router: Router) { }
+  constructor(private http: GrafoService, private router: Router) {}
 
   ngOnInit(): void {
     this.getNodos();
+  }
+
+  buscarNodos(datos: any){
+    this.http.buscarNodos(datos).subscribe((res: any) =>{
+      this.actualizarDataSource(res.nodos)
+    });
   }
 
   ngAfterViewInit() {

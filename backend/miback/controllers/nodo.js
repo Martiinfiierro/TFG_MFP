@@ -47,129 +47,40 @@ const obtenerNodoID = async(req, res) => {
     }
 };
 
-/*const buscarProducto = async(req, res) => {
+const buscarNodos = async(req, res) => {
     const datos = req.params.datos;
 
-    //Paginación 
-    const desde = Number(req.query.desde) || 0; //Si no dan nada o no dan un numero es 0
-    const registropp = 100000;
-
-    console.log(datos);
-
     try{
-        let productos, total;
+        let nodos = await Nodo.findAll({
+            where: {
+                [Op.or]: [
+                    { tipo_nodo: { [Op.like]: `%${datos}%` } },
+                    { nombre: { [Op.like]: `%${datos}%` } },
+                    { puerto: { [Op.like]: `%${datos}%` } },
+                ],
+            },
+        });
 
-        //Comprobacion si se ordena por cantidad(ASC/DESC) o precio(ASC/DESC)
-        switch (datos) {
-            case 'cantidadDESC':
-                    [productos, total] = await Promise.all([
-                    Producto.findAll({
-                        order: [['puerto', 'DESC']],
-                        offset: desde,
-                        limit: registropp,
-                        include: [
-                            Ubicacion,
-                            Promocion,
-                        ]
-                    }),
-                    //Total de usuarios que hay en la base de datos
-                    Producto.count()
-                    ]);
-
-                break;
-            case 'cantidadASC':
-                    [productos, total] = await Promise.all([
-                    Producto.findAll({
-                        order: [['puerto', 'ASC']],
-                        offset: desde,
-                        limit: registropp,
-                        include: [
-                            Ubicacion,
-                            Promocion,
-                        ]
-                    }),
-                    //Total de usuarios que hay en la base de datos
-                    Producto.count()
-                    ]);
-
-                break;
-            case 'precioASC':
-                    [productos, total] = await Promise.all([
-                    Producto.findAll({
-                        order: [['precio', 'ASC']],
-                        offset: desde,
-                        limit: registropp,
-                        include: [
-                            Ubicacion,
-                            Promocion,
-                        ]
-                    }),
-                    //Total de usuarios que hay en la base de datos
-                    Producto.count()
-                    ]);
-
-                break;
-            case 'precioDESC':
-                    [productos, total] = await Promise.all([
-                    Producto.findAll({
-                        order: [['precio', 'DESC']],
-                        offset: desde,
-                        limit: registropp,
-                        include: [
-                            Ubicacion,
-                            Promocion,
-                        ]
-                    }),
-                    //Total de usuarios que hay en la base de datos
-                    Producto.count()
-                    ]);
-
-                break;
-                   
-            default:
-                    [productos, total] = await Promise.all([
-                        Producto.findAll({
-                            where: {
-                                [Op.or]: [
-                                    { tipo_nodo: { [Op.like]: `%${datos}%` } },
-                                    { nombre: { [Op.like]: `%${datos}%` } },
-                                    { url: { [Op.like]: `%${datos}%` } },
-                                ],
-                            },
-                            offset: desde,
-                            limit: registropp,
-                            include: [
-                                Ubicacion,
-                                Promocion,
-                            ]
-                        }),
-                        //Total de usuarios que hay en la base de datos
-                        Producto.count()
-                    ]);
-                break;
-            
+        if (nodos.length === 0) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'No se encontraron nodos con esos parámetros de búsqueda.',
+            });
         }
 
-        
         res.json({
             ok: true,
-            msg: 'buscarProductos',
-            productos: productos,
-            page: {
-                desde,
-                registropp,
-                total
-            }
+            msg: 'buscarNodos',
+            nodos: nodos
         });
     }catch (error) {
         return res.status(400).json({
             ok: false,
-            msg: 'Error buscando productos',
-            error: error
+            msg: 'Error buscando nodos',
+            error: error.message
         });
     }
-}*/
-
+}
 
 const crearNodo = async (req, res) => {
     try {
@@ -254,4 +165,4 @@ const actualizarNodo = async (req, res) => {
 
 
 
-module.exports = { obtenerNodos, obtenerNodoID, crearNodo, actualizarNodo };
+module.exports = { obtenerNodos, obtenerNodoID, buscarNodos, crearNodo, actualizarNodo };
