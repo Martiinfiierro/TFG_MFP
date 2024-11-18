@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, inject, EventEmitter, Output, Inject, ViewChild } from '@angular/core';
+import { Component, ViewEncapsulation, inject, Inject} from '@angular/core';
 import { GrafoService } from 'app/services/grafo.service';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
@@ -6,12 +6,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatPaginator } from '@angular/material/paginator';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDialogModule } from '@angular/material/dialog';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { catchError, map } from 'rxjs/operators';
 import { timer } from 'rxjs';
@@ -26,7 +21,6 @@ import {
   MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import * as L from 'leaflet';
 
@@ -88,7 +82,6 @@ export class MapaComponent{
         )
       );
       forkJoin(requests).subscribe((res2: any) => {
-        console.log(res2)
         res2.map((item: any) => {
           if(item.nodo.visible){
             let iconUrl = '';
