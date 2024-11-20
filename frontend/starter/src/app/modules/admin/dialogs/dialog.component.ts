@@ -4,8 +4,6 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import {
   MAT_DIALOG_DATA,
-  MatDialogActions,
-  MatDialogClose,
   MatDialogContent,
   MatDialogRef,
   MatDialogTitle,
@@ -14,16 +12,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatButtonModule } from '@angular/material/button';
 import { ConfigService } from 'app/services/config.service';
 import { Config } from 'app/services/config.service';
-import { config } from 'rxjs';
-
-interface NodeData{
-  id: any,
-  tipo_nodo: any,
-  nombre: any,
-  puerto: any,
-  url: any,
-  geolocalizacion: any
-}
+import { NodeData } from '../lista/lista.component';
 
 @Component({
     selector: 'dialogDatos',
@@ -50,7 +39,28 @@ interface NodeData{
     }
   
     cerrarDialog(): void {
+      this.actualizarTiempo();
       this.dialogRef.close();
+    }
+
+    async actualizarTiempo(){
+      const nodoAct = {
+        id: this.nodo.id,
+        tipo_nodo: this.nodo.tipo_nodo,
+        nombre: this.nodo.nombre,
+        url: this.nodo.url,
+        puerto: this.nodo.puerto,
+        latitud: this.nodo.latitud,
+        longitud: this.nodo.longitud,
+        visible: this.nodo.visible,
+        tiempo: new Date(),
+      }
+      try {
+        console.log(nodoAct)
+        await this.http.putNodo(nodoAct);
+      } catch (error) {
+        console.error('Error al actualizar la visibilidad del nodo', error);
+      }
     }
 
     initConfig(){

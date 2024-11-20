@@ -18,18 +18,6 @@ import * as L from 'leaflet';
 import 'leaflet-polylinedecorator';
 import { ConfigService } from 'app/services/config.service';
 import { Config } from 'app/services/config.service';
-
-// Define la interfaz para los elementos de la tabla
-export interface NodeData {
-  id: number,
-  tipo_nodo: string;
-  nombre: string;
-  url: string;
-  puerto: string;
-  latitud: string;
-  longitud: string;
-}
-
 @Component({
     selector     : 'mapa',
     standalone   : true,
@@ -52,19 +40,27 @@ export class MapaComponent{
   configuracion: Config;
   datosDelNodo: any;
   activarConexiones: boolean = true;
+  timerSubscription: any;
 
   constructor(private http: GrafoService, private config: ConfigService, private router: Router) { }
 
   map!: L.Map;
 
-  ngOnInit(): void {
+  ngOnInit(): void{
     this.initConfig();
-    this.initMap();
   }
+
+  ngOnDestroy(): void {
+    if (this.timerSubscription) {
+        this.timerSubscription.unsubscribe();
+        this.timerSubscription = null;
+    }
+}
 
   initConfig(){
     this.config.getConfig().subscribe((res: any) => {
         this.configuracion = res;
+        this.initMap();
     });
   }
 
@@ -91,7 +87,6 @@ export class MapaComponent{
           this.updateMapa(res);
         }
         else{
-          console.log("recargas de cambios")
           for(let x = 0; x < res.length; x++){
               const obj1 = JSON.stringify(res[x].nodo);
               const obj2 = JSON.stringify(this.datosDelNodo[x].nodo);
@@ -109,7 +104,7 @@ export class MapaComponent{
         }
       });
     });
-    timer(this.configuracion.timer.valor).subscribe(() => this.comprobar());
+    this.timerSubscription = timer(this.configuracion.espera.valor).subscribe(() => this.comprobar());
   }
 
   updateMapa(res: any){

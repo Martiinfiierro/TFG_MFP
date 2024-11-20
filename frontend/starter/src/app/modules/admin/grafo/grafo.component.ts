@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { timer, config } from 'rxjs';
+import { timer} from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import * as echarts from 'echarts';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -28,6 +28,7 @@ export class GrafoComponent{
     activarConexiones: boolean = true;
     myChart: any = null;
     datosDelNodo: any;
+    timerSubscription: any;
 
     constructor(private router: Router, private http: GrafoService, private config: ConfigService, private dialog: MatDialog) {}
 
@@ -57,6 +58,13 @@ export class GrafoComponent{
     ngOnInit(){
         this.initConfig();
         this.initChart();
+    }
+
+    ngOnDestroy(): void {
+        if (this.timerSubscription) {
+            this.timerSubscription.unsubscribe();
+            this.timerSubscription = null;
+        }
     }
 
     conexiones(event: any){
@@ -128,7 +136,8 @@ export class GrafoComponent{
             }
         });
     });
-    timer(this.configuracion.timer.valor).subscribe(() => this.comprobar());
+    
+        this.timerSubscription = timer(this.configuracion.espera.valor).subscribe(() => this.comprobar());
     }
 
     updateGrafo(res: any) {

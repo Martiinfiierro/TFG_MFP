@@ -18,7 +18,6 @@ import { Router } from '@angular/router';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
-  MatDialogActions,
   MatDialogClose,
   MatDialogContent,
   MatDialogRef,
@@ -38,6 +37,7 @@ export interface NodeData {
   latitud: string;
   longitud: string;
   visible: boolean;
+  tiempo: Date;
 }
 
 @Component({
@@ -170,7 +170,8 @@ export class ListaComponent{
         puerto: nodo.puerto,
         latitud: nodo.latitud,
         longitud: nodo.longitud,
-        visible: true
+        visible: true,
+        tiempo: nodo.tiempo
       };
 
       try {
@@ -191,7 +192,8 @@ export class ListaComponent{
         puerto: nodo.puerto,
         latitud: nodo.latitud,
         longitud: nodo.longitud,
-        visible: false
+        visible: false,
+        tiempo: nodo.tiempo
       }
 
       try {
@@ -212,8 +214,6 @@ export class ListaComponent{
   imports: [
     MatDialogTitle,
     MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
     MatIconModule,
     MatGridListModule,
     MatButtonModule,
@@ -237,7 +237,6 @@ export class Dialog{
     this.tipo = this.data.tipo;
     this.http.getNodo(this.data.id).subscribe(
       (data) => {
-        console.log(this.data)
         this.nodo = data.nodo;
       },
       (error) => {
@@ -255,8 +254,6 @@ export class Dialog{
   imports: [
     MatDialogTitle,
     MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
     MatIconModule,
     MatGridListModule,
     MatFormFieldModule,
@@ -299,7 +296,8 @@ export class AnadirNodo{
       puerto: this.puerto,
       latitud: this.latitud,
       longitud: this.longitud,
-      visible: this.visible
+      visible: this.visible,
+      tiempo: null
     }
     await this.http.postNodo(nodoData);
     this.cerrarDialog();
@@ -320,8 +318,6 @@ export class AnadirNodo{
   imports: [
     MatDialogTitle,
     MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
     MatIconModule,
     MatGridListModule,
     MatFormFieldModule,
@@ -346,6 +342,7 @@ export class ActualizarNodo{
   latitud: string;
   longitud: string;
   visible: boolean;
+  tiempo: Date;
 
   readonly dialogRef = inject(MatDialogRef<AnadirNodo>);
 
@@ -362,6 +359,7 @@ export class ActualizarNodo{
         this.latitud = data.nodo.latitud;
         this.longitud = data.nodo.longitud;
         this.visible = data.nodo.visible;
+        this.tiempo = data.nodo.visible;
       },
       (error) => {
         console.error('Error al obtener el nodo', error);
@@ -378,7 +376,8 @@ export class ActualizarNodo{
       puerto: this.puerto,
       latitud: this.latitud,
       longitud: this.longitud,
-      visible: this.visible
+      visible: this.visible,
+      tiempo: this.tiempo
     }
     try {
       console.log(nodoAct)

@@ -28,7 +28,7 @@ export interface Config {
     png: string;
     size: number;
   };
-  timer: {
+  espera: {
     valor: number;
   }
 }

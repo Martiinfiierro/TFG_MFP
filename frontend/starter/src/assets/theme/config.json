@@ -24,7 +24,7 @@
         "png": "",
         "size": 35
     },
-    "timer": {
-        "valor": 3000
+    "espera": {
+        "valor": 5000
     }
 }

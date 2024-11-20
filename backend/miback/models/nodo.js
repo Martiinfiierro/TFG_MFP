@@ -33,6 +33,10 @@ const Nodo = sequelize.define('Nodo', {
     },
     visible: {
         type: DataTypes.BOOLEAN,
+    },
+    tiempo: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
 },{
     tableName: 'nodos',
