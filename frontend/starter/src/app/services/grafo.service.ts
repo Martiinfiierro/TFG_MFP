@@ -43,6 +43,7 @@ export class GrafoService {
 
   async putNodo(datosNodo: any): Promise<any> {
     try {
+      console.log(datosNodo)
       const response = await lastValueFrom(this.http.put(this.urlAPI + '/nodo/' + datosNodo.id, datosNodo));
       return response;
     } catch (error) {

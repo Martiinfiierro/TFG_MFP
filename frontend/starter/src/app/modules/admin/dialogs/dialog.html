@@ -28,7 +28,8 @@
                         <ng-container matGridContent>
                             <div class="box">
                                 <h2><strong>Última consulta</strong></h2>
-                                <p>09/02/2023 11:21</p>
+                                <p *ngIf="nodo.tiempo === null">Primera vez que se consulta</p>
+                                <p *ngIf="nodo.tiempo !== null">{{nodo.tiempo}}</p>
                             </div>
                         </ng-container>
                     </mat-grid-tile>
@@ -46,7 +47,8 @@
                 <ng-container matGridContent class="box">
                     <div class="box">
                         <h2><strong>Estado Interno</strong></h2>
-                        <p>Texto</p>
+                        <p *ngIf="estado_interno" id="json-text">{{estado_interno}}</p>
+                        <p *ngIf="!estado_interno">Nodo Fuera de funcionamiento</p>
                     </div>
                 </ng-container>
             </div>

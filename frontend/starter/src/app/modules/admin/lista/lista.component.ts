@@ -1,6 +1,7 @@
 import { Component, ViewEncapsulation, inject, EventEmitter, Output, Inject, ViewChild} from '@angular/core';
 import { GrafoService } from 'app/services/grafo.service';
 import { CommonModule } from '@angular/common';
+import { Dialog } from '../dialogs/dialog.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -107,11 +108,12 @@ export class ListaComponent{
       this.router.navigate(['/mapa']);
   }
 
-    dialogo(tipo: any, id: any): void {
+    dialogo(tipo: any, id: any, url: any): void {
       const dialogRef = this.dialog.open(Dialog, {
         data: {
           id: id,
-          tipo: tipo
+          tipo: tipo,
+          url: url,
         }
       });
     }
@@ -175,7 +177,6 @@ export class ListaComponent{
       };
 
       try {
-        console.log(nodoAct);
         await this.http.putNodo(nodoAct);
         this.getNodos();
       } catch (error) {
@@ -204,47 +205,6 @@ export class ListaComponent{
         console.error('Error al actualizar la visibilidad del nodo', error);
       }
     }
-}
-
-@Component({
-  selector: 'dialogDatos',
-  templateUrl: '../dialogs/dialog.html',
-  standalone: true,
-  encapsulation: ViewEncapsulation.None,
-  imports: [
-    MatDialogTitle,
-    MatDialogContent,
-    MatIconModule,
-    MatGridListModule,
-    MatButtonModule,
-    CommonModule
-  ],
-})
-
-export class Dialog{
-  readonly dialogRef = inject(MatDialogRef<Dialog>);
-  nodo: NodeData;
-  tipo: any;
-
-  constructor(private http: GrafoService, @Inject(MAT_DIALOG_DATA) private data: any) {
-  }
-
-  cerrarDialog(): void {
-    this.dialogRef.close();
-  }
-
-  ngOnInit(): void {
-    this.tipo = this.data.tipo;
-    this.http.getNodo(this.data.id).subscribe(
-      (data) => {
-        this.nodo = data.nodo;
-      },
-      (error) => {
-        console.error('Error al obtener el nodo', error);
-      }
-    );
-  }
-
 }
 @Component({
   selector: 'dialogDatos',

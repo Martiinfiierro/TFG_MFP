@@ -59,7 +59,7 @@
                 <ng-container matColumnDef="actions">
                     <th mat-header-cell *matHeaderCellDef> Actions </th>
                     <td mat-cell *matCellDef="let element">
-                      <button matTooltip="Ver información" [style.background-color]="'#1E90FF'" [style.margin]="'2px'" mat-mini-fab (click)="dialogo(element.tipo_nodo, element.id)" aria-label="Boton para visualizar">
+                      <button matTooltip="Ver información" [style.background-color]="'#1E90FF'" [style.margin]="'2px'" mat-mini-fab (click)="dialogo(element.tipo_nodo, element.id, element.url)" aria-label="Boton para visualizar">
                           <mat-icon>open_in_new</mat-icon>
                       </button>
                       <button matTooltip="Visualizar" *ngIf="!element.visible" [style.background-color]="'grey'" [style.margin]="'2px'" mat-mini-fab (click)="visible(element)" aria-label="Boton para visualizar">

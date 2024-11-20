@@ -137,7 +137,7 @@ export class MapaComponent{
           direction: 'bottom',
           offset: [-7, -12]  
         });
-        marker.on('click', () => this.dialogo(item.nodo.tipo_nodo, item.nodo.id));
+        marker.on('click', () => this.dialogo(item.nodo.tipo_nodo, item.nodo.id, item.nodo.url));
       }
     });
     this.datosDelNodo = res;
@@ -163,11 +163,12 @@ export class MapaComponent{
       this.router.navigate(['/lista']);
   }
 
-    dialogo(tipo: any, id: any): void {
+    dialogo(tipo: any, id: any, url: any): void {
       const dialogRef = this.dialog.open(Dialog, {
         data: {
           id: id,
-          tipo: tipo
+          tipo: tipo,
+          url: url
         }
       });
     }

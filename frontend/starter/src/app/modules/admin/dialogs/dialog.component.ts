@@ -2,6 +2,8 @@ import { Component, ViewEncapsulation, inject, EventEmitter, Output, Inject, Vie
 import { GrafoService } from 'app/services/grafo.service';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { catchError, map } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
 import {
   MAT_DIALOG_DATA,
   MatDialogContent,
@@ -34,13 +36,17 @@ import { NodeData } from '../lista/lista.component';
     nodo: NodeData;
     tipo: any;
     configuracion: Config;
+    estado_interno: any;
   
     constructor(private http: GrafoService, private config: ConfigService, @Inject(MAT_DIALOG_DATA) private data: any) {
     }
   
     cerrarDialog(): void {
-      this.actualizarTiempo();
       this.dialogRef.close();
+    }
+
+    ngOnDestroy(): void {
+      this.actualizarTiempo();
     }
 
     async actualizarTiempo(){
@@ -56,7 +62,6 @@ import { NodeData } from '../lista/lista.component';
         tiempo: new Date(),
       }
       try {
-        console.log(nodoAct)
         await this.http.putNodo(nodoAct);
       } catch (error) {
         console.error('Error al actualizar la visibilidad del nodo', error);
@@ -68,8 +73,16 @@ import { NodeData } from '../lista/lista.component';
         this.configuracion = res;
       });
     }
+
+    getEstadoInterno(){
+      this.http.readDebug(this.data.url).subscribe((res: any) => {
+        console.log(res)
+          this.estado_interno = JSON.stringify(res, null, 2);
+      })
+    }
   
     ngOnInit(): void {
+      this.getEstadoInterno();
       this.initConfig();
       this.tipo = this.data.tipo;
       this.http.getNodo(this.data.id).subscribe(

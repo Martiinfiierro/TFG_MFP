@@ -40,11 +40,12 @@ export class GrafoComponent{
         this.router.navigate(['/mapa']); // Navega a la ruta 'grafo'
     }
 
-    dialogo(tipo: any, id: any): void {
+    dialogo(tipo: any, id: any, url): void {
         const dialogRef = this.dialog.open(Dialog, {
           data: {
             id: id,
-            tipo: tipo
+            tipo: tipo,
+            url: url
           }
         });
     }
@@ -162,6 +163,7 @@ export class GrafoComponent{
                 itemStyle: { color }, 
                 tipo_nodo, 
                 id: nodo.id,
+                url: nodo.url,
                 value: [nodo.longitud, nodo.latitud],
                 visible: nodo.visible
             };
@@ -306,6 +308,7 @@ export class GrafoComponent{
                         symbol, 
                         itemStyle: { color }, 
                         tipo_nodo,
+                        url: nodo.url,
                         value: [nodo.longitud, nodo.latitud],
                         visible: nodo.visible
                     };
@@ -440,8 +443,9 @@ export class GrafoComponent{
                     if (params.dataType === 'node') {
                         const nodoId = (params.data as any).id;
                         const tipoNodo = (params.data as any).tipo_nodo;
+                        const url = (params.data as any).url;
     
-                        this.dialogo(tipoNodo, nodoId);
+                        this.dialogo(tipoNodo, nodoId, url);
                     }
                 });
                 this.datosDelNodo = res;

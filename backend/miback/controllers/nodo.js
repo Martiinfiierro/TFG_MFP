@@ -116,7 +116,7 @@ const crearNodo = async (req, res) => {
 const actualizarNodo = async (req, res) => {
     try {
         let id = req.params.id
-        let { tipo_nodo, nombre, url, puerto, latitud, longitud, visible } = req.body;
+        let { tipo_nodo, nombre, url, puerto, latitud, longitud, visible, tiempo } = req.body;
         let nodo = await Nodo.findByPk(id);
 
         if (nodo) {
@@ -135,7 +135,8 @@ const actualizarNodo = async (req, res) => {
                     puerto: puerto,
                     latitud: latitud,
                     longitud: longitud,
-                    visible: visible
+                    visible: visible,
+                    tiempo: tiempo
                 });
                 return res.status(200).json({
                     ok: true,
