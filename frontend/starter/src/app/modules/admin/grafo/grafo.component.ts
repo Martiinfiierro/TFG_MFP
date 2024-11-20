@@ -59,164 +59,193 @@ export class GrafoComponent{
     conexiones(event: any){
         this.activarConexiones = !event.checked;
         if(!this.activarConexiones){
+            console.log('desactivar conexiones')
             this.myChart.setOption({
                 series: [{
                     links: [],
                 }]
             })
         }
+        else{
+            console.log('activar conexiones')
+            this.http.getNodos().subscribe((res: any) =>{
+                const requests = res.nodos.map((nodo: any) => 
+                    this.http.readDebug(nodo.url).pipe(
+                        map((val: any) => ({
+                            nodo: nodo,
+                            datos: val,
+                            status: true
+                        })),
+                        catchError(() => of({
+                            nodo: nodo,
+                            datos: '',
+                            status: false
+                        }))
+                    )
+                );
+                forkJoin(requests).subscribe((res: any) => {
+                    this.updateGrafo(res);
+                });
+            });
+        }
     }
 
-    updateGrafo() {
+    comprobar(){
         this.http.getNodos().subscribe((res: any) =>{
-            const requests = res.nodos.map((nodo: any) => 
-                this.http.readDebug(nodo.url).pipe(
-                    map((val: any) => ({
-                        nodo: nodo,
-                        datos: val,
-                        status: true
-                    })),
-                    catchError(() => of({
-                        nodo: nodo,
-                        datos: '',
-                        status: false
-                    }))
-                )
-            );
-            forkJoin(requests).subscribe((res: any) => {
-                let cont = 0;
-                
-                console.log(this.datosDelNodo, res)
-                for(let x = 0; x < res.length; x++){
-                    const obj1 = JSON.stringify(res[x].nodo);
-                    const obj2 = JSON.stringify(this.datosDelNodo[x].nodo);
+        const requests = res.nodos.map((nodo: any) => 
+            this.http.readDebug(nodo.url).pipe(
+                map((val: any) => ({
+                    nodo: nodo,
+                    datos: val,
+                    status: true
+                })),
+                catchError(() => of({
+                    nodo: nodo,
+                    datos: '',
+                    status: false
+                }))
+            )
+        );
+        forkJoin(requests).subscribe((res: any) => {
+            let cont = 0;
+            
+            for(let x = 0; x < res.length; x++){
+                const obj1 = JSON.stringify(res[x].nodo);
+                const obj2 = JSON.stringify(this.datosDelNodo[x].nodo);
 
-                    if (obj1 !== obj2 || res[x].status !== this.datosDelNodo[x].status) {
-                        cont++;
+                if (obj1 !== obj2 || res[x].status !== this.datosDelNodo[x].status) {
+                    cont++;
+                }
+            }
+            if(cont !== 0){
+                console.log("numero de cambios: " + cont)
+                this.updateGrafo(res);
+            } else{
+                console.log('no hay cambios')
+            }
+        });
+    });
+    timer(this.readTime).subscribe(() => this.comprobar());
+    }
+
+    updateGrafo(res: any) {
+        const data = res.map((item: any) => {
+            const { nodo, status } = item;
+            const { tipo_nodo } = nodo;
+            const symbol = tipo_nodo === 'Balanceador' ? 'square' : tipo_nodo === 'Controlador' ? 'circle' : 'diamond';
+            const size = tipo_nodo === 'Procesador' ? 35 : 50;
+            let color = tipo_nodo === 'Balanceador' ? '#1E90FF' : tipo_nodo === 'Controlador' ? '#FFA500' : '#A75DB3';
+
+            if (!status) {
+                color = this.grey(color);
+            }
+
+            return { 
+                name: nodo.nombre, 
+                symbolSize: size, 
+                symbol, 
+                itemStyle: { color }, 
+                tipo_nodo, 
+                id: nodo.id,
+                value: [nodo.longitud, nodo.latitud],
+                visible: nodo.visible
+            };
+        });
+        const links = res.reduce((acc: any[], item2: any) => {
+            const { nodo, datos, status } = item2;
+            
+            if(this.activarConexiones === true){
+                //Enlaces de Balanceadores y Controladores "subs"-->"main"
+                if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
+                    const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
+                    if (nodoTarget) {
+                        acc.push({
+                            source: String(nodo.id),
+                            target: String(nodoTarget.nodo.id)
+                        });
                     }
                 }
-                if(cont != 0){
-                    const data = res.map((item: any) => {
-                        const { nodo, status } = item;
-                        const { tipo_nodo } = nodo;
-                        const symbol = tipo_nodo === 'Balanceador' ? 'square' : tipo_nodo === 'Controlador' ? 'circle' : 'diamond';
-                        const size = tipo_nodo === 'Procesador' ? 35 : 50;
-                        let color = tipo_nodo === 'Balanceador' ? '#1E90FF' : tipo_nodo === 'Controlador' ? '#FFA500' : '#A75DB3';
 
-                        if (!status) {
-                            color = this.grey(color);
+                //Enlaces Balanceadores-->Procesadores
+                if (nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true) {
+                    res.forEach((nodoTarget: any) => {
+                        if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
+                            acc.push({
+                                source: String(nodo.id),
+                                target: String(nodoTarget.nodo.id)
+                            });
                         }
-
-                        return { 
-                            name: nodo.nombre, 
-                            symbolSize: size, 
-                            symbol, 
-                            itemStyle: { color }, 
-                            tipo_nodo, 
-                            id: nodo.id,
-                            value: [nodo.longitud, nodo.latitud],
-                            visible: nodo.visible
-                        };
                     });
-                    const links = res.reduce((acc: any[], item2: any) => {
-                        const { nodo, datos, status } = item2;
-            
-                        if(this.activarConexiones === true){
-                            //Enlaces de Balanceadores y Controladores "subs"-->"main"
-                            if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
-                                const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
-                                if (nodoTarget) {
-                                    acc.push({
-                                        source: String(nodo.id),
-                                        target: String(nodoTarget.nodo.id)
-                                    });
-                                }
-                            }
-
-                            //Enlaces Balanceadores-->Procesadores
-                            if (nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true) {
-                                res.forEach((nodoTarget: any) => {
-                                    if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
-                                        acc.push({
-                                            source: String(nodo.id),
-                                            target: String(nodoTarget.nodo.id)
-                                        });
-                                    }
+                }
+                else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
+                    const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
+                    if(nodoMain){
+                        res.forEach((nodoTarget: any) => {
+                            if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
+                                acc.push({
+                                    source: String(nodo.id),
+                                    target: String(nodoTarget.nodo.id)
                                 });
                             }
-                            else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
-                                const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
-                                if(nodoMain){
-                                    res.forEach((nodoTarget: any) => {
-                                        if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
-                                            acc.push({
-                                                source: String(nodo.id),
-                                                target: String(nodoTarget.nodo.id)
-                                            });
-                                        }
-                                    });
-                                }
-                            }
+                        });
+                    }
+                }
 
-                            //Enlaces Balanceadores-->Controladores
-                            if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true){
-                                const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
-                                if(nodoTarget){
-                                    acc.push({
-                                        source: String(nodo.id),
-                                        target: String(nodoTarget.nodo.id)
-                                    });
-                                }
-                                else{
-                                    const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
-                                    if(nodoTarget){
-                                        acc.push({
-                                            source: String(nodo.id),
-                                            target: String(nodoTarget.nodo.id)
-                                        });
-                                    }
-                                }
-                            }
-                            else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
-                                const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
-                                if(nodoMain){
-                                    const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
-                                    if(nodoTarget){
-                                        acc.push({
-                                            source: String(nodo.id),
-                                            target: String(nodoTarget.nodo.id)
-                                        });
-                                    }
-                                    else{
-                                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
-                                        if(nodoTarget){
-                                            acc.push({
-                                                source: String(nodo.id),
-                                                target: String(nodoTarget.nodo.id)
-                                            });
-                                        }
-                                    }
-                                }
+                //Enlaces Balanceadores-->Controladores
+                if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true){
+                    const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+                    if(nodoTarget){
+                        acc.push({
+                            source: String(nodo.id),
+                            target: String(nodoTarget.nodo.id)
+                        });
+                    }
+                    else{
+                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                        if(nodoTarget){
+                            acc.push({
+                                source: String(nodo.id),
+                                target: String(nodoTarget.nodo.id)
+                            });
+                        }
+                    }
+                }
+                else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
+                    const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
+                    if(nodoMain){
+                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+                        if(nodoTarget){
+                            acc.push({
+                                source: String(nodo.id),
+                                target: String(nodoTarget.nodo.id)
+                            });
+                        }
+                        else{
+                            const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                            if(nodoTarget){
+                                acc.push({
+                                    source: String(nodo.id),
+                                    target: String(nodoTarget.nodo.id)
+                                });
                             }
                         }
-                        return acc;
-                    }, [])
-                    this.myChart.setOption({
-                        series: [
-                            {
-                                data: data.filter((node: any) => node.visible !== false),
-                                links: links.map((link: any) => ({
-                                    source: String(link.source),
-                                    target: String(link.target),
-                                })),
-                            }
-                        ]
-                    });
-                    this.datosDelNodo = res;
+                    }
                 }
-            });
+            }
+            return acc;
+        }, [])
+        this.myChart.setOption({
+            series: [
+                {
+                    data: data.filter((node: any) => node.visible !== false),
+                    links: links.map((link: any) => ({
+                        source: String(link.source),
+                        target: String(link.target),
+                    })),
+                }
+            ]
         });
-        timer(this.readTime).subscribe(() => this.updateGrafo());
+        this.datosDelNodo = res;
     }
     
     initChart(): void {
@@ -397,7 +426,7 @@ export class GrafoComponent{
                     }
                 });
                 this.datosDelNodo = res;
-                this.updateGrafo();
+                this.comprobar();
             });
         });
     }

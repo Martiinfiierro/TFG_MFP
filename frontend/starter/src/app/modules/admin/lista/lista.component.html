@@ -59,16 +59,16 @@
                 <ng-container matColumnDef="actions">
                     <th mat-header-cell *matHeaderCellDef> Actions </th>
                     <td mat-cell *matCellDef="let element">
-                      <button [style.background-color]="'#1E90FF'" [style.margin]="'2px'" mat-mini-fab (click)="dialogo(element.tipo_nodo, element.id)" aria-label="Boton para visualizar">
+                      <button matTooltip="Ver información" [style.background-color]="'#1E90FF'" [style.margin]="'2px'" mat-mini-fab (click)="dialogo(element.tipo_nodo, element.id)" aria-label="Boton para visualizar">
                           <mat-icon>open_in_new</mat-icon>
                       </button>
-                      <button *ngIf="!element.visible" [style.background-color]="'grey'" [style.margin]="'2px'" mat-mini-fab (click)="visible(element)" aria-label="Boton para visualizar">
+                      <button matTooltip="Visualizar" *ngIf="!element.visible" [style.background-color]="'grey'" [style.margin]="'2px'" mat-mini-fab (click)="visible(element)" aria-label="Boton para visualizar">
                           <mat-icon>visibility_off</mat-icon>
                       </button>
-                      <button *ngIf="element.visible" [style.background-color]="'grey'" [style.margin]="'2px'" mat-mini-fab (click)="noVisible(element)" aria-label="Boton para visualizar">
+                      <button matTooltip="Ocultar" *ngIf="element.visible" [style.background-color]="'grey'" [style.margin]="'2px'" mat-mini-fab (click)="noVisible(element)" aria-label="Boton para visualizar">
                           <mat-icon>visibility</mat-icon>
                       </button>
-                      <button [style.background-color]="'orange'" [style.margin]="'2px'" (click)="actualizarNodo(element)" mat-mini-fab aria-label="Boton para editar">
+                      <button matTooltip="Editar" [style.background-color]="'orange'" [style.margin]="'2px'" (click)="actualizarNodo(element)" mat-mini-fab aria-label="Boton para editar">
                           <mat-icon>edit</mat-icon>
                       </button>
                     </td>

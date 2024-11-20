@@ -23,6 +23,7 @@ import {
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatButtonModule } from '@angular/material/button';
 import * as L from 'leaflet';
+import 'leaflet-polylinedecorator';
 
 // Define la interfaz para los elementos de la tabla
 export interface NodeData {
@@ -55,6 +56,8 @@ export class MapaComponent{
   //Dialogo
   readonly dialog = inject(MatDialog);
   readTime = 3000;
+  datosDelNodo: any;
+  activarConexiones: boolean = true;
 
   constructor(private http: GrafoService, private router: Router) { }
 
@@ -62,12 +65,11 @@ export class MapaComponent{
 
   ngOnInit(): void {
     this.initMap();
-    this.cargarNodos();
   }
 
-  cargarNodos(){
-    this.http.getNodos().subscribe((res: any) => {
-      const requests = res.nodos.map((nodo: any) => 
+  comprobar(){
+    this.http.getNodos().subscribe((res: any) =>{
+    const requests = res.nodos.map((nodo: any) => 
         this.http.readDebug(nodo.url).pipe(
             map((val: any) => ({
                 nodo: nodo,
@@ -80,35 +82,61 @@ export class MapaComponent{
                 status: false
             }))
         )
-      );
-      forkJoin(requests).subscribe((res2: any) => {
-        res2.map((item: any) => {
-          if(item.nodo.visible){
-            let iconUrl = '';
-            if(!item.status){
-                iconUrl = 'assets/map/ordenador-gris.png';
-            }
-            else{
-              iconUrl = 'assets/map/ordenador.png';
-            }
-            const customIcon = L.icon({
-              iconUrl: iconUrl,
-              iconSize: [30, 30],
-              iconAnchor: [22, 41],
-              popupAnchor: [1, -34]
-            })
-            const marker = L.marker([item.nodo.latitud, item.nodo.longitud], { icon: customIcon }).addTo(this.map);
-            marker.bindTooltip(item.nodo.nombre, { 
-              permanent: true, 
-              direction: 'bottom',
-              offset: [-7, -12]  
-            });
-            marker.on('click', () => this.dialogo(item.nodo.tipo_nodo, item.nodo.id));
+    );
+    forkJoin(requests).subscribe((res: any) => {
+        let cont = 0;
+        if(!this.datosDelNodo){
+          console.log("primera carga");
+          this.updateMapa(res);
+        }
+        else{
+          console.log("recargas de cambios")
+          for(let x = 0; x < res.length; x++){
+              const obj1 = JSON.stringify(res[x].nodo);
+              const obj2 = JSON.stringify(this.datosDelNodo[x].nodo);
+  
+              if (obj1 !== obj2 || res[x].status !== this.datosDelNodo[x].status) {
+                  cont++;
+              }
           }
-        })
-      })
+          if(cont !== 0){
+              console.log("numero de cambios: " + cont)
+              this.updateMapa(res);
+          } else{
+              console.log('no hay cambios')
+          }
+        }
+      });
     });
-    timer(this.readTime).subscribe(() => this.cargarNodos());
+    timer(this.readTime).subscribe(() => this.comprobar());
+  }
+
+  updateMapa(res: any){
+    res.map((item: any) => {
+      if(item.nodo.visible){
+        let iconUrl = '';
+        if(!item.status){
+          iconUrl = 'assets/map/ordenador-gris.png';
+        }
+        else{
+          iconUrl = 'assets/map/ordenador.png';
+        }
+        const customIcon = L.icon({
+          iconUrl: iconUrl,
+          iconSize: [30, 30],
+          iconAnchor: [22, 41],
+          popupAnchor: [1, -34]
+        })
+        const marker = L.marker([item.nodo.latitud, item.nodo.longitud], { icon: customIcon }).addTo(this.map);
+        marker.bindTooltip(item.nodo.nombre, { 
+          permanent: true, 
+          direction: 'bottom',
+          offset: [-7, -12]  
+        });
+        marker.on('click', () => this.dialogo(item.nodo.tipo_nodo, item.nodo.id));
+      }
+    });
+    this.datosDelNodo = res;
   }
 
   initMap(): void {
@@ -117,6 +145,8 @@ export class MapaComponent{
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.map);
+
+    this.comprobar();
   }
 
   //Botones

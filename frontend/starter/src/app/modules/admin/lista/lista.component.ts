@@ -3,6 +3,7 @@ import { GrafoService } from 'app/services/grafo.service';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -53,7 +54,8 @@ export interface NodeData {
       MatButtonToggleModule,
       MatButtonModule,
       CommonModule,
-      ReactiveFormsModule
+      ReactiveFormsModule,
+      MatTooltipModule
     ]
 })
 export class ListaComponent{
