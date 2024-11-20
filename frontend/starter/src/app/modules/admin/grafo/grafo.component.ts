@@ -6,17 +6,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { timer } from 'rxjs';
+import { timer, config } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import * as echarts from 'echarts';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-interface GrafoData {
-    nodo: any;
-    datos: any;
-    status: any;
-}
+import { ConfigService } from 'app/services/config.service';
+import { Config } from 'app/services/config.service';
 @Component({
     selector     : 'grafo',
     standalone   : true,
@@ -27,13 +24,12 @@ interface GrafoData {
 
 export class GrafoComponent{
     //Variables temporizador
-    readTime = 3000;
-    idTimer: any;
+    configuracion: Config;
     activarConexiones: boolean = true;
     myChart: any = null;
     datosDelNodo: any;
 
-    constructor(private router: Router, private http: GrafoService, private dialog: MatDialog) {}
+    constructor(private router: Router, private http: GrafoService, private config: ConfigService, private dialog: MatDialog) {}
 
     irALista(): void {
         this.router.navigate(['/lista']); // Navega a la ruta 'grafo'
@@ -52,7 +48,14 @@ export class GrafoComponent{
         });
     }
 
+    initConfig(){
+        this.config.getConfig().subscribe((res: any) => {
+            this.configuracion = res;
+        });
+    }
+
     ngOnInit(){
+        this.initConfig();
         this.initChart();
     }
 
@@ -125,23 +128,26 @@ export class GrafoComponent{
             }
         });
     });
-    timer(this.readTime).subscribe(() => this.comprobar());
+    timer(this.configuracion.timer.valor).subscribe(() => this.comprobar());
     }
 
     updateGrafo(res: any) {
         const data = res.map((item: any) => {
             const { nodo, status } = item;
-            const { tipo_nodo } = nodo;
-            const symbol = tipo_nodo === 'Balanceador' ? 'square' : tipo_nodo === 'Controlador' ? 'circle' : 'diamond';
-            const size = tipo_nodo === 'Procesador' ? 35 : 50;
-            let color = tipo_nodo === 'Balanceador' ? '#1E90FF' : tipo_nodo === 'Controlador' ? '#FFA500' : '#A75DB3';
+            const { nombre, tipo_nodo } = nodo;
 
+            const newNombre = tipo_nodo === 'Balanceador' && nombre === 'main' ? this.configuracion.balancer.nameMain : 
+                tipo_nodo === 'Balanceador' && nombre === 'subs' ? this.configuracion.balancer.nameSubs : 
+                tipo_nodo === 'Controlador' && nombre === 'main' ? this.configuracion.controller.nameMain : 
+                tipo_nodo === 'Controlador' && nombre === 'subs' ? this.configuracion.controller.nameSubs : nodo.nombre;
+            const symbol = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.shape : tipo_nodo === 'Controlador' ? this.configuracion.controller.shape : this.configuracion.processor.shape;
+            const size = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.size : tipo_nodo === 'Controlador' ? this.configuracion.controller.size : this.configuracion.processor.size;                    let color = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.colorA : tipo_nodo === 'Controlador' ? this.configuracion.controller.colorA : this.configuracion.processor.colorA;
             if (!status) {
-                color = this.grey(color);
+                color = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.colorD : tipo_nodo === 'Controlador' ? this.configuracion.controller.colorD : this.configuracion.processor.colorD;
             }
 
             return { 
-                name: nodo.nombre, 
+                name: newNombre, 
                 symbolSize: size, 
                 symbol, 
                 itemStyle: { color }, 
@@ -152,7 +158,7 @@ export class GrafoComponent{
             };
         });
         const links = res.reduce((acc: any[], item2: any) => {
-            const { nodo, datos, status } = item2;
+            const { nodo, status } = item2;
             
             if(this.activarConexiones === true){
                 //Enlaces de Balanceadores y Controladores "subs"-->"main"
@@ -271,18 +277,22 @@ export class GrafoComponent{
                 // Procesa los nodos para `data`
                 const data = res.map((item: any) => {
                     const { nodo, status } = item;
-                    const { tipo_nodo } = nodo;
+                    const { nombre, tipo_nodo } = nodo;
 
-                    const symbol = tipo_nodo === 'Balanceador' ? 'square' : tipo_nodo === 'Controlador' ? 'circle' : 'diamond';
-                    const size = tipo_nodo === 'Procesador' ? 35 : 50;
-                    let color = tipo_nodo === 'Balanceador' ? '#1E90FF' : tipo_nodo === 'Controlador' ? '#FFA500' : '#A75DB3';
+                    
+                    const newNombre = tipo_nodo === 'Balanceador' && nombre === 'main' ? this.configuracion.balancer.nameMain : 
+                        tipo_nodo === 'Balanceador' && nombre === 'subs' ? this.configuracion.balancer.nameSubs : 
+                        tipo_nodo === 'Controlador' && nombre === 'main' ? this.configuracion.controller.nameMain : 
+                        tipo_nodo === 'Controlador' && nombre === 'subs' ? this.configuracion.controller.nameSubs : nodo.nombre;
+                    const symbol = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.shape : tipo_nodo === 'Controlador' ? this.configuracion.controller.shape : this.configuracion.processor.shape;
+                    const size = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.size : tipo_nodo === 'Controlador' ? this.configuracion.controller.size : this.configuracion.processor.size;                    let color = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.colorA : tipo_nodo === 'Controlador' ? this.configuracion.controller.colorA : this.configuracion.processor.colorA;
                     if (!status) {
-                        color = this.grey(color);
+                        color = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.colorD : tipo_nodo === 'Controlador' ? this.configuracion.controller.colorD : this.configuracion.processor.colorD;
                     }
         
                     return { 
                         id: nodo.id,
-                        name: nodo.nombre, 
+                        name: newNombre, 
                         symbolSize: size, 
                         symbol, 
                         itemStyle: { color }, 

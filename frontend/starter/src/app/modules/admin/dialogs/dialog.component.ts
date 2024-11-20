@@ -12,6 +12,9 @@ import {
 } from '@angular/material/dialog';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatButtonModule } from '@angular/material/button';
+import { ConfigService } from 'app/services/config.service';
+import { Config } from 'app/services/config.service';
+import { config } from 'rxjs';
 
 interface NodeData{
   id: any,
@@ -30,8 +33,6 @@ interface NodeData{
     imports: [
       MatDialogTitle,
       MatDialogContent,
-      MatDialogActions,
-      MatDialogClose,
       MatIconModule,
       MatGridListModule,
       MatButtonModule,
@@ -43,15 +44,23 @@ interface NodeData{
     readonly dialogRef = inject(MatDialogRef<Dialog>);
     nodo: NodeData;
     tipo: any;
+    configuracion: Config;
   
-    constructor(private http: GrafoService, @Inject(MAT_DIALOG_DATA) private data: any) {
+    constructor(private http: GrafoService, private config: ConfigService, @Inject(MAT_DIALOG_DATA) private data: any) {
     }
   
     cerrarDialog(): void {
       this.dialogRef.close();
     }
+
+    initConfig(){
+      this.config.getConfig().subscribe((res: any) => {
+        this.configuracion = res;
+      });
+    }
   
     ngOnInit(): void {
+      this.initConfig();
       this.tipo = this.data.tipo;
       this.http.getNodo(this.data.id).subscribe(
         (data) => {

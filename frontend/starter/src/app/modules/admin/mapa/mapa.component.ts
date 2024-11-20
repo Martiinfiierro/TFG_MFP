@@ -1,5 +1,6 @@
 import { Component, ViewEncapsulation, inject, Inject} from '@angular/core';
 import { GrafoService } from 'app/services/grafo.service';
+import { Dialog } from '../dialogs/dialog.component';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -11,19 +12,12 @@ import { Router } from '@angular/router';
 import { catchError, map } from 'rxjs/operators';
 import { timer } from 'rxjs';
 import { forkJoin, of } from 'rxjs';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
-  MatDialogRef,
-  MatDialogTitle,
-} from '@angular/material/dialog';
-import { MatGridListModule } from '@angular/material/grid-list';
+import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import * as L from 'leaflet';
 import 'leaflet-polylinedecorator';
+import { ConfigService } from 'app/services/config.service';
+import { Config } from 'app/services/config.service';
 
 // Define la interfaz para los elementos de la tabla
 export interface NodeData {
@@ -55,16 +49,23 @@ export interface NodeData {
 export class MapaComponent{
   //Dialogo
   readonly dialog = inject(MatDialog);
-  readTime = 3000;
+  configuracion: Config;
   datosDelNodo: any;
   activarConexiones: boolean = true;
 
-  constructor(private http: GrafoService, private router: Router) { }
+  constructor(private http: GrafoService, private config: ConfigService, private router: Router) { }
 
   map!: L.Map;
 
   ngOnInit(): void {
+    this.initConfig();
     this.initMap();
+  }
+
+  initConfig(){
+    this.config.getConfig().subscribe((res: any) => {
+        this.configuracion = res;
+    });
   }
 
   comprobar(){
@@ -108,7 +109,7 @@ export class MapaComponent{
         }
       });
     });
-    timer(this.readTime).subscribe(() => this.comprobar());
+    timer(this.configuracion.timer.valor).subscribe(() => this.comprobar());
   }
 
   updateMapa(res: any){
@@ -128,7 +129,15 @@ export class MapaComponent{
           popupAnchor: [1, -34]
         })
         const marker = L.marker([item.nodo.latitud, item.nodo.longitud], { icon: customIcon }).addTo(this.map);
-        marker.bindTooltip(item.nodo.nombre, { 
+
+        
+        const { nodo, status } = item;
+        const { nombre, tipo_nodo } = nodo;
+        nodo.nombre = tipo_nodo === 'Balanceador' && nombre === 'main' ? this.configuracion.balancer.nameMain : 
+            tipo_nodo === 'Balanceador' && nombre === 'subs' ? this.configuracion.balancer.nameSubs : 
+            tipo_nodo === 'Controlador' && nombre === 'main' ? this.configuracion.controller.nameMain : 
+            tipo_nodo === 'Controlador' && nombre === 'subs' ? this.configuracion.controller.nameSubs : nodo.nombre;
+        marker.bindTooltip(nodo.nombre, { 
           permanent: true, 
           direction: 'bottom',
           offset: [-7, -12]  
@@ -167,47 +176,4 @@ export class MapaComponent{
         }
       });
     }
-}
-
-@Component({
-  selector: 'dialogDatos',
-  templateUrl: '../dialogs/dialog.html',
-  standalone: true,
-  encapsulation: ViewEncapsulation.None,
-  imports: [
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
-    MatIconModule,
-    MatGridListModule,
-    MatButtonModule,
-    CommonModule
-  ],
-})
-
-export class Dialog{
-  readonly dialogRef = inject(MatDialogRef<Dialog>);
-  nodo: NodeData;
-  tipo: any;
-
-  constructor(private http: GrafoService, @Inject(MAT_DIALOG_DATA) private data: any) {
-  }
-
-  cerrarDialog(): void {
-    this.dialogRef.close();
-  }
-
-  ngOnInit(): void {
-    this.tipo = this.data.tipo;
-    this.http.getNodo(this.data.id).subscribe(
-      (data) => {
-        console.log(this.data)
-        this.nodo = data.nodo;
-      },
-      (error) => {
-        console.error('Error al obtener el nodo', error);
-      }
-    );
-  }
 }

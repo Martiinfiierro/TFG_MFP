@@ -1,23 +1,30 @@
 {
     "controller": {
-        "colorA": "#000",
-        "colorD": "#FFF",
+        "colorA": "#FFA500",
+        "colorD": "#CCC0AC",
         "nameMain": "C main",
         "nameSubs": "C subs",
         "shape": "circle",
-        "size": ""
+        "png": "",
+        "size": 50
     },
     "balancer": {
-        "colorA": "#000",
-        "colorD": "#FFF",
+        "colorA": "#1E90FF",
+        "colorD": "#97B7D7",
         "nameMain": "B main",
         "nameSubs": "B subs",
-        "size": ""
+        "shape": "square",
+        "png": "",
+        "size": 50
     },
     "processor": {
-        "colorA": "#000",
-        "colorD": "#FFF",
+        "colorA": "#A75DB3",
+        "colorD": "#A281A8",
         "shape": "diamond",
-        "size": ""
+        "png": "",
+        "size": 35
+    },
+    "timer": {
+        "valor": 3000
     }
 }
