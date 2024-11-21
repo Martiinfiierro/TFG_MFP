@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Router } from '@angular/router';
 import { catchError, map } from 'rxjs/operators';
 import { timer } from 'rxjs';
@@ -31,6 +32,7 @@ import { Config } from 'app/services/config.service';
       MatPaginatorModule, 
       MatButtonToggleModule,
       MatButtonModule,
+      MatCheckboxModule,
       CommonModule
     ]
 })
@@ -41,6 +43,7 @@ export class MapaComponent{
   datosDelNodo: any;
   activarConexiones: boolean = true;
   timerSubscription: any;
+  lineas: any;
 
   constructor(private http: GrafoService, private config: ConfigService, private router: Router) { }
 
@@ -55,7 +58,9 @@ export class MapaComponent{
         this.timerSubscription.unsubscribe();
         this.timerSubscription = null;
     }
-}
+  }
+
+  conexiones(res: any){}
 
   initConfig(){
     this.config.getConfig().subscribe((res: any) => {
@@ -92,6 +97,7 @@ export class MapaComponent{
               const obj2 = JSON.stringify(this.datosDelNodo[x].nodo);
   
               if (obj1 !== obj2 || res[x].status !== this.datosDelNodo[x].status) {
+                  console.log(obj1 + obj2)
                   cont++;
               }
           }
@@ -108,6 +114,7 @@ export class MapaComponent{
   }
 
   updateMapa(res: any){
+    //Markers
     res.map((item: any) => {
       if(item.nodo.visible){
         let iconUrl = '';
@@ -128,11 +135,11 @@ export class MapaComponent{
         
         const { nodo, status } = item;
         const { nombre, tipo_nodo } = nodo;
-        nodo.nombre = tipo_nodo === 'Balanceador' && nombre === 'main' ? this.configuracion.balancer.nameMain : 
+        const newNombre = tipo_nodo === 'Balanceador' && nombre === 'main' ? this.configuracion.balancer.nameMain : 
             tipo_nodo === 'Balanceador' && nombre === 'subs' ? this.configuracion.balancer.nameSubs : 
             tipo_nodo === 'Controlador' && nombre === 'main' ? this.configuracion.controller.nameMain : 
             tipo_nodo === 'Controlador' && nombre === 'subs' ? this.configuracion.controller.nameSubs : nodo.nombre;
-        marker.bindTooltip(nodo.nombre, { 
+        marker.bindTooltip(newNombre, { 
           permanent: true, 
           direction: 'bottom',
           offset: [-7, -12]  
@@ -140,7 +147,129 @@ export class MapaComponent{
         marker.on('click', () => this.dialogo(item.nodo.tipo_nodo, item.nodo.id, item.nodo.url));
       }
     });
+
+    //Nuevas lineas
+    const links = res.reduce((acc: any[], item2: any) => {
+      const { nodo, status } = item2;
+      
+      if(this.activarConexiones === true){
+          //Enlaces de Balanceadores y Controladores "subs"-->"main"
+          if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
+              const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
+              if (nodoTarget) {
+                  acc.push({
+                      lat1: String(nodo.latitud),
+                      lon1: String(nodo.longitud),
+                      lat2: String(nodoTarget.nodo.latitud),
+                      lon2: String(nodoTarget.nodo.longitud)
+                  });
+              }
+          }
+
+          //Enlaces Balanceadores-->Procesadores
+          if (nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true) {
+              res.forEach((nodoTarget: any) => {
+                  if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
+                      acc.push({
+                        lat1: String(nodo.latitud),
+                        lon1: String(nodo.longitud),
+                        lat2: String(nodoTarget.nodo.latitud),
+                        lon2: String(nodoTarget.nodo.longitud)
+                      });
+                  }
+              });
+          }
+          else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
+              const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
+              if(nodoMain){
+                  res.forEach((nodoTarget: any) => {
+                      if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
+                          acc.push({
+                            lat1: String(nodo.latitud),
+                            lon1: String(nodo.longitud),
+                            lat2: String(nodoTarget.nodo.latitud),
+                            lon2: String(nodoTarget.nodo.longitud)
+                          });
+                      }
+                  });
+              }
+          }
+
+          //Enlaces Balanceadores-->Controladores
+          if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true){
+              const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+              if(nodoTarget){
+                  acc.push({
+                    lat1: String(nodo.latitud),
+                    lon1: String(nodo.longitud),
+                    lat2: String(nodoTarget.nodo.latitud),
+                    lon2: String(nodoTarget.nodo.longitud)
+                  });
+              }
+              else{
+                  const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                  if(nodoTarget){
+                      acc.push({
+                        lat1: String(nodo.latitud),
+                        lon1: String(nodo.longitud),
+                        lat2: String(nodoTarget.nodo.latitud),
+                        lon2: String(nodoTarget.nodo.longitud)
+                      });
+                  }
+              }
+          }
+          else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
+              const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
+              if(nodoMain){
+                  const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+                  if(nodoTarget){
+                      acc.push({
+                        lat1: String(nodo.latitud),
+                        lon1: String(nodo.longitud),
+                        lat2: String(nodoTarget.nodo.latitud),
+                        lon2: String(nodoTarget.nodo.longitud)
+                      });
+                  }
+                  else{
+                      const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                      if(nodoTarget){
+                          acc.push({
+                            lat1: String(nodo.latitud),
+                            lon1: String(nodo.longitud),
+                            lat2: String(nodoTarget.nodo.latitud),
+                            lon2: String(nodoTarget.nodo.longitud)
+                          });
+                      }
+                  }
+              }
+          }
+      }
+      return acc;
+    }, [])
+    this.updateLineas(links);
     this.datosDelNodo = res;
+  }
+
+  updateLineas(links: any){
+    console.log(this.lineas)
+    let newLinks: any = [];
+    if(this.lineas){
+      for (const lineas of this.lineas) {
+        this.map.removeLayer(lineas)
+      }
+    }
+
+    for (const link of links) {
+      const pointA = [link.lat1, link.lon1];
+      const pointB = [link.lat2, link.lon2];
+
+      newLinks.push(L.polyline([pointA, pointB], {
+        color: 'grey',
+        weight: 3,
+        opacity: 0.7,
+      }).addTo(this.map));
+    }
+    this.lineas = newLinks;
   }
 
   initMap(): void {

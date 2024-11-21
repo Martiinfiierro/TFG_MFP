@@ -3,11 +3,17 @@
     <!-- Main -->
     <div class="flex-auto p-6 sm:p-10">
       <div class="cabecera">
-        <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
+        <div>
+          <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
             <mat-button-toggle value="bold" (click)="irAGrafo()"><mat-icon>bubble_chart</mat-icon></mat-button-toggle>
             <mat-button-toggle value="italic" (click)="irALista()"><mat-icon>list</mat-icon></mat-button-toggle>
             <mat-button-toggle value="italic"><mat-icon>map</mat-icon></mat-button-toggle>
         </mat-button-toggle-group>
+        </div>
+        <span class="spacer"></span>
+        <div class="checkbox">
+            <mat-checkbox (change)="conexiones($event)" id="conexiones">Desactivar conexiones</mat-checkbox>
+        </div>
       </div>
       
       <div id="contenedor-mapa">
