@@ -44,6 +44,21 @@ export class MapaComponent{
   activarConexiones: boolean = true;
   timerSubscription: any;
   lineas: any;
+  rombo = [
+    [51.505, -0.09],
+    [51.500, -0.08],
+    [51.495, -0.09],
+    [51.500, -0.10]
+  ]
+
+  cuadrado = [
+    [51.505, -0.08],
+    [51.505, -0.06],
+    [51.503, -0.06],
+    [51.503, -0.08]
+  ]
+
+  circulo = [51.505, -0.09]
 
   constructor(private http: GrafoService, private config: ConfigService, private router: Router) { }
 
@@ -60,7 +75,40 @@ export class MapaComponent{
     }
   }
 
-  conexiones(res: any){}
+  conexiones(event: any){
+    this.activarConexiones = !event.checked;
+    if(!this.activarConexiones){
+        console.log('desactivar conexiones')
+        if(this.lineas){
+          for (const lineas of this.lineas) {
+            this.map.removeLayer(lineas)
+          }
+        }
+    }
+    else{
+        console.log('activar conexiones')
+        this.http.getNodos().subscribe((res: any) =>{
+            const requests = res.nodos.map((nodo: any) => 
+                this.http.readDebug(nodo.url).pipe(
+                    map((val: any) => ({
+                        nodo: nodo,
+                        datos: val,
+                        status: true
+                    })),
+                    catchError(() => of({
+                        nodo: nodo,
+                        datos: '',
+                        status: false
+                    }))
+                )
+            );
+            forkJoin(requests).subscribe((res: any) => {
+              this.updateMapa(res);
+            });
+        });
+    }
+}
+
 
   initConfig(){
     this.config.getConfig().subscribe((res: any) => {
@@ -251,7 +299,6 @@ export class MapaComponent{
   }
 
   updateLineas(links: any){
-    console.log(this.lineas)
     let newLinks: any = [];
     if(this.lineas){
       for (const lineas of this.lineas) {
