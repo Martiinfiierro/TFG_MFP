@@ -30,6 +30,18 @@ export class GrafoComponent{
     datosDelNodo: any;
     timerSubscription: any;
 
+    // Dimensiones del área del gráfico
+    ancho = 500; // Ancho total del gráfico
+    alto = 200; // Alto total del gráfico
+    margenZona = 10; // Margen interno para cada zona
+
+    // Definir zonas para cada tipo de nodo
+    zonas = {
+        Controlador: { xInicio: 0, xFin: 0.2 * this.ancho }, // 30% del ancho
+        Balanceador: { xInicio: 0.25 * this.ancho, xFin: 0.4 * this.ancho }, // 30% central
+        Procesador: { xInicio: 0.45 * this.ancho, xFin: this.ancho } // 30% derecha
+    };
+
     constructor(private router: Router, private http: GrafoService, private config: ConfigService, private dialog: MatDialog) {}
 
     irALista(): void {
@@ -155,16 +167,38 @@ export class GrafoComponent{
             if (!status) {
                 color = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.colorD : tipo_nodo === 'Controlador' ? this.configuracion.controller.colorD : this.configuracion.processor.colorD;
             }
+                    
+            // Determinar la zona correspondiente al tipo de nodo
+            const zona = this.zonas[tipo_nodo];
+            const anchoZona = zona.xFin - zona.xInicio;
+            const altoZona = this.alto - 2 * this.margenZona;
+
+            // Índice local dentro de la zona
+            const nodosZona = res.filter((n: any) => n.nodo.tipo_nodo === tipo_nodo);
+            const indexZona = nodosZona.findIndex((n: any) => n.nodo.id === nodo.id);
+
+            // Calcular la cantidad dinámica de columnas
+            const nodosPorColumna = Math.floor(Math.sqrt(nodosZona.length)); // Basado en un layout cuadrado
+            const espacioX = anchoZona / nodosPorColumna; // Espacio horizontal entre columnas
+            const espacioY = altoZona / Math.ceil(nodosZona.length / nodosPorColumna); // Espacio vertical entre filas
+
+            // Calcular posición del nodo
+            const columna = indexZona % nodosPorColumna; // Columna actual
+            const fila = Math.floor(indexZona / nodosPorColumna); // Fila actual
+
+            const x = zona.xInicio + columna * espacioX + this.margenZona;
+            const y = this.margenZona + fila * espacioY;
 
             return { 
+                id: nodo.id,
                 name: newNombre, 
                 symbolSize: size, 
                 symbol, 
                 itemStyle: { color }, 
-                tipo_nodo, 
-                id: nodo.id,
+                tipo_nodo,
                 url: nodo.url,
-                value: [nodo.longitud, nodo.latitud],
+                x,
+                y,
                 visible: nodo.visible
             };
         });
@@ -300,7 +334,29 @@ export class GrafoComponent{
                     if (!status) {
                         color = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.colorD : tipo_nodo === 'Controlador' ? this.configuracion.controller.colorD : this.configuracion.processor.colorD;
                     }
-        
+                    
+                    // Determinar la zona correspondiente al tipo de nodo
+                    const zona = this.zonas[tipo_nodo];
+                    const anchoZona = zona.xFin - zona.xInicio;
+                    const altoZona = this.alto - 2 * this.margenZona;
+
+                    // Índice local dentro de la zona
+                    const nodosZona = res.filter((n: any) => n.nodo.tipo_nodo === tipo_nodo);
+                    const indexZona = nodosZona.findIndex((n: any) => n.nodo.id === nodo.id);
+
+                     // Calcular la cantidad dinámica de columnas
+                    const nodosPorColumna = Math.floor(Math.sqrt(nodosZona.length)); // Basado en un layout cuadrado
+                    const espacioX = anchoZona / nodosPorColumna; // Espacio horizontal entre columnas
+                    const espacioY = altoZona / Math.ceil(nodosZona.length / nodosPorColumna); // Espacio vertical entre filas
+
+                    // Calcular posición del nodo
+                    const columna = indexZona % nodosPorColumna; // Columna actual
+                    const fila = Math.floor(indexZona / nodosPorColumna); // Fila actual
+
+                    const x = zona.xInicio + columna * espacioX + this.margenZona;
+                    const y = this.margenZona + fila * espacioY;
+
+                    // Retornar nodo con posición calculada
                     return { 
                         id: nodo.id,
                         name: newNombre, 
@@ -309,7 +365,8 @@ export class GrafoComponent{
                         itemStyle: { color }, 
                         tipo_nodo,
                         url: nodo.url,
-                        value: [nodo.longitud, nodo.latitud],
+                        x,
+                        y,
                         visible: nodo.visible
                     };
                 });
@@ -404,11 +461,7 @@ export class GrafoComponent{
                     series: [
                         {
                             type: 'graph',
-                            layout: 'force',
-                            force: {
-                                repulsion: 500,
-                                edgeLength: [50, 200]
-                            },
+                            layout: 'none',
                             roam: true,
                             scaleLimit: {
                                 min: 0.5,
@@ -427,7 +480,7 @@ export class GrafoComponent{
                                 color: '#aaa',
                                 width: 2,
                                 opacity: 0.9,
-                                curveness: 0.3
+                                curveness: 0.1
                             },
                             edgeSymbol: ['none', 'arrow'],
                             edgeSymbolSize: [4, 10],
