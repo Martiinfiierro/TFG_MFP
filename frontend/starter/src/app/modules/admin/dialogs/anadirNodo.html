@@ -9,12 +9,34 @@
     <mat-dialog-content>
         <mat-grid-list cols="2" rowHeight="4:1">
             <mat-grid-tile>
-                <ng-container matGridContent>     
+                <ng-container matGridContent class="campo">     
                     <mat-form-field>
                         <mat-label>Tipo de nodo</mat-label>
                         <mat-select [(ngModel)]="tipoNodo">
-                            <mat-option *ngFor="let option of options" [value]="option.value">
-                              {{ option.viewValue }}
+                            <mat-option value="Balanceador Main">
+                                <div style="display: flex; align-items: center;">
+                                    Balanceador Main  <img src="assets/map/bMainAct.png" style="width: 20px; height: 20px; margin-right: 8px;">
+                                </div>
+                            </mat-option>
+                            <mat-option value="Balanceador Subs">
+                                <div style="display: flex; align-items: center;">
+                                    Balanceador Subs <img src="assets/map/bSubsAct.png" style="width: 20px; height: 20px; margin-right: 8px;">
+                                </div>
+                            </mat-option>
+                            <mat-option value="Controlador Main">
+                                <div style="display: flex; align-items: center;">
+                                    Controlador Main <img src="assets/map/cMainAct.png" style="width: 20px; height: 20px; margin-right: 8px;">
+                                </div>
+                            </mat-option>
+                            <mat-option value="Controlador Subs">
+                                <div style="display: flex; align-items: center;">
+                                    Controlador Subs <img src="assets/map/cSubsAct.png" style="width: 20px; height: 20px; margin-right: 8px;">
+                                </div>
+                            </mat-option>
+                            <mat-option value="Procesador">
+                                <div style="display: flex; align-items: center;">
+                                    Procesador <img src="assets/map/procesadorAct.png" style="width: 20px; height: 20px; margin-right: 8px;">
+                                </div>
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -23,8 +45,8 @@
             <mat-grid-tile>
                 <ng-container matGridContent>     
                     <mat-form-field>
-                        <mat-label>Puerto</mat-label>
-                        <input matInput type="number" [(ngModel)]="puerto"/>
+                        <mat-label>Nombre</mat-label>
+                        <input matInput type="text" [(ngModel)]="nombre"/>
                     </mat-form-field>
                 </ng-container>
             </mat-grid-tile>
@@ -39,16 +61,8 @@
             <mat-grid-tile>
                 <ng-container matGridContent>     
                     <mat-form-field>
-                        <mat-label>Nombre</mat-label>
-                        <mat-select *ngIf="tipoNodo === 'Balanceador'" [(ngModel)]="nombre">
-                            <mat-option value="main">Main</mat-option>
-                            <mat-option value="subs">Subs</mat-option>
-                        </mat-select>
-                        <mat-select *ngIf="tipoNodo === 'Controlador'" [(ngModel)]="nombre">
-                            <mat-option value="main">Main</mat-option>
-                            <mat-option value="subs">Subs</mat-option>
-                        </mat-select>
-                        <input *ngIf="tipoNodo !== 'balanceador' && tipoNodo !== 'controlador'" matInput type="text" [(ngModel)]="nombre"/>
+                        <mat-label>Puerto</mat-label>
+                        <input matInput type="number" [(ngModel)]="puerto"/>
                     </mat-form-field>
                 </ng-container>
             </mat-grid-tile>

@@ -89,7 +89,7 @@ export class MapaComponent{
         console.log('activar conexiones')
         this.http.getNodos().subscribe((res: any) =>{
             const requests = res.nodos.map((nodo: any) => 
-                this.http.readDebug(nodo.url).pipe(
+                this.http.readDebug(`${nodo.url}:${nodo.puerto}`).pipe(
                     map((val: any) => ({
                         nodo: nodo,
                         datos: val,
@@ -120,7 +120,7 @@ export class MapaComponent{
   comprobar(){
     this.http.getNodos().subscribe((res: any) =>{
     const requests = res.nodos.map((nodo: any) => 
-        this.http.readDebug(nodo.url).pipe(
+        this.http.readDebug(`${nodo.url}:${nodo.puerto}`).pipe(
             map((val: any) => ({
                 nodo: nodo,
                 datos: val,
@@ -165,15 +165,20 @@ export class MapaComponent{
     //Markers
     res.map((item: any) => {
       if(item.nodo.visible){
-        let iconUrl = '';
-        if(!item.status){
-          iconUrl = 'assets/map/ordenador-gris.png';
-        }
-        else{
-          iconUrl = 'assets/map/ordenador.png';
+        let iconUrl = item.nodo.tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.pngMain : 
+          item.nodo.tipo_nodo === 'Controlador Main' ? this.configuracion.controller.pngMain : 
+          item.nodo.tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.pngSubs : 
+          item.nodo.tipo_nodo === 'Controlador Subs' ? this.configuracion.controller.pngSubs : 
+          this.configuracion.processor.png;
+        if (!item.status) {
+          iconUrl = item.nodo.tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.pngMainDes : 
+            item.nodo.tipo_nodo === 'Controlador Main' ? this.configuracion.controller.pngMainDes : 
+            item.nodo.tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.pngSubsDes : 
+            item.nodo.tipo_nodo === 'Controlador Subs' ? this.configuracion.controller.pngSubsDes : 
+            this.configuracion.processor.pngDes;
         }
         const customIcon = L.icon({
-          iconUrl: iconUrl,
+          iconUrl: `assets/map/${iconUrl}`,
           iconSize: [30, 30],
           iconAnchor: [22, 41],
           popupAnchor: [1, -34]
@@ -192,7 +197,7 @@ export class MapaComponent{
           direction: 'bottom',
           offset: [-7, -12]  
         });
-        marker.on('click', () => this.dialogo(item.nodo.tipo_nodo, item.nodo.id, item.nodo.url));
+        marker.on('click', () => this.dialogo(item.nodo.tipo_nodo, item.nodo.id, item.nodo.url, item.nodo.puerto));
       }
     });
 
@@ -339,12 +344,13 @@ export class MapaComponent{
       this.router.navigate(['/lista']);
   }
 
-    dialogo(tipo: any, id: any, url: any): void {
+    dialogo(tipo: any, id: any, url: any, puerto: any): void {
       const dialogRef = this.dialog.open(Dialog, {
         data: {
           id: id,
           tipo: tipo,
-          url: url
+          url: url,
+          puerto: puerto
         }
       });
     }

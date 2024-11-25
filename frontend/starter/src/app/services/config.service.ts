@@ -4,28 +4,26 @@ import { Observable } from 'rxjs';
 
 export interface Config {
   controller: {
-    colorA: string;
-    colorD: string;
     nameMain: string;
     nameSubs: string;
-    shape: string;
-    png: string;
+    pngMain: string;
+    pngSubs: string;
+    pngMainDes: string;
+    pngSubsDes: string;
     size: number;
   };
   balancer: {
-    colorA: string;
-    colorD: string;
     nameMain: string;
     nameSubs: string;
-    shape: string;
-    png: string;
+    pngMain: string;
+    pngSubs: string;
+    pngMainDes: string;
+    pngSubsDes: string;
     size: number;
   };
   processor: {
-    colorA: string;
-    colorD: string;
-    shape: string;
     png: string;
+    pngDes: string;
     size: number;
   };
   espera: {

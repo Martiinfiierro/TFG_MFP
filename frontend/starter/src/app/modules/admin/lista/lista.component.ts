@@ -63,7 +63,7 @@ export class ListaComponent{
 
   //Lista
   listaNodos: NodeData[] = [];
-  displayedColumns: string[] = ['tipo_nodo', 'url', 'puerto', 'nombre', 'geolocalizacion', 'actions'];
+  displayedColumns: string[] = ['tipo_nodo', 'nombre', 'url', 'puerto', 'geolocalizacion', 'actions'];
   dataSource = new MatTableDataSource<NodeData>(this.listaNodos);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -108,12 +108,13 @@ export class ListaComponent{
       this.router.navigate(['/mapa']);
   }
 
-    dialogo(tipo: any, id: any, url: any): void {
+    dialogo(tipo: any, id: any, url: any, puerto: any): void {
       const dialogRef = this.dialog.open(Dialog, {
         data: {
           id: id,
           tipo: tipo,
           url: url,
+          puerto: puerto
         }
       });
     }
@@ -230,8 +231,10 @@ export class AnadirNodo{
   @Output() dialogClosed = new EventEmitter<void>();
 
   options = [
-    { value: 'Balanceador', viewValue: 'Balanceador' },
-    { value: 'Controlador', viewValue: 'Controlador' },
+    { value: 'Balanceador Main', viewValue: 'Balanceador Main' },
+    { value: 'Balanceador Subs', viewValue: 'Balanceador Subs' },
+    { value: 'Controlador Main', viewValue: 'Controlador Main' },
+    { value: 'Controlador Subs', viewValue: 'Controlador Subs' },
     { value: 'Procesador', viewValue: 'Procesador' },
   ];
 

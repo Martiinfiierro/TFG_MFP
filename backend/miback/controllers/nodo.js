@@ -85,9 +85,9 @@ const buscarNodos = async(req, res) => {
 const crearNodo = async (req, res) => {
     try {
         let nodo = await Nodo.findOne({
-            where: { 
-                tipo_nodo: req.body.tipo_nodo,
-                nombre: req.body.nombre
+            where: {
+                url: req.body.url,
+                puerto: req.body.puerto
             }
         });
 
@@ -101,7 +101,7 @@ const crearNodo = async (req, res) => {
         } else{
             return res.status(409).json({
                 ok: false,
-                msg: `Ya existe un nodo con nombre ${req.body.nombre} y tipo de nodo ${req.body.tipo_nodo}`
+                msg: `Ya existe un nodo con url ${req.body.url} y puerto ${req.body.puerto}`
             });
         }
     } catch (error) {
@@ -123,8 +123,8 @@ const actualizarNodo = async (req, res) => {
             let comprobacionTNyN = await Nodo.findOne({
                 where: {
                     id: { [Op.ne]: id },
-                    tipo_nodo: tipo_nodo,
-                    nombre: nombre,
+                    url: req.body.url,
+                    puerto: req.body.puerto
                 }
             })
             if(!comprobacionTNyN){
@@ -146,7 +146,7 @@ const actualizarNodo = async (req, res) => {
             } else{
                 return res.status(409).json({
                     ok: false,
-                    msg: `Ya existe un nodo con nombre ${nombre} y tipo de nodo ${tipo_nodo}`
+                    msg: `Ya existe un nodo con url ${req.body.url} y puerto ${req.body.puerto}`
                 });
             }
         } else {

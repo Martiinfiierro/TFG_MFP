@@ -37,9 +37,9 @@ export class GrafoComponent{
 
     // Definir zonas para cada tipo de nodo
     zonas = {
-        Controlador: { xInicio: 0, xFin: 0.2 * this.ancho }, // 30% del ancho
-        Balanceador: { xInicio: 0.25 * this.ancho, xFin: 0.4 * this.ancho }, // 30% central
-        Procesador: { xInicio: 0.45 * this.ancho, xFin: this.ancho } // 30% derecha
+        "Controlador": { xInicio: 0, xFin: 0.2 * this.ancho },
+        "Balanceador": { xInicio: 0.25 * this.ancho, xFin: 0.4 * this.ancho },
+        "Procesador": { xInicio: 0.45 * this.ancho, xFin: this.ancho }
     };
 
     constructor(private router: Router, private http: GrafoService, private config: ConfigService, private dialog: MatDialog) {}
@@ -52,12 +52,13 @@ export class GrafoComponent{
         this.router.navigate(['/mapa']); // Navega a la ruta 'grafo'
     }
 
-    dialogo(tipo: any, id: any, url): void {
+    dialogo(tipo: any, id: any, url, puerto: any): void {
         const dialogRef = this.dialog.open(Dialog, {
           data: {
             id: id,
             tipo: tipo,
-            url: url
+            url: url,
+            puerto: puerto
           }
         });
     }
@@ -94,7 +95,7 @@ export class GrafoComponent{
             console.log('activar conexiones')
             this.http.getNodos().subscribe((res: any) =>{
                 const requests = res.nodos.map((nodo: any) => 
-                    this.http.readDebug(nodo.url).pipe(
+                    this.http.readDebug(`${nodo.url}:${nodo.puerto}`).pipe(
                         map((val: any) => ({
                             nodo: nodo,
                             datos: val,
@@ -117,7 +118,7 @@ export class GrafoComponent{
     comprobar(){
         this.http.getNodos().subscribe((res: any) =>{
         const requests = res.nodos.map((nodo: any) => 
-            this.http.readDebug(nodo.url).pipe(
+            this.http.readDebug(`${nodo.url}:${nodo.puerto}`).pipe(
                 map((val: any) => ({
                     nodo: nodo,
                     datos: val,
@@ -158,26 +159,38 @@ export class GrafoComponent{
             const { nodo, status } = item;
             const { nombre, tipo_nodo } = nodo;
 
-            const newNombre = tipo_nodo === 'Balanceador' && nombre === 'main' ? this.configuracion.balancer.nameMain : 
-                tipo_nodo === 'Balanceador' && nombre === 'subs' ? this.configuracion.balancer.nameSubs : 
-                tipo_nodo === 'Controlador' && nombre === 'main' ? this.configuracion.controller.nameMain : 
-                tipo_nodo === 'Controlador' && nombre === 'subs' ? this.configuracion.controller.nameSubs : nodo.nombre;
-            const symbol = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.shape : tipo_nodo === 'Controlador' ? this.configuracion.controller.shape : this.configuracion.processor.shape;
-            const size = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.size : tipo_nodo === 'Controlador' ? this.configuracion.controller.size : this.configuracion.processor.size;                    let color = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.colorA : tipo_nodo === 'Controlador' ? this.configuracion.controller.colorA : this.configuracion.processor.colorA;
+            
+            const newNombre = tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.nameMain : 
+                tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.nameSubs : 
+                tipo_nodo === 'Controlador Main' ? this.configuracion.controller.nameMain : 
+                tipo_nodo === 'Controlador Subs' ? this.configuracion.controller.nameSubs : nodo.nombre;
+            let image = tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.pngMain : 
+                tipo_nodo === 'Controlador Main' ? this.configuracion.controller.pngMain : 
+                tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.pngSubs : 
+                tipo_nodo === 'Controlador Subs' ? this.configuracion.controller.pngSubs : 
+                this.configuracion.processor.png;
+            const size = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.size : tipo_nodo === 'Controlador' ? this.configuracion.controller.size : this.configuracion.processor.size;
             if (!status) {
-                color = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.colorD : tipo_nodo === 'Controlador' ? this.configuracion.controller.colorD : this.configuracion.processor.colorD;
+                image = tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.pngMainDes : 
+                    tipo_nodo === 'Controlador Main' ? this.configuracion.controller.pngMainDes : 
+                    tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.pngSubsDes : 
+                    tipo_nodo === 'Controlador Subs' ? this.configuracion.controller.pngSubsDes : 
+                    this.configuracion.processor.pngDes;
             }
-                    
+            
             // Determinar la zona correspondiente al tipo de nodo
-            const zona = this.zonas[tipo_nodo];
+            const zona = tipo_nodo.startsWith('Balanceador') 
+                ? this.zonas['Balanceador'] : tipo_nodo.startsWith('Controlador') 
+                ? this.zonas['Controlador'] : this.zonas[tipo_nodo];
+
             const anchoZona = zona.xFin - zona.xInicio;
             const altoZona = this.alto - 2 * this.margenZona;
 
             // Índice local dentro de la zona
-            const nodosZona = res.filter((n: any) => n.nodo.tipo_nodo === tipo_nodo);
+            const nodosZona = res.filter((n: any) => n.nodo.tipo_nodo.startsWith(tipo_nodo.split(" ")[0]));
             const indexZona = nodosZona.findIndex((n: any) => n.nodo.id === nodo.id);
 
-            // Calcular la cantidad dinámica de columnas
+             // Calcular la cantidad dinámica de columnas
             const nodosPorColumna = Math.floor(Math.sqrt(nodosZona.length)); // Basado en un layout cuadrado
             const espacioX = anchoZona / nodosPorColumna; // Espacio horizontal entre columnas
             const espacioY = altoZona / Math.ceil(nodosZona.length / nodosPorColumna); // Espacio vertical entre filas
@@ -189,14 +202,15 @@ export class GrafoComponent{
             const x = zona.xInicio + columna * espacioX + this.margenZona;
             const y = this.margenZona + fila * espacioY;
 
+            // Retornar nodo con posición calculada
             return { 
                 id: nodo.id,
                 name: newNombre, 
                 symbolSize: size, 
-                symbol, 
-                itemStyle: { color }, 
+                image: image,
                 tipo_nodo,
                 url: nodo.url,
+                puerto: nodo.puerto,
                 x,
                 y,
                 visible: nodo.visible
@@ -288,7 +302,15 @@ export class GrafoComponent{
         this.myChart.setOption({
             series: [
                 {
-                    data: data.filter((node: any) => node.visible !== false),
+                    data: data.filter((node: any) => node.visible !== false).map((node: any) => ({
+                        id: node.id,
+                        name: node.name,
+                        x: node.x,  // Asegúrate de definir las coordenadas x y y de los nodos
+                        y: node.y,
+                        symbol: `image://assets/map/${node.image}`,
+                        symbolSize: node.symbolSize,
+                        visible: node.visible
+                    })),
                     links: links.map((link: any) => ({
                         source: String(link.source),
                         target: String(link.target),
@@ -302,7 +324,7 @@ export class GrafoComponent{
     initChart(): void {
         this.http.getNodos().subscribe((res) => {
             const requests = res.nodos.map((nodo: any) => 
-                this.http.readDebug(nodo.url).pipe(
+                this.http.readDebug(`${nodo.url}:${nodo.puerto}`).pipe(
                     map((val: any) => ({
                         nodo: nodo,
                         datos: val,
@@ -325,23 +347,34 @@ export class GrafoComponent{
                     const { nombre, tipo_nodo } = nodo;
 
                     
-                    const newNombre = tipo_nodo === 'Balanceador' && nombre === 'main' ? this.configuracion.balancer.nameMain : 
-                        tipo_nodo === 'Balanceador' && nombre === 'subs' ? this.configuracion.balancer.nameSubs : 
-                        tipo_nodo === 'Controlador' && nombre === 'main' ? this.configuracion.controller.nameMain : 
-                        tipo_nodo === 'Controlador' && nombre === 'subs' ? this.configuracion.controller.nameSubs : nodo.nombre;
-                    const symbol = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.shape : tipo_nodo === 'Controlador' ? this.configuracion.controller.shape : this.configuracion.processor.shape;
-                    const size = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.size : tipo_nodo === 'Controlador' ? this.configuracion.controller.size : this.configuracion.processor.size;                    let color = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.colorA : tipo_nodo === 'Controlador' ? this.configuracion.controller.colorA : this.configuracion.processor.colorA;
+                    const newNombre = tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.nameMain : 
+                        tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.nameSubs : 
+                        tipo_nodo === 'Controlador Main' ? this.configuracion.controller.nameMain : 
+                        tipo_nodo === 'Controlador Subs' ? this.configuracion.controller.nameSubs : nodo.nombre;
+                    let image = tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.pngMain : 
+                        tipo_nodo === 'Controlador Main' ? this.configuracion.controller.pngMain : 
+                        tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.pngSubs : 
+                        tipo_nodo === 'Controlador Subs' ? this.configuracion.controller.pngSubs : 
+                        this.configuracion.processor.png;
+                    const size = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.size : tipo_nodo === 'Controlador' ? this.configuracion.controller.size : this.configuracion.processor.size;
                     if (!status) {
-                        color = tipo_nodo === 'Balanceador' ? this.configuracion.balancer.colorD : tipo_nodo === 'Controlador' ? this.configuracion.controller.colorD : this.configuracion.processor.colorD;
+                        image = tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.pngMainDes : 
+                            tipo_nodo === 'Controlador Main' ? this.configuracion.controller.pngMainDes : 
+                            tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.pngSubsDes : 
+                            tipo_nodo === 'Controlador Subs' ? this.configuracion.controller.pngSubsDes : 
+                            this.configuracion.processor.pngDes;
                     }
                     
                     // Determinar la zona correspondiente al tipo de nodo
-                    const zona = this.zonas[tipo_nodo];
+                    const zona = tipo_nodo.startsWith('Balanceador') 
+                        ? this.zonas['Balanceador'] : tipo_nodo.startsWith('Controlador') 
+                        ? this.zonas['Controlador'] : this.zonas[tipo_nodo];
+
                     const anchoZona = zona.xFin - zona.xInicio;
                     const altoZona = this.alto - 2 * this.margenZona;
 
                     // Índice local dentro de la zona
-                    const nodosZona = res.filter((n: any) => n.nodo.tipo_nodo === tipo_nodo);
+                    const nodosZona = res.filter((n: any) => n.nodo.tipo_nodo.startsWith(tipo_nodo.split(" ")[0]));
                     const indexZona = nodosZona.findIndex((n: any) => n.nodo.id === nodo.id);
 
                      // Calcular la cantidad dinámica de columnas
@@ -356,15 +389,14 @@ export class GrafoComponent{
                     const x = zona.xInicio + columna * espacioX + this.margenZona;
                     const y = this.margenZona + fila * espacioY;
 
-                    // Retornar nodo con posición calculada
                     return { 
                         id: nodo.id,
                         name: newNombre, 
                         symbolSize: size, 
-                        symbol, 
-                        itemStyle: { color }, 
+                        image: image,
                         tipo_nodo,
                         url: nodo.url,
+                        puerto: nodo.puerto,
                         x,
                         y,
                         visible: nodo.visible
@@ -469,9 +501,17 @@ export class GrafoComponent{
                             },
                             label: {
                                 show: true,
-                                position: 'inside'
+                                position: 'bottom',
                             },
-                            data: data.filter((node: any) => node.visible !== false),
+                            data: data.filter((node: any) => node.visible !== false).map((node: any) => ({
+                                id: node.id,
+                                name: node.name,
+                                x: node.x,
+                                y: node.y,
+                                symbol: `image://assets/map/${node.image}`,
+                                symbolSize: node.symbolSize,
+                                visible: node.visible
+                            })),
                             links: links.map((link: any) => ({
                                 source: String(link.source),
                                 target: String(link.target),
@@ -488,6 +528,7 @@ export class GrafoComponent{
                     ]
                 };
                 
+                
                 // Establece las opciones del gráfico
                 this.myChart.setOption(option);
     
@@ -497,8 +538,9 @@ export class GrafoComponent{
                         const nodoId = (params.data as any).id;
                         const tipoNodo = (params.data as any).tipo_nodo;
                         const url = (params.data as any).url;
+                        const puerto = (params.data as any).puerto;
     
-                        this.dialogo(tipoNodo, nodoId, url);
+                        this.dialogo(tipoNodo, nodoId, url, puerto);
                     }
                 });
                 this.datosDelNodo = res;

@@ -1,28 +1,26 @@
 {
     "controller": {
-        "colorA": "#FFA500",
-        "colorD": "#CCC0AC",
         "nameMain": "C main",
         "nameSubs": "C subs",
-        "shape": "circle",
-        "png": "",
-        "size": 50
+        "pngMain": "cMainAct.png",
+        "pngSubs": "cSubsAct.png",
+        "pngMainDes": "cMainDes.png",
+        "pngSubsDes": "cSubsDes.png",
+        "size": 60
     },
     "balancer": {
-        "colorA": "#1E90FF",
-        "colorD": "#97B7D7",
         "nameMain": "B main",
         "nameSubs": "B subs",
-        "shape": "square",
-        "png": "",
-        "size": 50
+        "pngMain": "bMainAct.png",
+        "pngSubs": "bSubsAct.png",
+        "pngMainDes": "bMainDes.png",
+        "pngSubsDes": "bSubsDes.png",
+        "size": 60
     },
     "processor": {
-        "colorA": "#A75DB3",
-        "colorD": "#A281A8",
-        "shape": "diamond",
-        "png": "",
-        "size": 35
+        "png": "procesadorAct.png",
+        "pngDes": "procesadorDes.png",
+        "size": 60
     },
     "espera": {
         "valor": 5000
