@@ -75,6 +75,7 @@ import { NodeData } from '../lista/lista.component';
     }
 
     getEstadoInterno(){
+      console.log(this.data)
       this.http.readDebug(`${this.data.url}:${this.data.puerto}`).subscribe((res: any) => {
           console.log(res)
           this.estado_interno = JSON.stringify(res, null, 2);

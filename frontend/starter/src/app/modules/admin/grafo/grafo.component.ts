@@ -52,7 +52,7 @@ export class GrafoComponent{
         this.router.navigate(['/mapa']); // Navega a la ruta 'grafo'
     }
 
-    dialogo(tipo: any, id: any, url, puerto: any): void {
+    dialogo(tipo: any, id: any, url: any, puerto: any): void {
         const dialogRef = this.dialog.open(Dialog, {
           data: {
             id: id,
@@ -135,18 +135,15 @@ export class GrafoComponent{
             let cont = 0;
             
             for(let x = 0; x < res.length; x++){
-                const obj1 = JSON.stringify(res[x].nodo);
-                const obj2 = JSON.stringify(this.datosDelNodo[x].nodo);
+                const obj1 = JSON.stringify(res[x]);
+                const obj2 = JSON.stringify(this.datosDelNodo[x]);
 
                 if (obj1 !== obj2 || res[x].status !== this.datosDelNodo[x].status) {
                     cont++;
                 }
             }
             if(cont !== 0){
-                console.log("numero de cambios: " + cont)
                 this.updateGrafo(res);
-            } else{
-                console.log('no hay cambios')
             }
         });
     });
@@ -158,7 +155,6 @@ export class GrafoComponent{
         const data = res.map((item: any) => {
             const { nodo, status } = item;
             const { nombre, tipo_nodo } = nodo;
-
             
             const newNombre = tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.nameMain : 
                 tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.nameSubs : 
@@ -217,48 +213,60 @@ export class GrafoComponent{
             };
         });
         const links = res.reduce((acc: any[], item2: any) => {
-            const { nodo, status } = item2;
-            
+            const { nodo, status, datos } = item2;
+                    
+            // Enlaces de Balanceadores a Procesadores
             if(this.activarConexiones === true){
-                //Enlaces de Balanceadores y Controladores "subs"-->"main"
-                if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
-                    const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
-                    if (nodoTarget) {
-                        acc.push({
-                            source: String(nodo.id),
-                            target: String(nodoTarget.nodo.id)
-                        });
-                    }
-                }
-
-                //Enlaces Balanceadores-->Procesadores
-                if (nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true) {
+                if (nodo.tipo_nodo === 'Balanceador Main' && status === true) {
                     res.forEach((nodoTarget: any) => {
-                        if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
-                            acc.push({
-                                source: String(nodo.id),
-                                target: String(nodoTarget.nodo.id)
-                            });
+                        for(let i = 0; i < datos.Data.balancerList.length; i++){
+                            if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true) {
+                                acc.push({
+                                    source: nodo.id,
+                                    target: nodoTarget.nodo.id
+                                });
+                            }
                         }
                     });
                 }
-                else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
-                    const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
-                    if(nodoMain){
-                        res.forEach((nodoTarget: any) => {
-                            if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
+                else if(nodo.tipo_nodo === 'Balanceador Subs' && status === true && datos.Data.balancerSubsActive === true){
+                    res.forEach((nodoTarget: any) => {
+                        for(let i = 0; i < datos.Data.balancerList.length; i++){
+                            if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true) {
                                 acc.push({
-                                    source: String(nodo.id),
-                                    target: String(nodoTarget.nodo.id)
+                                    source: nodo.id,
+                                    target: nodoTarget.nodo.id
                                 });
                             }
+                        }
+                    });
+                }
+                
+                // Enlace de Balanceadores "subs" hacia "main"
+                if (nodo.tipo_nodo === 'Balanceador Subs' && status === true) {
+                    const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlMain && n.status === true);
+                    if (nodoTarget) {
+                        acc.push({
+                            source: nodo.id,
+                            target: nodoTarget.nodo.id
                         });
                     }
                 }
 
-                //Enlaces Balanceadores-->Controladores
-                if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true){
-                    const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+                // Enlace de Controladores "subs" hacia "main"
+                if (nodo.tipo_nodo === 'Controlador Subs' && status === true) {
+                    const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlCoordinatorlMain && n.status === true);
+                    if (nodoTarget) {
+                        acc.push({
+                            source: nodo.id,
+                            target: nodoTarget.nodo.id
+                        });
+                    }
+                }
+
+                //Controlador --> Balanceador
+                if(nodo.tipo_nodo === 'Controlador Main' && status === true){
+                    const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerMain && n.status === true);
                     if(nodoTarget){
                         acc.push({
                             source: String(nodo.id),
@@ -266,7 +274,7 @@ export class GrafoComponent{
                         });
                     }
                     else{
-                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                        const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerSubs && n.status === true);
                         if(nodoTarget){
                             acc.push({
                                 source: String(nodo.id),
@@ -275,10 +283,10 @@ export class GrafoComponent{
                         }
                     }
                 }
-                else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
-                    const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
+                else if(nodo.tipo_nodo === 'Controlador Subs' && status === true){
+                    const nodoMain = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlCoordinatorlMain && n.status === false && datos.Data.coordinatorSubsActive === true);
                     if(nodoMain){
-                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+                        const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerMain && n.status === true);
                         if(nodoTarget){
                             acc.push({
                                 source: String(nodo.id),
@@ -286,7 +294,7 @@ export class GrafoComponent{
                             });
                         }
                         else{
-                            const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                            const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerSubs && n.status === true);
                             if(nodoTarget){
                                 acc.push({
                                     source: String(nodo.id),
@@ -309,7 +317,10 @@ export class GrafoComponent{
                         y: node.y,
                         symbol: `image://assets/map/${node.image}`,
                         symbolSize: node.symbolSize,
-                        visible: node.visible
+                        visible: node.visible,
+                        tipo_nodo: node.tipo_nodo,
+                        url: node.url,
+                        puerto: node.puerto
                     })),
                     links: links.map((link: any) => ({
                         source: String(link.source),
@@ -350,7 +361,7 @@ export class GrafoComponent{
                     const newNombre = tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.nameMain : 
                         tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.nameSubs : 
                         tipo_nodo === 'Controlador Main' ? this.configuracion.controller.nameMain : 
-                        tipo_nodo === 'Controlador Subs' ? this.configuracion.controller.nameSubs : nodo.nombre;
+                        tipo_nodo === 'Controlador Subs' ? this.configuracion.controller.nameSubs : nombre;
                     let image = tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.pngMain : 
                         tipo_nodo === 'Controlador Main' ? this.configuracion.controller.pngMain : 
                         tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.pngSubs : 
@@ -394,7 +405,7 @@ export class GrafoComponent{
                         name: newNombre, 
                         symbolSize: size, 
                         image: image,
-                        tipo_nodo,
+                        tipo_nodo: tipo_nodo,
                         url: nodo.url,
                         puerto: nodo.puerto,
                         x,
@@ -405,36 +416,49 @@ export class GrafoComponent{
     
                 // Construye enlaces `links`
                 const links = res.reduce((acc: any[], item2: any) => {
-                    const { nodo, status } = item2;
+                    const { nodo, status, datos } = item2;
                     
                         // Enlaces de Balanceadores a Procesadores
                         if(this.activarConexiones === true){
-                            if (nodo.tipo_nodo === 'Balanceador' && status === true && nodo.nombre === 'main') {
+                            if (nodo.tipo_nodo === 'Balanceador Main' && status === true) {
                                 res.forEach((nodoTarget: any) => {
-                                    if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
-                                        acc.push({
-                                            source: nodo.id,
-                                            target: nodoTarget.nodo.id
-                                        });
-                                    }
-                                });
-                            }
-                            else if (nodo.tipo_nodo === 'Balanceador' && status === false && nodo.nombre === 'main') {
-                                if(nodo.tipo_nodo === 'Balanceador' && status === true && nodo.nombre === 'subs'){
-                                    res.forEach((nodoTarget: any) => {
-                                        if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
+                                    for(let i = 0; i < datos.Data.balancerList.length; i++){
+                                        if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true) {
                                             acc.push({
                                                 source: nodo.id,
                                                 target: nodoTarget.nodo.id
                                             });
                                         }
+                                    }
+                                });
+                            }
+                            else if(nodo.tipo_nodo === 'Balanceador Subs' && status === true && datos.Data.balancerSubsActive === true){
+                                res.forEach((nodoTarget: any) => {
+                                    for(let i = 0; i < datos.Data.balancerList.length; i++){
+                                        if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true) {
+                                            acc.push({
+                                                source: nodo.id,
+                                                target: nodoTarget.nodo.id
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                
+                            // Enlace de Balanceadores "subs" hacia "main"
+                            if (nodo.tipo_nodo === 'Balanceador Subs' && status === true) {
+                                const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlMain && n.status === true);
+                                if (nodoTarget) {
+                                    acc.push({
+                                        source: nodo.id,
+                                        target: nodoTarget.nodo.id
                                     });
                                 }
                             }
-                
-                            // Enlace de Balanceadores y Controladores "subs" hacia "main"
-                            if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
-                                const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
+
+                            // Enlace de Controladores "subs" hacia "main"
+                            if (nodo.tipo_nodo === 'Controlador Subs' && status === true) {
+                                const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlCoordinatorlMain && n.status === true);
                                 if (nodoTarget) {
                                     acc.push({
                                         source: nodo.id,
@@ -444,8 +468,8 @@ export class GrafoComponent{
                             }
 
                             //Controlador --> Balanceador
-                            if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true){
-                                const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+                            if(nodo.tipo_nodo === 'Controlador Main' && status === true){
+                                const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerMain && n.status === true);
                                 if(nodoTarget){
                                     acc.push({
                                         source: String(nodo.id),
@@ -453,7 +477,7 @@ export class GrafoComponent{
                                     });
                                 }
                                 else{
-                                    const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                                    const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerSubs && n.status === true);
                                     if(nodoTarget){
                                         acc.push({
                                             source: String(nodo.id),
@@ -462,10 +486,10 @@ export class GrafoComponent{
                                     }
                                 }
                             }
-                            else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
-                                const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
+                            else if(nodo.tipo_nodo === 'Controlador Subs' && status === true){
+                                const nodoMain = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlCoordinatorlMain && n.status === false && datos.Data.coordinatorSubsActive === true);
                                 if(nodoMain){
-                                    const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
+                                    const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerMain && n.status === true);
                                     if(nodoTarget){
                                         acc.push({
                                             source: String(nodo.id),
@@ -473,7 +497,7 @@ export class GrafoComponent{
                                         });
                                     }
                                     else{
-                                        const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
+                                        const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerSubs && n.status === true);
                                         if(nodoTarget){
                                             acc.push({
                                                 source: String(nodo.id),
@@ -485,7 +509,6 @@ export class GrafoComponent{
                             }
                         }
                         return acc;
-                    
                 }, []);
     
                 const option = {
@@ -510,7 +533,10 @@ export class GrafoComponent{
                                 y: node.y,
                                 symbol: `image://assets/map/${node.image}`,
                                 symbolSize: node.symbolSize,
-                                visible: node.visible
+                                visible: node.visible,
+                                tipo_nodo: node.tipo_nodo,
+                                url: node.url,
+                                puerto: node.puerto
                             })),
                             links: links.map((link: any) => ({
                                 source: String(link.source),
@@ -535,6 +561,7 @@ export class GrafoComponent{
                 // Manejar clic en los nodos
                 this.myChart.on('click', (params: any) => {
                     if (params.dataType === 'node') {
+                        console.log(params)
                         const nodoId = (params.data as any).id;
                         const tipoNodo = (params.data as any).tipo_nodo;
                         const url = (params.data as any).url;

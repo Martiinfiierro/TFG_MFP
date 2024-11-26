@@ -141,8 +141,8 @@ export class MapaComponent{
         }
         else{
           for(let x = 0; x < res.length; x++){
-              const obj1 = JSON.stringify(res[x].nodo);
-              const obj2 = JSON.stringify(this.datosDelNodo[x].nodo);
+              const obj1 = JSON.stringify(res[x]);
+              const obj2 = JSON.stringify(this.datosDelNodo[x]);
   
               if (obj1 !== obj2 || res[x].status !== this.datosDelNodo[x].status) {
                   console.log(obj1 + obj2)
@@ -150,10 +150,7 @@ export class MapaComponent{
               }
           }
           if(cont !== 0){
-              console.log("numero de cambios: " + cont)
               this.updateMapa(res);
-          } else{
-              console.log('no hay cambios')
           }
         }
       });
@@ -184,14 +181,13 @@ export class MapaComponent{
           popupAnchor: [1, -34]
         })
         const marker = L.marker([item.nodo.latitud, item.nodo.longitud], { icon: customIcon }).addTo(this.map);
-
         
-        const { nodo, status } = item;
-        const { nombre, tipo_nodo } = nodo;
-        const newNombre = tipo_nodo === 'Balanceador' && nombre === 'main' ? this.configuracion.balancer.nameMain : 
-            tipo_nodo === 'Balanceador' && nombre === 'subs' ? this.configuracion.balancer.nameSubs : 
-            tipo_nodo === 'Controlador' && nombre === 'main' ? this.configuracion.controller.nameMain : 
-            tipo_nodo === 'Controlador' && nombre === 'subs' ? this.configuracion.controller.nameSubs : nodo.nombre;
+        const { nodo} = item;
+        const { tipo_nodo } = nodo;
+        const newNombre = tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.nameMain : 
+                tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.nameSubs : 
+                tipo_nodo === 'Controlador Main' ? this.configuracion.controller.nameMain : 
+                tipo_nodo === 'Controlador Subs' ? this.configuracion.controller.nameSubs : nodo.nombre;
         marker.bindTooltip(newNombre, { 
           permanent: true, 
           direction: 'bottom',
@@ -203,99 +199,113 @@ export class MapaComponent{
 
     //Nuevas lineas
     const links = res.reduce((acc: any[], item2: any) => {
-      const { nodo, status } = item2;
-      
-      if(this.activarConexiones === true){
-          //Enlaces de Balanceadores y Controladores "subs"-->"main"
-          if ((nodo.tipo_nodo === 'Balanceador' || nodo.tipo_nodo === 'Controlador') && nodo.nombre === 'subs' && status === true) {
-              const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === true);
-              if (nodoTarget) {
-                  acc.push({
-                      lat1: String(nodo.latitud),
-                      lon1: String(nodo.longitud),
-                      lat2: String(nodoTarget.nodo.latitud),
-                      lon2: String(nodoTarget.nodo.longitud)
-                  });
-              }
-          }
-
-          //Enlaces Balanceadores-->Procesadores
-          if (nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true) {
-              res.forEach((nodoTarget: any) => {
-                  if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
-                      acc.push({
-                        lat1: String(nodo.latitud),
-                        lon1: String(nodo.longitud),
-                        lat2: String(nodoTarget.nodo.latitud),
-                        lon2: String(nodoTarget.nodo.longitud)
-                      });
-                  }
-              });
-          }
-          else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
-              const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
-              if(nodoMain){
-                  res.forEach((nodoTarget: any) => {
-                      if (nodoTarget.nodo.tipo_nodo === "Procesador" && nodoTarget.status === true) {
-                          acc.push({
-                            lat1: String(nodo.latitud),
-                            lon1: String(nodo.longitud),
-                            lat2: String(nodoTarget.nodo.latitud),
-                            lon2: String(nodoTarget.nodo.longitud)
-                          });
-                      }
-                  });
-              }
-          }
-
-          //Enlaces Balanceadores-->Controladores
-          if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'main' && status === true){
-              const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
-              if(nodoTarget){
+      const { nodo, status, datos } = item2;
+                    
+        // Enlaces de Balanceadores a Procesadores
+        if(this.activarConexiones === true){
+          if (nodo.tipo_nodo === 'Balanceador Main' && status === true) {
+            res.forEach((nodoTarget: any) => {
+              for(let i = 0; i < datos.Data.balancerList.length; i++){
+                if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true) {
                   acc.push({
                     lat1: String(nodo.latitud),
                     lon1: String(nodo.longitud),
                     lat2: String(nodoTarget.nodo.latitud),
                     lon2: String(nodoTarget.nodo.longitud)
                   });
+                }
               }
-              else{
-                  const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
-                  if(nodoTarget){
-                      acc.push({
-                        lat1: String(nodo.latitud),
-                        lon1: String(nodo.longitud),
-                        lat2: String(nodoTarget.nodo.latitud),
-                        lon2: String(nodoTarget.nodo.longitud)
-                      });
-                  }
-              }
+            });
           }
-          else if(nodo.tipo_nodo === 'Balanceador' && nodo.nombre === 'subs' && status === true){
-              const nodoMain = res.find((n: any) => n.nodo.tipo_nodo === nodo.tipo_nodo && n.nodo.nombre === 'main' && n.status === false);
-              if(nodoMain){
-                  const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'main' && n.status === true);
-                  if(nodoTarget){
-                      acc.push({
-                        lat1: String(nodo.latitud),
-                        lon1: String(nodo.longitud),
-                        lat2: String(nodoTarget.nodo.latitud),
-                        lon2: String(nodoTarget.nodo.longitud)
-                      });
-                  }
-                  else{
-                      const nodoTarget = res.find((n: any) => n.nodo.tipo_nodo === 'Controlador' && n.nodo.nombre === 'subs' && n.status === true);
-                      if(nodoTarget){
-                          acc.push({
-                            lat1: String(nodo.latitud),
-                            lon1: String(nodo.longitud),
-                            lat2: String(nodoTarget.nodo.latitud),
-                            lon2: String(nodoTarget.nodo.longitud)
-                          });
-                      }
-                  }
+          else if(nodo.tipo_nodo === 'Balanceador Subs' && status === true && datos.Data.balancerSubsActive === true){
+            res.forEach((nodoTarget: any) => {
+              for(let i = 0; i < datos.Data.balancerList.length; i++){
+                if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true) {
+                  acc.push({
+                    lat1: String(nodo.latitud),
+                    lon1: String(nodo.longitud),
+                    lat2: String(nodoTarget.nodo.latitud),
+                    lon2: String(nodoTarget.nodo.longitud)
+                  });
+                }
               }
+            });
           }
+                
+          // Enlace de Balanceadores "subs" hacia "main"
+          if (nodo.tipo_nodo === 'Balanceador Subs' && status === true) {
+            const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlMain && n.status === true);
+            if (nodoTarget) {
+              acc.push({
+              lat1: String(nodo.latitud),
+              lon1: String(nodo.longitud),
+              lat2: String(nodoTarget.nodo.latitud),
+              lon2: String(nodoTarget.nodo.longitud)
+            });
+          }
+        }
+
+        // Enlace de Controladores "subs" hacia "main"
+        if (nodo.tipo_nodo === 'Controlador Subs' && status === true) {
+          const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlCoordinatorlMain && n.status === true);
+          if (nodoTarget) {
+            acc.push({
+              lat1: String(nodo.latitud),
+              lon1: String(nodo.longitud),
+              lat2: String(nodoTarget.nodo.latitud),
+              lon2: String(nodoTarget.nodo.longitud)
+            });
+          }
+        }
+
+        //Controlador --> Balanceador
+        if(nodo.tipo_nodo === 'Controlador Main' && status === true){
+          const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerMain && n.status === true);
+          if(nodoTarget){
+            acc.push({
+              lat1: String(nodo.latitud),
+              lon1: String(nodo.longitud),
+              lat2: String(nodoTarget.nodo.latitud),
+              lon2: String(nodoTarget.nodo.longitud)
+            });
+          }
+          else{
+            const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerSubs && n.status === true);
+            if(nodoTarget){
+              acc.push({
+                lat1: String(nodo.latitud),
+                lon1: String(nodo.longitud),
+                lat2: String(nodoTarget.nodo.latitud),
+                lon2: String(nodoTarget.nodo.longitud)
+              });
+            }
+          }
+        }
+        else if(nodo.tipo_nodo === 'Controlador Subs' && status === true){
+          const nodoMain = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlCoordinatorlMain && n.status === false && datos.Data.coordinatorSubsActive === true);
+          if(nodoMain){
+            const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerMain && n.status === true);
+            if(nodoTarget){
+              acc.push({
+                lat1: String(nodo.latitud),
+                lon1: String(nodo.longitud),
+                lat2: String(nodoTarget.nodo.latitud),
+                lon2: String(nodoTarget.nodo.longitud)
+              });
+            }
+            else{
+              const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerSubs && n.status === true);
+              if(nodoTarget){
+                acc.push({
+                  lat1: String(nodo.latitud),
+                  lon1: String(nodo.longitud),
+                  lat2: String(nodoTarget.nodo.latitud),
+                  lon2: String(nodoTarget.nodo.longitud)
+                });
+              }
+            }
+          }
+        }
       }
       return acc;
     }, [])
