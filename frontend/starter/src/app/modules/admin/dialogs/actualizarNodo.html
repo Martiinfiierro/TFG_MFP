@@ -7,10 +7,9 @@
         </button>
     </div>
     <mat-dialog-content>
-        <mat-grid-list cols="2" rowHeight="4:1">
-            <mat-grid-tile>
+            <div class="grid-container">
                 <ng-container matGridContent class="campo">     
-                    <mat-form-field>
+                    <mat-form-field class="largo">
                         <mat-label>Tipo de nodo</mat-label>
                         <mat-select [(ngModel)]="tipoNodo">
                             <mat-option value="Balanceador Main">
@@ -41,47 +40,38 @@
                         </mat-select>
                     </mat-form-field>
                 </ng-container>
-            </mat-grid-tile>
-            <mat-grid-tile>
                 <ng-container matGridContent>     
-                    <mat-form-field>
+                    <mat-form-field class="largo">
                         <mat-label>Nombre</mat-label>
                         <input matInput type="text" [(ngModel)]="nombre"/>
                     </mat-form-field>
                 </ng-container>
-            </mat-grid-tile>
-            <mat-grid-tile>
                 <ng-container matGridContent>     
-                    <mat-form-field>
+                    <mat-form-field class="largo">
                         <mat-label>URL</mat-label>
                         <input matInput type="text" [(ngModel)]="url"/>
                     </mat-form-field>
                 </ng-container>
-            </mat-grid-tile>
-            <mat-grid-tile>
                 <ng-container matGridContent>     
-                    <mat-form-field>
+                    <mat-form-field class="corto">
                         <mat-label>Puerto</mat-label>
                         <input matInput type="number" [(ngModel)]="puerto"/>
                     </mat-form-field>
                 </ng-container>
-            </mat-grid-tile>
-            <mat-grid-tile>
                 <ng-container matGridContent style="display: flex;">
                     <div>
-                        <mat-form-field floatLabel="always">
+                        <mat-form-field floatLabel="always" class="corto">
                             <mat-label>Geolocalización</mat-label>
                             <input matInput type="number" placeholder="Latitud" [(ngModel)]="latitud"/>
                         </mat-form-field>
                           
-                        <mat-form-field floatLabel="always">
+                        <mat-form-field floatLabel="always" class="corto">
                             <input matInput type="number" placeholder="Longitud" [(ngModel)]="longitud"/>
                         </mat-form-field>
                     </div>                            
                 </ng-container>
-            </mat-grid-tile><mat-grid-tile>
                 <ng-container matGridContent>     
-                    <mat-form-field>
+                    <mat-form-field class="corto">
                         <mat-label>Visiblidad</mat-label>
                         <mat-select [(ngModel)]="visible">
                             <mat-option [value]="true">Activada</mat-option>
@@ -89,8 +79,10 @@
                         </mat-select>
                     </mat-form-field>
                 </ng-container>
-            </mat-grid-tile>
-        </mat-grid-list>
+            </div>
+
+            
+            <p *ngIf="errorPeticion" style="color: red">{{errorPeticion}}</p>
         <div id="botonAN">     
             <button (click)="actualizarNodo()" class="anadir" >Actualizar</button>
         </div>

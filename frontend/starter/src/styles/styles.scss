@@ -52,7 +52,7 @@
 
 .cabecera2, .header-dialog{
     display: flex;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .checkbox{
@@ -64,12 +64,60 @@
     border: grey solid 1px;
     border-radius: 20px;
     background-color: white;
-    padding: 5px;
+    padding: 5px; 
     height: 100%;
 }
 
 .checkbox > mat-checkbox{
     display:block;
+}
+
+img{
+    margin-left: 10px;
+}
+
+.tabla-contenedor {
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 600px;
+  }
+  
+  .paginas {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    background-color: white;
+    z-index: 1;
+    text-align: center;
+  }
+  
+  .mat-table {
+    width: 100%;
+  }
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .ng-container{
+    justify-content: left;
+  }
+
+  .corto {
+    width: 30%;
+  }
+
+  .largo {
+    width: 75%;
+  }
+
+mat-grid-tile {
+    text-align: left;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
 }
 
 .header-lista{

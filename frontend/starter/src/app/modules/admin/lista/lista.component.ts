@@ -199,7 +199,6 @@ export class ListaComponent{
       }
 
       try {
-        console.log(nodoAct);
         await this.http.putNodo(nodoAct);
         this.getNodos();
       } catch (error) {
@@ -238,6 +237,8 @@ export class AnadirNodo{
     { value: 'Procesador', viewValue: 'Procesador' },
   ];
 
+  errorPeticion: any = "";
+
   tipoNodo: string;
   puerto: string;
   url: string;
@@ -262,8 +263,21 @@ export class AnadirNodo{
       visible: this.visible,
       tiempo: null
     }
-    await this.http.postNodo(nodoData);
-    this.cerrarDialog();
+    try { 
+      await this.http.postNodo(nodoData);
+      this.cerrarDialog();
+    } catch (error) {
+      this.errorPeticion = "";
+      if(error.error.errores){
+        for(let i = 0; i < error.error.errores.length; i++){
+          this.errorPeticion += error.error.errores[i].msg + "\t";
+        }
+      }
+      else{
+        this.errorPeticion += error.error.msg;
+      }
+      console.log(this.errorPeticion)
+    }
   }
 
   cerrarDialog(): void {
@@ -296,6 +310,8 @@ export class AnadirNodo{
 export class ActualizarNodo{
   @Output() dialogClosed = new EventEmitter<void>();
   nodo: NodeData;
+
+  errorPeticion: any = "";
 
   id: number;
   tipoNodo: string;
@@ -342,12 +358,21 @@ export class ActualizarNodo{
       visible: this.visible,
       tiempo: this.tiempo
     }
-    try {
-      console.log(nodoAct)
+    
+    try { 
       await this.http.putNodo(nodoAct);
       this.cerrarDialog();
     } catch (error) {
-      console.error('Error al actualizar la visibilidad del nodo', error);
+      this.errorPeticion = "";
+      if(error.error.errores){
+        for(let i = 0; i < error.error.errores.length; i++){
+          this.errorPeticion += error.error.errores[i].msg + "\t";
+        }
+      }
+      else{
+        this.errorPeticion += error.error.msg;
+      }
+      console.log(this.errorPeticion)
     }
   }
 
