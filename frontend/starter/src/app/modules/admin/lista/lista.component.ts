@@ -35,10 +35,10 @@ export interface NodeData {
   nombre: string;
   url: string;
   puerto: string;
-  latitud: string;
-  longitud: string;
+  latitud: number;
+  longitud: number;
   visible: boolean;
-  tiempo: Date;
+  tiempo: string;
 }
 
 @Component({
@@ -238,13 +238,14 @@ export class AnadirNodo{
   ];
 
   errorPeticion: any = "";
+  errorPeticion2: any = "";
 
   tipoNodo: string;
   puerto: string;
   url: string;
   nombre: string;
-  latitud: string;
-  longitud: string;
+  latitud: number;
+  longitud: number;
   visible: boolean = true;
 
   readonly dialogRef = inject(MatDialogRef<AnadirNodo>);
@@ -252,7 +253,6 @@ export class AnadirNodo{
   constructor(private http: GrafoService){}
 
   async anadirNodo(){
-    
     const nodoData = {
       tipo_nodo: this.tipoNodo,
       nombre: this.nombre,
@@ -261,20 +261,21 @@ export class AnadirNodo{
       latitud: this.latitud,
       longitud: this.longitud,
       visible: this.visible,
-      tiempo: null
+      tiempo: Date(),
     }
     try { 
       await this.http.postNodo(nodoData);
       this.cerrarDialog();
     } catch (error) {
       this.errorPeticion = "";
+      console.log(error)
       if(error.error.errores){
         for(let i = 0; i < error.error.errores.length; i++){
           this.errorPeticion += error.error.errores[i].msg + "\t";
         }
       }
       else{
-        this.errorPeticion += error.error.msg;
+        this.errorPeticion2 += error.error.msg;
       }
       console.log(this.errorPeticion)
     }
@@ -312,14 +313,15 @@ export class ActualizarNodo{
   nodo: NodeData;
 
   errorPeticion: any = "";
+  errorPeticion2: any = "";
 
   id: number;
   tipoNodo: string;
   puerto: string;
   url: string;
   nombre: string;
-  latitud: string;
-  longitud: string;
+  latitud: number;
+  longitud: number;
   visible: boolean;
   tiempo: Date;
 
@@ -356,7 +358,7 @@ export class ActualizarNodo{
       latitud: this.latitud,
       longitud: this.longitud,
       visible: this.visible,
-      tiempo: this.tiempo
+      tiempo: Date(),
     }
     
     try { 
@@ -370,7 +372,7 @@ export class ActualizarNodo{
         }
       }
       else{
-        this.errorPeticion += error.error.msg;
+        this.errorPeticion2 += error.error.msg;
       }
       console.log(this.errorPeticion)
     }

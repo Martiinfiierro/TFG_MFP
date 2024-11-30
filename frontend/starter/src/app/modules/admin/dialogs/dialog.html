@@ -5,53 +5,94 @@
         <button class="close" mat-mini-fab (click)="cerrarDialog()"><mat-icon>close</mat-icon></button>
     </div>
     <mat-dialog-content>
-        <div class="datos">
-            <div class="datos-grid">
-                <mat-grid-list cols="2" rowHeight="2:1">
-                    <mat-grid-tile>
-                        <ng-container matGridContent>
-                            <div class="box">
-                                <h2><strong>Puerto</strong></h2>
-                                <p>{{nodo.puerto}}</p>
-                            </div>
-                        </ng-container>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <ng-container matGridContent>
-                            <div class="box">
-                                <h2><strong>URL</strong></h2>
-                                <p>{{nodo.url}}</p>
-                            </div>
-                        </ng-container>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <ng-container matGridContent>
-                            <div class="box">
-                                <h2><strong>Última consulta</strong></h2>
-                                <p *ngIf="nodo.tiempo === null">Primera vez que se consulta</p>
-                                <p *ngIf="nodo.tiempo !== null">{{nodo.tiempo}}</p>
-                            </div>
-                        </ng-container>
-                    </mat-grid-tile>
-                    <mat-grid-tile>
-                        <ng-container matGridContent class="box">
-                            <div class="box">
-                                <h2><strong>Geolocalización</strong></h2>
-                                <p>Latitud: {{nodo.latitud}} <br> Longitud: {{nodo.longitud}}</p>
-                            </div>
-                        </ng-container>
-                    </mat-grid-tile>
-                </mat-grid-list>
-            </div>
-            <div class="estado-interno">
-                <ng-container matGridContent class="box">
-                    <div class="box">
-                        <h2><strong>Estado Interno</strong></h2>
-                        <p *ngIf="estado_interno" id="json-text">{{estado_interno}}</p>
-                        <p *ngIf="!estado_interno">Nodo Fuera de funcionamiento</p>
-                    </div>
-                </ng-container>
-            </div>
+      <div class="datos-contenedor">
+        <!-- Contenedor Izquierdo -->
+        <div class="datosNodo">
+          <h1>Estado Interno</h1>
+          <div>
+            <h2 class="espacio"><strong>Puerto: </strong></h2><p class="linea">{{nodo.puerto}}</p><br>
+            <h2 class="espacio"><strong>URL: </strong></h2><p class="linea">{{nodo.url}}</p><br>
+            <h2 class="espacio"><strong>Última consulta: </strong></h2><p class="linea" *ngIf="nodo.tiempo !== null">{{nodo.tiempo}}</p><br>
+            <h2 class="espacio"><strong>Geolocalización: </strong></h2><p>Latitud-> {{nodo.latitud}}, Longitud-> {{nodo.longitud}}</p><br>
+          </div>
+      
+          <div *ngIf="tipo.startsWith('Balanceador')">
+            <h2 class="espacio"><strong>Estado del sustituto: </strong></h2><p class="linea">{{estado_interno.Data.balancerSubsActive}}</p><br>
+            <h2 class="espacio"><strong>Balanceador Main AYA: </strong></h2><p class="linea">{{estado_interno.Data.balancerMainMaxAYA}}</p><br>
+            <h2 class="espacio"><strong>Mensajes recibidos: </strong></h2><p class="linea">{{estado_interno.Data.receivedMessages}}</p><br>
+            <h2 class="espacio"><strong>URL Main: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.urlMain}}</p><br>
+          </div>
+      
+          <div *ngIf="tipo.startsWith('Controlador')">
+            <h2 class="espacio"><strong>Estado del sustituto: </strong></h2><p class="linea">{{estado_interno.Data.coordinatorSubsActive}}</p><br>
+            <h2 class="espacio"><strong>Controlador Main AYA: </strong></h2><p class="linea">{{estado_interno.Data.coordinatorMainMaxAYA}}</p><br>
+            <h2 class="espacio"><strong>Mensajes recibidos: </strong></h2><p class="linea">{{estado_interno.Data.receivedMessages}}</p><br>
+            <h2 class="espacio"><strong>URL Main: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.urlCoordinatorlMain}}</p><br>
+            <h2 class="espacio"><strong>URL Balanceador Main: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.urlBalancerMain}}</p><br>
+            <h2 class="espacio"><strong>URL Balanceador Subs: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.urlBalancerSubs}}</p><br>
+          </div>
+          <div *ngIf="tipo === 'Procesador'">
+            <h2 class="espacio"><strong>Capacidad: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.capacity}}</p><br>
+            <h2 class="espacio"><strong>Preferencia: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.preference}}</p><br>
+            <h2 class="espacio"><strong>URL Coordinador Main: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.urlCoordinatorMain}}</p><br>
+            <h2 class="espacio"><strong>URL Coordinador Subs: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.urlCoordinatorSubs}}</p><br>
+          </div>
         </div>
+      
+        <!-- Contenedor Derecho -->
+        <div class="estado_interno">
+          <div *ngIf="tipo.startsWith('Balanceador')" class="tabla-contenedor">
+            <h1>Lista de Balanceadores</h1>
+            <table mat-table [dataSource]="dataSource" class="mat-table">
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef> Nombre </th>
+                <td mat-cell *matCellDef="let element"> {{ element.name }} </td>
+              </ng-container>
+      
+              <ng-container matColumnDef="load">
+                <th mat-header-cell *matHeaderCellDef> Carga </th>
+                <td mat-cell *matCellDef="let element"> {{ element.load }} </td>
+              </ng-container>
+      
+              <ng-container matColumnDef="url">
+                <th mat-header-cell *matHeaderCellDef> URL </th>
+                <td mat-cell *matCellDef="let element"> {{ element.url }} </td>
+              </ng-container>
+      
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+      
+          <div *ngIf="tipo.startsWith('Controlador')" class="tabla-contenedor">
+            <h1>Lista de Balanceadores</h1>
+            <table mat-table [dataSource]="dataSource" class="mat-table">
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef> Nombre </th>
+                <td mat-cell *matCellDef="let element"> {{ element.name }} </td>
+              </ng-container>
+      
+              <ng-container matColumnDef="capacity">
+                <th mat-header-cell *matHeaderCellDef> Capacidad </th>
+                <td mat-cell *matCellDef="let element"> {{ element.capacity }} </td>
+              </ng-container>
+      
+              <ng-container matColumnDef="url">
+                <th mat-header-cell *matHeaderCellDef> URL </th>
+                <td mat-cell *matCellDef="let element"> {{ element.url }} </td>
+              </ng-container>
+      
+              <ng-container matColumnDef="load">
+                <th mat-header-cell *matHeaderCellDef> Carga </th>
+                <td mat-cell *matCellDef="let element"> {{ element.load }} </td>
+              </ng-container>
+      
+              <tr mat-header-row *matHeaderRowDef="displayedColumns3"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns3;"></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      
     </mat-dialog-content>
 </div>

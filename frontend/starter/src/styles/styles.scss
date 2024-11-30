@@ -1,7 +1,8 @@
 /* ----------------------------------------------------------------------------------------------------- */
-/*  @ Import/write your custom styles here.
-/*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
+/*  @ Import/write your custom styles here. 
+/*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles. 
 /* ----------------------------------------------------------------------------------------------------- */
+
 /* Grafo como fondo */
 #json-text {
     background-color: #394353;
@@ -13,7 +14,7 @@
     overflow-x: auto;
     overflow-y: auto;
     max-width: 100%;
-    max-height: 50vh; 
+    max-height: 50vh;
     margin: 0 auto;
 }
 
@@ -45,34 +46,34 @@
     flex: 1 1 auto;
 }
 
-.cabecera, .header-dialog{
+.cabecera, .header-dialog {
     display: flex;
     margin-bottom: 20px;
 }
 
-.cabecera2, .header-dialog{
+.cabecera2, .header-dialog {
     display: flex;
     margin-bottom: 15px;
 }
 
-.checkbox{
+.checkbox {
     background-color: white;
     border-radius: 1em;
 }
 
-.buscador{
+.buscador {
     border: grey solid 1px;
     border-radius: 20px;
     background-color: white;
-    padding: 5px; 
+    padding: 5px;
     height: 100%;
 }
 
-.checkbox > mat-checkbox{
-    display:block;
+.checkbox > mat-checkbox {
+    display: block;
 }
 
-img{
+img {
     margin-left: 10px;
 }
 
@@ -80,38 +81,39 @@ img{
     flex-grow: 1;
     overflow-y: auto;
     max-height: 600px;
-  }
-  
-  .paginas {
+}
+
+.paginas {
     position: sticky;
     bottom: 0;
     width: 100%;
     background-color: white;
     z-index: 1;
     text-align: center;
-  }
-  
-  .mat-table {
+}
+
+.mat-table {
     width: 100%;
-  }
+}
 
 .grid-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
-  }
-  
-  .ng-container{
-    justify-content: left;
-  }
+    height: 100%;
+}
 
-  .corto {
+.corto {
     width: 30%;
-  }
+}
 
-  .largo {
+.corto2 {
+    width: 50%;
+}
+
+.largo {
     width: 75%;
-  }
+}
 
 mat-grid-tile {
     text-align: left;
@@ -120,59 +122,85 @@ mat-grid-tile {
     align-items: center;
 }
 
-.header-lista{
+.header-lista {
     display: flex;
     margin-bottom: 10px;
 }
 
-.boton-contenedor{
+.boton-contenedor {
     justify-content: center;
 }
 
-.dialog{
+h1{
+    font-weight: bold;
+    color: rgb(33, 33, 33);
+    margin-bottom: 1em;
+    font-size: x-large;
+}
+
+.dialog {
     width: 1000px;
     height: 550px;
 }
 
-mat-select{
+mat-select {
     display: flex;
 }
 
-.box{
-    text-align: center;
-}
-
-.datos{
+.datosNodo {
+    width: 100%;
+    padding: 20px;
     display: flex;
-}
-
-.datos-grid{
-    width: 50%;
-    height: 100%;
-    align-items: left;
-}
-
-.estado-interno{
-    width: 50%;
+    flex-direction: column;
+    justify-content: space-between;
     height: 100%;
 }
 
-.anadir{
+.datosNodo > div {
+    flex-grow: 1;
+}
+
+.datosNodo > div > h2, .datosNodo > div > p {
+    display: inline;
+}
+
+.datos-contenedor {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    height: 100%;
+}
+
+.estado_interno {
+    width: 100%;
+    padding: 20px;
+}
+
+.espacio {
+    margin-right: 5px;
+}
+
+.estado-interno {
+    width: 50%;
+    height: 100%;
+}
+
+.anadir {
     background-color: #394353;
     color: white;
-    padding-left: 25px;
-    padding-right: 25px;
-    padding-top: 15px;
-    padding-bottom: 15px;
+    padding-left: 21px;
+    padding-right: 21px;
+    padding-top: 11px;
+    padding-bottom: 11px;
     border-radius: 1em;
     font-size: medium;
     transition: transform 0.3s ease;
 }
 
-.anadir:hover{
+.anadir:hover {
     transform: scale(1.2);
 }
 
-#botonAN{
+#botonAN {
     text-align: center;
 }

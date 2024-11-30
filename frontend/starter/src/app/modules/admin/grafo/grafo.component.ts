@@ -30,12 +30,10 @@ export class GrafoComponent{
     datosDelNodo: any;
     timerSubscription: any;
 
-    // Dimensiones del área del gráfico
-    ancho = 500; // Ancho total del gráfico
-    alto = 200; // Alto total del gráfico
-    margenZona = 10; // Margen interno para cada zona
+    ancho = 500;
+    alto = 150;
+    margenZona = 10;
 
-    // Definir zonas para cada tipo de nodo
     zonas = {
         "Controlador": { xInicio: 0, xFin: 0.2 * this.ancho },
         "Balanceador": { xInicio: 0.25 * this.ancho, xFin: 0.4 * this.ancho },
@@ -45,11 +43,11 @@ export class GrafoComponent{
     constructor(private router: Router, private http: GrafoService, private config: ConfigService, private dialog: MatDialog) {}
 
     irALista(): void {
-        this.router.navigate(['/lista']); // Navega a la ruta 'grafo'
+        this.router.navigate(['/lista']);
     }
 
     irAMapa():void{
-        this.router.navigate(['/mapa']); // Navega a la ruta 'grafo'
+        this.router.navigate(['/mapa']);
     }
 
     dialogo(tipo: any, id: any, url: any, puerto: any): void {
@@ -315,7 +313,7 @@ export class GrafoComponent{
                         name: node.name,
                         x: node.x,  // Asegúrate de definir las coordenadas x y y de los nodos
                         y: node.y,
-                        symbol: `image://assets/map/${node.image}`,
+                        symbol: `image://assets/map/png/${node.image}`,
                         symbolSize: node.symbolSize,
                         visible: node.visible,
                         tipo_nodo: node.tipo_nodo,
@@ -531,7 +529,7 @@ export class GrafoComponent{
                                 name: node.name,
                                 x: node.x,
                                 y: node.y,
-                                symbol: `image://assets/map/${node.image}`,
+                                symbol: `image://assets/map/png/${node.image}`,
                                 symbolSize: node.symbolSize,
                                 visible: node.visible,
                                 tipo_nodo: node.tipo_nodo,

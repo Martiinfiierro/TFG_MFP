@@ -175,7 +175,7 @@ export class MapaComponent{
             this.configuracion.processor.pngDes;
         }
         const customIcon = L.icon({
-          iconUrl: `assets/map/${iconUrl}`,
+          iconUrl: `assets/map/png/${iconUrl}`,
           iconSize: [30, 30],
           iconAnchor: [22, 41],
           popupAnchor: [1, -34]
@@ -203,10 +203,10 @@ export class MapaComponent{
                     
         // Enlaces de Balanceadores a Procesadores
         if(this.activarConexiones === true){
-          if (nodo.tipo_nodo === 'Balanceador Main' && status === true) {
+          if (nodo.tipo_nodo === 'Balanceador Main' && status === true && nodo.visible) {
             res.forEach((nodoTarget: any) => {
               for(let i = 0; i < datos.Data.balancerList.length; i++){
-                if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true) {
+                if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true && nodoTarget.nodo.visible) {
                   acc.push({
                     lat1: String(nodo.latitud),
                     lon1: String(nodo.longitud),
@@ -217,10 +217,10 @@ export class MapaComponent{
               }
             });
           }
-          else if(nodo.tipo_nodo === 'Balanceador Subs' && status === true && datos.Data.balancerSubsActive === true){
+          else if(nodo.tipo_nodo === 'Balanceador Subs' && status === true && datos.Data.balancerSubsActive === true && nodo.visible){
             res.forEach((nodoTarget: any) => {
               for(let i = 0; i < datos.Data.balancerList.length; i++){
-                if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true) {
+                if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true && nodoTarget.nodo.visible) {
                   acc.push({
                     lat1: String(nodo.latitud),
                     lon1: String(nodo.longitud),
@@ -233,8 +233,8 @@ export class MapaComponent{
           }
                 
           // Enlace de Balanceadores "subs" hacia "main"
-          if (nodo.tipo_nodo === 'Balanceador Subs' && status === true) {
-            const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlMain && n.status === true);
+          if (nodo.tipo_nodo === 'Balanceador Subs' && status === true && nodo.visible) {
+            const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlMain && n.status === true && n.nodo.visible);
             if (nodoTarget) {
               acc.push({
               lat1: String(nodo.latitud),
@@ -246,8 +246,8 @@ export class MapaComponent{
         }
 
         // Enlace de Controladores "subs" hacia "main"
-        if (nodo.tipo_nodo === 'Controlador Subs' && status === true) {
-          const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlCoordinatorlMain && n.status === true);
+        if (nodo.tipo_nodo === 'Controlador Subs' && status === true && nodo.visible) {
+          const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlCoordinatorlMain && n.status === true && n.nodo.visible);
           if (nodoTarget) {
             acc.push({
               lat1: String(nodo.latitud),
@@ -259,8 +259,8 @@ export class MapaComponent{
         }
 
         //Controlador --> Balanceador
-        if(nodo.tipo_nodo === 'Controlador Main' && status === true){
-          const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerMain && n.status === true);
+        if(nodo.tipo_nodo === 'Controlador Main' && status === true && nodo.visible){
+          const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerMain && n.status === true && n.nodo.visible);
           if(nodoTarget){
             acc.push({
               lat1: String(nodo.latitud),
@@ -270,7 +270,7 @@ export class MapaComponent{
             });
           }
           else{
-            const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerSubs && n.status === true);
+            const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerSubs && n.status === true && n.nodo.visible);
             if(nodoTarget){
               acc.push({
                 lat1: String(nodo.latitud),
@@ -281,10 +281,10 @@ export class MapaComponent{
             }
           }
         }
-        else if(nodo.tipo_nodo === 'Controlador Subs' && status === true){
-          const nodoMain = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlCoordinatorlMain && n.status === false && datos.Data.coordinatorSubsActive === true);
+        else if(nodo.tipo_nodo === 'Controlador Subs' && status === true && nodo.visible){
+          const nodoMain = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlCoordinatorlMain && n.status === false && datos.Data.coordinatorSubsActive === true && n.nodo.visible);
           if(nodoMain){
-            const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerMain && n.status === true);
+            const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerMain && n.status === true && n.nodo.visible);
             if(nodoTarget){
               acc.push({
                 lat1: String(nodo.latitud),
@@ -294,7 +294,7 @@ export class MapaComponent{
               });
             }
             else{
-              const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerSubs && n.status === true);
+              const nodoTarget = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlBalancerSubs && n.status === true && n.nodo.visible);
               if(nodoTarget){
                 acc.push({
                   lat1: String(nodo.latitud),

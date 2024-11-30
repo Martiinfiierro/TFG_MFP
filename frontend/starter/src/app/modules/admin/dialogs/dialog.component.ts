@@ -2,8 +2,8 @@ import { Component, ViewEncapsulation, inject, EventEmitter, Output, Inject, Vie
 import { GrafoService } from 'app/services/grafo.service';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { catchError, map } from 'rxjs/operators';
-import { forkJoin, of } from 'rxjs';
+import { MatTableModule } from '@angular/material/table';
+import { DatePipe } from '@angular/common';
 import {
   MAT_DIALOG_DATA,
   MatDialogContent,
@@ -16,18 +16,92 @@ import { ConfigService } from 'app/services/config.service';
 import { Config } from 'app/services/config.service';
 import { NodeData } from '../lista/lista.component';
 
+export interface procesor {
+  UID: string;
+  Type: string;
+  Operation: string;
+  Data: {
+    UID: number;
+    internalConfig: {
+      capacity: number;
+      name: string;
+      port: number;
+      preference: number;
+      urlCoordinatorMain: string;
+      urlCoordinatorSubs: string;
+    };
+  };
+}
+export interface controller{
+  UID: string;
+  Type: string;
+  Operation: string;
+  Data: {
+    UID: number;
+    balancerList: {
+      name: string;
+      capacity: number;
+      url: string;
+      load: number;
+    }[];
+    coordinatorMainMaxAYA: number;
+    coordinatorSubsActive: boolean;
+    internalConfig: {
+      port: number;
+      type: string;
+      typeRol: string;
+      urlBalancerMain: string;
+      urlBalancerSubs: string;
+      urlCoordinatorlMain: string;
+    };
+    processorsList: {
+      name: string;
+      capacity: number;
+      url: string;
+      preference: number;
+      AYACOUNT: number;
+      AYAUID: string;
+    }[];
+    receivedMessages: number;
+  };
+}
+export interface balancer{
+  UID: string;
+  Type: string;
+  Operation: string;
+  Data: {
+    UID: number;
+    balancerList: {
+      name: string;
+      load: number;
+      url: string;
+    }[];
+    balancerMainMaxAYA: number;
+    balancerSubsActive: boolean;
+    internalConfig: {
+      port: number;
+      type: string;
+      urlMain: string;
+    };
+    receivedMessages: number;
+  };
+}
 @Component({
     selector: 'dialogDatos',
     templateUrl: './dialog.html',
     standalone: true,
     encapsulation: ViewEncapsulation.None,
+    providers: [
+      DatePipe
+    ],
     imports: [
       MatDialogTitle,
+      MatTableModule,
       MatDialogContent,
       MatIconModule,
       MatGridListModule,
       MatButtonModule,
-      CommonModule
+      CommonModule,
     ],
   })
   
@@ -37,8 +111,13 @@ import { NodeData } from '../lista/lista.component';
     tipo: any;
     configuracion: Config;
     estado_interno: any;
+    displayedColumns: string[] = ['name', 'load', 'url'];
+    displayedColumns2: string[] = ['name', 'capacity', 'url', 'preference', 'AYACOUNT', 'AYAUID'];
+    displayedColumns3: string[] = ['name', 'capacity', 'url', 'load'];
+    dataSource: any;
+    dataSource2: any;
   
-    constructor(private http: GrafoService, private config: ConfigService, @Inject(MAT_DIALOG_DATA) private data: any) {
+    constructor(private datePipe: DatePipe, private http: GrafoService, private config: ConfigService, @Inject(MAT_DIALOG_DATA) private data: any) {
     }
   
     cerrarDialog(): void {
@@ -75,10 +154,19 @@ import { NodeData } from '../lista/lista.component';
     }
 
     getEstadoInterno(){
-      console.log(this.data)
       this.http.readDebug(`${this.data.url}:${this.data.puerto}`).subscribe((res: any) => {
-          console.log(res)
-          this.estado_interno = JSON.stringify(res, null, 2);
+        if(this.tipo.startsWith('Balanceador')){
+          this.estado_interno = res;
+          this.dataSource = this.estado_interno.Data.balancerList;
+        }
+        else if(this.tipo.startsWith('Controlador')){
+          this.estado_interno = res;
+          this.dataSource = this.estado_interno.Data.balancerList;
+          this.dataSource2 = this.estado_interno.Data.processorsList;
+        }
+        else if(this.tipo === 'Procesador'){
+          this.estado_interno = res;
+        }
       })
     }
   
@@ -89,6 +177,7 @@ import { NodeData } from '../lista/lista.component';
       this.http.getNodo(this.data.id).subscribe(
         (data) => {
           this.nodo = data.nodo;
+          this.nodo.tiempo = this.datePipe.transform(this.nodo.tiempo, 'dd/MM/yyyy HH:mm:ss') || '';
         },
         (error) => {
           console.error('Error al obtener el nodo', error);
