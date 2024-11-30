@@ -131,7 +131,7 @@ mat-grid-tile {
     justify-content: center;
 }
 
-h1{
+h1 {
     font-weight: bold;
     color: rgb(33, 33, 33);
     margin-bottom: 1em;
@@ -156,12 +156,20 @@ mat-select {
     height: 100%;
 }
 
-.datosNodo > div {
-    flex-grow: 1;
+p {
+    margin-left: 5px;
 }
 
-.datosNodo > div > h2, .datosNodo > div > p {
+h2 + p {
     display: inline;
+    margin: 0;
+    color: rgb(33, 33, 33);
+}
+
+.espacio {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .datos-contenedor {
@@ -174,10 +182,6 @@ mat-select {
 .estado_interno {
     width: 100%;
     padding: 20px;
-}
-
-.espacio {
-    margin-right: 5px;
 }
 
 .estado-interno {

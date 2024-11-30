@@ -10,38 +10,38 @@
         <div class="datosNodo">
           <h1>Estado Interno</h1>
           <div>
-            <h2 class="espacio"><strong>Puerto: </strong></h2><p class="linea">{{nodo.puerto}}</p><br>
-            <h2 class="espacio"><strong>URL: </strong></h2><p class="linea">{{nodo.url}}</p><br>
-            <h2 class="espacio"><strong>Última consulta: </strong></h2><p class="linea" *ngIf="nodo.tiempo !== null">{{nodo.tiempo}}</p><br>
-            <h2 class="espacio"><strong>Geolocalización: </strong></h2><p>Latitud-> {{nodo.latitud}}, Longitud-> {{nodo.longitud}}</p><br>
+            <h2 class="espacio"><strong>Puerto: </strong><p class="linea">{{nodo.puerto}}</p></h2>
+            <h2 class="espacio"><strong>URL: </strong><p class="linea">{{nodo.url}}</p></h2>
+            <h2 class="espacio"><strong>Última consulta: </strong><p class="linea" *ngIf="nodo.tiempo !== null">{{nodo.tiempo}}</p></h2>
+            <h2 class="espacio"><strong>Geolocalización: </strong><p>Latitud-> {{nodo.latitud}}, Longitud-> {{nodo.longitud}}</p></h2>
           </div>
       
-          <div *ngIf="tipo.startsWith('Balanceador')">
-            <h2 class="espacio"><strong>Estado del sustituto: </strong></h2><p class="linea">{{estado_interno.Data.balancerSubsActive}}</p><br>
-            <h2 class="espacio"><strong>Balanceador Main AYA: </strong></h2><p class="linea">{{estado_interno.Data.balancerMainMaxAYA}}</p><br>
-            <h2 class="espacio"><strong>Mensajes recibidos: </strong></h2><p class="linea">{{estado_interno.Data.receivedMessages}}</p><br>
-            <h2 class="espacio"><strong>URL Main: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.urlMain}}</p><br>
+          <div *ngIf="tipo.startsWith('Balanceador') && estado_interno">
+            <h2 class="espacio"><strong>Estado del sustituto: </strong> <p class="linea">{{estado_interno.Data.balancerSubsActive}}</p></h2>
+            <h2 class="espacio"><strong>Balanceador Main AYA: </strong> <p class="linea">{{estado_interno.Data.balancerMainMaxAYA}}</p></h2>
+            <h2 class="espacio"><strong>Mensajes recibidos: </strong> <p class="linea">{{estado_interno.Data.receivedMessages}}</p></h2>
+            <h2 *ngIf="estado_interno.Data.internalConfig.urlMain" class="espacio"><strong>URL Main: </strong> <p class="linea">{{estado_interno.Data.internalConfig.urlMain}}</p></h2>
           </div>
       
-          <div *ngIf="tipo.startsWith('Controlador')">
-            <h2 class="espacio"><strong>Estado del sustituto: </strong></h2><p class="linea">{{estado_interno.Data.coordinatorSubsActive}}</p><br>
-            <h2 class="espacio"><strong>Controlador Main AYA: </strong></h2><p class="linea">{{estado_interno.Data.coordinatorMainMaxAYA}}</p><br>
-            <h2 class="espacio"><strong>Mensajes recibidos: </strong></h2><p class="linea">{{estado_interno.Data.receivedMessages}}</p><br>
-            <h2 class="espacio"><strong>URL Main: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.urlCoordinatorlMain}}</p><br>
-            <h2 class="espacio"><strong>URL Balanceador Main: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.urlBalancerMain}}</p><br>
-            <h2 class="espacio"><strong>URL Balanceador Subs: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.urlBalancerSubs}}</p><br>
+          <div *ngIf="tipo.startsWith('Controlador') && estado_interno">
+            <h2 class="espacio"><strong>Estado del sustituto: </strong><p class="linea">{{estado_interno.Data.coordinatorSubsActive}}</p></h2>
+            <h2 class="espacio"><strong>Controlador Main AYA: </strong><p class="linea">{{estado_interno.Data.coordinatorMainMaxAYA}}</p></h2>
+            <h2 class="espacio"><strong>Mensajes recibidos: </strong><p class="linea">{{estado_interno.Data.receivedMessages}}</p></h2>
+            <h2 *ngIf="estado_interno.Data.internalConfig.urlCoordinatorlMain" class="espacio"><strong>URL Main: </strong><p class="linea">{{estado_interno.Data.internalConfig.urlCoordinatorlMain}}</p></h2>
+            <h2 class="espacio"><strong>URL Balanceador Main: </strong><p class="linea">{{estado_interno.Data.internalConfig.urlBalancerMain}}</p></h2>
+            <h2 class="espacio"><strong>URL Balanceador Subs: </strong><p class="linea">{{estado_interno.Data.internalConfig.urlBalancerSubs}}</p></h2>
           </div>
-          <div *ngIf="tipo === 'Procesador'">
-            <h2 class="espacio"><strong>Capacidad: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.capacity}}</p><br>
-            <h2 class="espacio"><strong>Preferencia: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.preference}}</p><br>
-            <h2 class="espacio"><strong>URL Coordinador Main: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.urlCoordinatorMain}}</p><br>
-            <h2 class="espacio"><strong>URL Coordinador Subs: </strong></h2><p class="linea">{{estado_interno.Data.internalConfig.urlCoordinatorSubs}}</p><br>
+          <div *ngIf="tipo === 'Procesador' && estado_interno">
+            <h2 class="espacio"><strong>Capacidad: </strong><p class="linea">{{estado_interno.Data.internalConfig.capacity}}</p></h2>
+            <h2 class="espacio"><strong>Preferencia: </strong><p class="linea">{{estado_interno.Data.internalConfig.preference}}</p></h2>
+            <h2 class="espacio"><strong>URL Coordinador Main: </strong><p class="linea">{{estado_interno.Data.internalConfig.urlCoordinatorMain}}</p></h2>
+            <h2 class="espacio"><strong>URL Coordinador Subs: </strong><p class="linea">{{estado_interno.Data.internalConfig.urlCoordinatorSubs}}</p></h2>
           </div>
         </div>
       
         <!-- Contenedor Derecho -->
         <div class="estado_interno">
-          <div *ngIf="tipo.startsWith('Balanceador')" class="tabla-contenedor">
+          <div *ngIf="tipo.startsWith('Balanceador')" class="tabla-contenedor" && estado_interno>
             <h1>Lista de Balanceadores</h1>
             <table mat-table [dataSource]="dataSource" class="mat-table">
               <ng-container matColumnDef="name">
@@ -64,7 +64,7 @@
             </table>
           </div>
       
-          <div *ngIf="tipo.startsWith('Controlador')" class="tabla-contenedor">
+          <div *ngIf="tipo.startsWith('Controlador')" class="tabla-contenedor" && estado_interno>
             <h1>Lista de Balanceadores</h1>
             <table mat-table [dataSource]="dataSource" class="mat-table">
               <ng-container matColumnDef="name">
