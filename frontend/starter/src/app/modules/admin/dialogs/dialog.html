@@ -41,7 +41,7 @@
       
         <!-- Contenedor Derecho -->
         <div class="estado_interno">
-          <div *ngIf="tipo.startsWith('Balanceador')" class="tabla-contenedor" && estado_interno>
+          <div *ngIf="tipo.startsWith('Balanceador') && estado_interno" class="tabla-contenedor">
             <h1>Lista de Balanceadores</h1>
             <table mat-table [dataSource]="dataSource" class="mat-table">
               <ng-container matColumnDef="name">
@@ -64,7 +64,7 @@
             </table>
           </div>
       
-          <div *ngIf="tipo.startsWith('Controlador')" class="tabla-contenedor" && estado_interno>
+          <div *ngIf="tipo.startsWith('Controlador') && estado_interno" class="tabla-contenedor">
             <h1>Lista de Balanceadores</h1>
             <table mat-table [dataSource]="dataSource" class="mat-table">
               <ng-container matColumnDef="name">

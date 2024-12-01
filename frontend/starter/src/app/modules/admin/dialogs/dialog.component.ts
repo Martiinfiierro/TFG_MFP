@@ -169,7 +169,7 @@ export interface balancer{
         }
       })
     }
-  
+   
     ngOnInit(): void {
       this.getEstadoInterno();
       this.initConfig();
