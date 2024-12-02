@@ -40,7 +40,7 @@ export class MapaComponent{
   //Dialogo
   readonly dialog = inject(MatDialog);
   configuracion: Config;
-  datosDelNodo: any;
+  datosDelSistema: any;
   activarConexiones: boolean = true;
   timerSubscription: any;
   lineas: any;
@@ -135,16 +135,16 @@ export class MapaComponent{
     );
     forkJoin(requests).subscribe((res: any) => {
         let cont = 0;
-        if(!this.datosDelNodo){
+        if(!this.datosDelSistema){
           console.log("primera carga");
           this.updateMapa(res);
         }
         else{
           for(let x = 0; x < res.length; x++){
               const obj1 = JSON.stringify(res[x]);
-              const obj2 = JSON.stringify(this.datosDelNodo[x]);
+              const obj2 = JSON.stringify(this.datosDelSistema[x]);
   
-              if (obj1 !== obj2 || res[x].status !== this.datosDelNodo[x].status) {
+              if (obj1 !== obj2 || res[x].status !== this.datosDelSistema[x].status) {
                   console.log(obj1 + obj2)
                   cont++;
               }
@@ -310,7 +310,7 @@ export class MapaComponent{
       return acc;
     }, [])
     this.updateLineas(links);
-    this.datosDelNodo = res;
+    this.datosDelSistema = res;
   }
 
   updateLineas(links: any){

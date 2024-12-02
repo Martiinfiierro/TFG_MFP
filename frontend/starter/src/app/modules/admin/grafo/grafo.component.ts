@@ -27,7 +27,7 @@ export class GrafoComponent{
     configuracion: Config;
     activarConexiones: boolean = true;
     myChart: any = null;
-    datosDelNodo: any;
+    datosDelSistema: any;
     timerSubscription: any;
 
     ancho = 500;
@@ -134,9 +134,9 @@ export class GrafoComponent{
             
             for(let x = 0; x < res.length; x++){
                 const obj1 = JSON.stringify(res[x]);
-                const obj2 = JSON.stringify(this.datosDelNodo[x]);
+                const obj2 = JSON.stringify(this.datosDelSistema[x]);
 
-                if (obj1 !== obj2 || res[x].status !== this.datosDelNodo[x].status) {
+                if (obj1 !== obj2 || res[x].status !== this.datosDelSistema[x].status) {
                     cont++;
                 }
             }
@@ -327,7 +327,7 @@ export class GrafoComponent{
                 }
             ]
         });
-        this.datosDelNodo = res;
+        this.datosDelSistema = res;
     }
     
     initChart(): void {
@@ -568,7 +568,7 @@ export class GrafoComponent{
                         this.dialogo(tipoNodo, nodoId, url, puerto);
                     }
                 });
-                this.datosDelNodo = res;
+                this.datosDelSistema = res;
                 this.comprobar();
             });
         });
