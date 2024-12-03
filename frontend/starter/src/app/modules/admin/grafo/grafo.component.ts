@@ -154,10 +154,6 @@ export class GrafoComponent{
             const { nodo, status } = item;
             const { nombre, tipo_nodo } = nodo;
             
-            const newNombre = tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.nameMain : 
-                tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.nameSubs : 
-                tipo_nodo === 'Controlador Main' ? this.configuracion.controller.nameMain : 
-                tipo_nodo === 'Controlador Subs' ? this.configuracion.controller.nameSubs : nodo.nombre;
             let image = tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.pngMain : 
                 tipo_nodo === 'Controlador Main' ? this.configuracion.controller.pngMain : 
                 tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.pngSubs : 
@@ -199,7 +195,7 @@ export class GrafoComponent{
             // Retornar nodo con posición calculada
             return { 
                 id: nodo.id,
-                name: newNombre, 
+                name: nodo.nombre, 
                 symbolSize: size, 
                 image: image,
                 tipo_nodo,
@@ -355,11 +351,6 @@ export class GrafoComponent{
                     const { nodo, status } = item;
                     const { nombre, tipo_nodo } = nodo;
 
-                    
-                    const newNombre = tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.nameMain : 
-                        tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.nameSubs : 
-                        tipo_nodo === 'Controlador Main' ? this.configuracion.controller.nameMain : 
-                        tipo_nodo === 'Controlador Subs' ? this.configuracion.controller.nameSubs : nombre;
                     let image = tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.pngMain : 
                         tipo_nodo === 'Controlador Main' ? this.configuracion.controller.pngMain : 
                         tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.pngSubs : 
@@ -400,7 +391,7 @@ export class GrafoComponent{
 
                     return { 
                         id: nodo.id,
-                        name: newNombre, 
+                        name: nodo.nombre, 
                         symbolSize: size, 
                         image: image,
                         tipo_nodo: tipo_nodo,

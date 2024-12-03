@@ -1,6 +1,6 @@
 <div class="dialog" *ngIf="nodo">
     <div class="header-dialog">
-        <h1 mat-dialog-title style="font-size: xx-large"><strong>{{nodo.tipo_nodo}} {{nodo.nombre}}</strong></h1>
+        <h1 mat-dialog-title style="font-size: xx-large"><strong>{{nodo.tipo_nodo}}: {{nodo.nombre}}</strong></h1>
         <span class="spacer"></span>
         <button class="close" mat-mini-fab (click)="cerrarDialog()"><mat-icon>close</mat-icon></button>
     </div>
@@ -42,7 +42,7 @@
         <!-- Contenedor Derecho -->
         <div class="estado_interno">
           <div *ngIf="tipo.startsWith('Balanceador') && estado_interno" class="tabla-contenedor">
-            <h1>Lista de Balanceadores</h1>
+            <h1>Lista de Procesadores</h1>
             <table mat-table [dataSource]="dataSource" class="mat-table">
               <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef> Nombre </th>
@@ -65,7 +65,7 @@
           </div>
       
           <div *ngIf="tipo.startsWith('Controlador') && estado_interno" class="tabla-contenedor">
-            <h1>Lista de Balanceadores</h1>
+            <h1>Lista de Procesadores</h1>
             <table mat-table [dataSource]="dataSource" class="mat-table">
               <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef> Nombre </th>

@@ -4,8 +4,6 @@ import { Observable } from 'rxjs';
 
 export interface Config {
   controller: {
-    nameMain: string;
-    nameSubs: string;
     pngMain: string;
     pngSubs: string;
     pngMainDes: string;
@@ -13,8 +11,6 @@ export interface Config {
     size: number;
   };
   balancer: {
-    nameMain: string;
-    nameSubs: string;
     pngMain: string;
     pngSubs: string;
     pngMainDes: string;
@@ -28,6 +24,11 @@ export interface Config {
   };
   espera: {
     valor: number;
+  };
+  map: {
+    latitud: number;
+    longitud: number;
+    zoom: number;
   }
 }
 

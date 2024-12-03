@@ -1,7 +1,5 @@
 {
     "controller": {
-        "nameMain": "C main",
-        "nameSubs": "C subs",
         "pngMain": "cMainAct.png",
         "pngSubs": "cSubsAct.png",
         "pngMainDes": "cMainDes.png",
@@ -9,8 +7,6 @@
         "size": 60
     },
     "balancer": {
-        "nameMain": "B main",
-        "nameSubs": "B subs",
         "pngMain": "bMainAct.png",
         "pngSubs": "bSubsAct.png",
         "pngMainDes": "bMainDes.png",
@@ -24,5 +20,10 @@
     },
     "espera": {
         "valor": 3500
+    },
+    "map": {
+        "latitud": 39,
+        "longitud": -4,
+        "zoom": 6
     }
 }

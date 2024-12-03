@@ -184,11 +184,7 @@ export class MapaComponent{
         
         const { nodo} = item;
         const { tipo_nodo } = nodo;
-        const newNombre = tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.nameMain : 
-                tipo_nodo === 'Balanceador Subs' ? this.configuracion.balancer.nameSubs : 
-                tipo_nodo === 'Controlador Main' ? this.configuracion.controller.nameMain : 
-                tipo_nodo === 'Controlador Subs' ? this.configuracion.controller.nameSubs : nodo.nombre;
-        marker.bindTooltip(newNombre, { 
+        marker.bindTooltip(nodo.nombre, { 
           permanent: true, 
           direction: 'bottom',
           offset: [-7, -12]  
@@ -335,7 +331,7 @@ export class MapaComponent{
   }
 
   initMap(): void {
-    this.map = L.map('map').setView([0, 0], 2);
+    this.map = L.map('map').setView([this.configuracion.map.latitud, this.configuracion.map.longitud], this.configuracion.map.zoom);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
