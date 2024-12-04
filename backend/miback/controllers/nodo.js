@@ -21,6 +21,28 @@ const obtenerNodos = async(req, res) => {
     }
 };
 
+const obtenerNodosOrdenados = async(req, res) => {
+    try{
+        let nodos;
+
+        nodos = await Nodo.findAll({
+            order: [['orden', 'ASC']],
+        });
+        
+        return res.json({
+            ok: true,
+            msg: 'getNodosPrdenados',
+            nodos: nodos,
+        });
+    }catch (error) {
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error en get all nodos con por orden',
+            error: error
+        });
+    }
+};
+
 const obtenerNodoID = async(req, res) => {
     try{
         let id = req.params.id;
@@ -116,7 +138,7 @@ const crearNodo = async (req, res) => {
 const actualizarNodo = async (req, res) => {
     try {
         let id = req.params.id
-        let { tipo_nodo, nombre, url, puerto, latitud, longitud, visible, tiempo } = req.body;
+        let { tipo_nodo, nombre, url, puerto, latitud, longitud, visible, tiempo, orden } = req.body;
         let nodo = await Nodo.findByPk(id);
 
         if (nodo) {
@@ -136,7 +158,8 @@ const actualizarNodo = async (req, res) => {
                     latitud: latitud,
                     longitud: longitud,
                     visible: visible,
-                    tiempo: tiempo
+                    tiempo: tiempo,
+                    orden: orden
                 });
                 return res.status(200).json({
                     ok: true,
@@ -166,4 +189,4 @@ const actualizarNodo = async (req, res) => {
 
 
 
-module.exports = { obtenerNodos, obtenerNodoID, buscarNodos, crearNodo, actualizarNodo };
+module.exports = { obtenerNodos,obtenerNodosOrdenados, obtenerNodoID, buscarNodos, crearNodo, actualizarNodo };

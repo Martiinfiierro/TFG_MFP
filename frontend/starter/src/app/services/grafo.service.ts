@@ -22,12 +22,15 @@ export class GrafoService {
     return this.http.get(this.urlAPI + '/nodos');
   }
 
+  getNodosOrdenados(): Observable<any>{
+    return this.http.get(this.urlAPI + '/nodosOrden');
+  }
+
   getNodo(id: any): Observable<any>{
     return this.http.get(this.urlAPI + '/nodo/' + id);
   }
 
   buscarNodos(datos: any): Observable<any>{
-    console.log(datos)
     return this.http.get(this.urlAPI + '/nodos/' + datos);
   }
 

@@ -90,8 +90,7 @@ export class GrafoComponent{
             })
         }
         else{
-            console.log('activar conexiones')
-            this.http.getNodos().subscribe((res: any) =>{
+            this.http.getNodosOrdenados().subscribe((res: any) =>{
                 const requests = res.nodos.map((nodo: any) => 
                     this.http.readDebug(`${nodo.url}:${nodo.puerto}`).pipe(
                         map((val: any) => ({
@@ -114,7 +113,7 @@ export class GrafoComponent{
     }
 
     comprobar(){
-        this.http.getNodos().subscribe((res: any) =>{
+        this.http.getNodosOrdenados().subscribe((res: any) =>{
         const requests = res.nodos.map((nodo: any) => 
             this.http.readDebug(`${nodo.url}:${nodo.puerto}`).pipe(
                 map((val: any) => ({
@@ -133,14 +132,15 @@ export class GrafoComponent{
             let cont = 0;
             
             for(let x = 0; x < res.length; x++){
-                const obj1 = JSON.stringify(res[x]);
-                const obj2 = JSON.stringify(this.datosDelSistema[x]);
+                const obj1 = JSON.stringify(res[x].nodo);
+                const obj2 = JSON.stringify(this.datosDelSistema[x].nodo);
 
                 if (obj1 !== obj2 || res[x].status !== this.datosDelSistema[x].status) {
                     cont++;
                 }
             }
             if(cont !== 0){
+                console.log("cambios: " + cont)
                 this.updateGrafo(res);
             }
         });
@@ -327,7 +327,7 @@ export class GrafoComponent{
     }
     
     initChart(): void {
-        this.http.getNodos().subscribe((res) => {
+        this.http.getNodosOrdenados().subscribe((res) => {
             const requests = res.nodos.map((nodo: any) => 
                 this.http.readDebug(`${nodo.url}:${nodo.puerto}`).pipe(
                     map((val: any) => ({

@@ -1,12 +1,15 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
 const { validarCampos } = require('../middleware/validar-campos');
-const { obtenerNodos, obtenerNodoID, crearNodo , actualizarNodo, buscarNodos} = require('../controllers/nodo');
+const { obtenerNodos, obtenerNodosOrdenados, obtenerNodoID, crearNodo , actualizarNodo, buscarNodos} = require('../controllers/nodo');
 
 const router = Router(); //Declaramos un router de tipo Router
 
 //get all nodos
 router.get('/nodos', obtenerNodos);
+
+//get all nodos
+router.get('/nodosOrden', obtenerNodosOrdenados);
 
 //get nodo
 router.get('/nodo/:id', obtenerNodoID);

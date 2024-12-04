@@ -44,21 +44,7 @@ export class MapaComponent{
   activarConexiones: boolean = true;
   timerSubscription: any;
   lineas: any;
-  rombo = [
-    [51.505, -0.09],
-    [51.500, -0.08],
-    [51.495, -0.09],
-    [51.500, -0.10]
-  ]
-
-  cuadrado = [
-    [51.505, -0.08],
-    [51.505, -0.06],
-    [51.503, -0.06],
-    [51.503, -0.08]
-  ]
-
-  circulo = [51.505, -0.09]
+  iconos: L.Marker[] = [];
 
   constructor(private http: GrafoService, private config: ConfigService, private router: Router) { }
 
@@ -141,16 +127,17 @@ export class MapaComponent{
         }
         else{
           for(let x = 0; x < res.length; x++){
-              const obj1 = JSON.stringify(res[x]);
-              const obj2 = JSON.stringify(this.datosDelSistema[x]);
+            const obj1 = JSON.stringify(res[x].nodo);
+            const obj2 = JSON.stringify(this.datosDelSistema[x].nodo);
   
-              if (obj1 !== obj2 || res[x].status !== this.datosDelSistema[x].status) {
-                  console.log(obj1 + obj2)
-                  cont++;
-              }
+            if (obj1 !== obj2 || res[x].status !== this.datosDelSistema[x].status) {
+                console.log(obj1 + obj2)
+                cont++;
+            }
           }
           if(cont !== 0){
-              this.updateMapa(res);
+            console.log("cambios: " + cont)
+            this.updateMapa(res);
           }
         }
       });
@@ -159,7 +146,9 @@ export class MapaComponent{
   }
 
   updateMapa(res: any){
-    //Markers
+    this.iconos.forEach((marker: any) => this.map.removeLayer(marker));
+    this.iconos = [];
+
     res.map((item: any) => {
       if(item.nodo.visible){
         let iconUrl = item.nodo.tipo_nodo === 'Balanceador Main' ? this.configuracion.balancer.pngMain : 
@@ -190,6 +179,7 @@ export class MapaComponent{
           offset: [-7, -12]  
         });
         marker.on('click', () => this.dialogo(item.nodo.tipo_nodo, item.nodo.id, item.nodo.url, item.nodo.puerto));
+        this.iconos.push(marker);
       }
     });
 
@@ -331,7 +321,8 @@ export class MapaComponent{
   }
 
   initMap(): void {
-    this.map = L.map('map').setView([this.configuracion.map.latitud, this.configuracion.map.longitud], this.configuracion.map.zoom);
+    //this.map = L.map('map').setView([this.configuracion.map.latitud, this.configuracion.map.longitud], this.configuracion.map.zoom);
+    this.map = L.map('map').setView([0, 0], 2);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',

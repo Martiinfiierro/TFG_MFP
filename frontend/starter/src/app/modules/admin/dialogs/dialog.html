@@ -14,6 +14,7 @@
             <h2 class="espacio"><strong>URL: </strong><p class="linea">{{nodo.url}}</p></h2>
             <h2 class="espacio"><strong>Última consulta: </strong><p class="linea" *ngIf="nodo.tiempo !== null">{{nodo.tiempo}}</p></h2>
             <h2 class="espacio"><strong>Geolocalización: </strong><p>Latitud-> {{nodo.latitud}}, Longitud-> {{nodo.longitud}}</p></h2>
+            <h2 class="espacio"><strong>Orden: </strong><p class="linea">{{nodo.orden}}</p></h2>
           </div>
       
           <div *ngIf="tipo.startsWith('Balanceador') && estado_interno">

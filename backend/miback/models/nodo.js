@@ -37,6 +37,10 @@ const Nodo = sequelize.define('Nodo', {
     tiempo: {
         type: DataTypes.DATE,
         allowNull: true
+    },
+    orden: {
+        type: DataTypes.INTEGER,
+        allowNull: true
     }
 },{
     tableName: 'nodos',
