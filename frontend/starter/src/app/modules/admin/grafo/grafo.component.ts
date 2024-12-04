@@ -224,16 +224,19 @@ export class GrafoComponent{
                     });
                 }
                 else if(nodo.tipo_nodo === 'Balanceador Subs' && status === true && datos.Data.balancerSubsActive === true){
-                    res.forEach((nodoTarget: any) => {
-                        for(let i = 0; i < datos.Data.balancerList.length; i++){
-                            if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true) {
-                                acc.push({
-                                    source: nodo.id,
-                                    target: nodoTarget.nodo.id
-                                });
+                    const nodoMain = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlMain && n.status === true);
+                    if(!nodoMain){
+                        res.forEach((nodoTarget: any) => {
+                            for(let i = 0; i < datos.Data.balancerList.length; i++){
+                                if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true) {
+                                    acc.push({
+                                        source: nodo.id,
+                                        target: nodoTarget.nodo.id
+                                    });
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
                 
                 // Enlace de Balanceadores "subs" hacia "main"
@@ -307,7 +310,7 @@ export class GrafoComponent{
                     data: data.filter((node: any) => node.visible !== false).map((node: any) => ({
                         id: node.id,
                         name: node.name,
-                        x: node.x,  // Asegúrate de definir las coordenadas x y y de los nodos
+                        x: node.x,
                         y: node.y,
                         symbol: `image://assets/map/png/${node.image}`,
                         symbolSize: node.symbolSize,
@@ -422,16 +425,19 @@ export class GrafoComponent{
                                 });
                             }
                             else if(nodo.tipo_nodo === 'Balanceador Subs' && status === true && datos.Data.balancerSubsActive === true){
-                                res.forEach((nodoTarget: any) => {
-                                    for(let i = 0; i < datos.Data.balancerList.length; i++){
-                                        if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true) {
-                                            acc.push({
-                                                source: nodo.id,
-                                                target: nodoTarget.nodo.id
-                                            });
+                                const nodoMain = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlMain && n.status === true);
+                                if(!nodoMain){
+                                    res.forEach((nodoTarget: any) => {
+                                        for(let i = 0; i < datos.Data.balancerList.length; i++){
+                                            if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true) {
+                                                acc.push({
+                                                    source: nodo.id,
+                                                    target: nodoTarget.nodo.id
+                                                });
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                }
                             }
                 
                             // Enlace de Balanceadores "subs" hacia "main"

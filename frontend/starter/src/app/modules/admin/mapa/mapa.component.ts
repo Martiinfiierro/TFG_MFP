@@ -127,8 +127,8 @@ export class MapaComponent{
         }
         else{
           for(let x = 0; x < res.length; x++){
-            const obj1 = JSON.stringify(res[x]);
-            const obj2 = JSON.stringify(this.datosDelSistema[x]);
+            const obj1 = JSON.stringify(res[x].nodo);
+            const obj2 = JSON.stringify(this.datosDelSistema[x].nodo);
   
             if (obj1 !== obj2 || res[x].status !== this.datosDelSistema[x].status) {
                 console.log(obj1 + obj2)
@@ -204,18 +204,21 @@ export class MapaComponent{
             });
           }
           else if(nodo.tipo_nodo === 'Balanceador Subs' && status === true && datos.Data.balancerSubsActive === true && nodo.visible){
-            res.forEach((nodoTarget: any) => {
-              for(let i = 0; i < datos.Data.balancerList.length; i++){
-                if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true && nodoTarget.nodo.visible) {
-                  acc.push({
-                    lat1: String(nodo.latitud),
-                    lon1: String(nodo.longitud),
-                    lat2: String(nodoTarget.nodo.latitud),
-                    lon2: String(nodoTarget.nodo.longitud)
-                  });
+            const nodoMain = res.find((n: any) => `${n.nodo.url}:${n.nodo.puerto}` === datos.Data.internalConfig.urlMain && n.status === true);
+            if(!nodoMain){
+              res.forEach((nodoTarget: any) => {
+                for(let i = 0; i < datos.Data.balancerList.length; i++){
+                  if (datos.Data.balancerList[i].url === `${nodoTarget.nodo.url}:${nodoTarget.nodo.puerto}` && nodoTarget.status === true) {
+                    acc.push({
+                      lat1: String(nodo.latitud),
+                      lon1: String(nodo.longitud),
+                      lat2: String(nodoTarget.nodo.latitud),
+                      lon2: String(nodoTarget.nodo.longitud)
+                    });
+                  }
                 }
-              }
-            });
+              });
+            }
           }
                 
           // Enlace de Balanceadores "subs" hacia "main"
