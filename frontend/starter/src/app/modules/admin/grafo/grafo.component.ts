@@ -132,8 +132,8 @@ export class GrafoComponent{
             let cont = 0;
             
             for(let x = 0; x < res.length; x++){
-                const obj1 = JSON.stringify(res[x].nodo);
-                const obj2 = JSON.stringify(this.datosDelSistema[x].nodo);
+                const obj1 = JSON.stringify(res[x]);
+                const obj2 = JSON.stringify(this.datosDelSistema[x]);
 
                 if (obj1 !== obj2 || res[x].status !== this.datosDelSistema[x].status) {
                     cont++;
@@ -514,6 +514,11 @@ export class GrafoComponent{
                             label: {
                                 show: true,
                                 position: 'bottom',
+                                formatter: function(params: any) {
+                                  const maxLength = 10;
+                                  const text = params.name || params.value;
+                                  return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+                                }
                             },
                             data: data.filter((node: any) => node.visible !== false).map((node: any) => ({
                                 id: node.id,

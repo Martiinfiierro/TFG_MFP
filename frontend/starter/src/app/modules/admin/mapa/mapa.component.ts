@@ -127,8 +127,8 @@ export class MapaComponent{
         }
         else{
           for(let x = 0; x < res.length; x++){
-            const obj1 = JSON.stringify(res[x].nodo);
-            const obj2 = JSON.stringify(this.datosDelSistema[x].nodo);
+            const obj1 = JSON.stringify(res[x]);
+            const obj2 = JSON.stringify(this.datosDelSistema[x]);
   
             if (obj1 !== obj2 || res[x].status !== this.datosDelSistema[x].status) {
                 console.log(obj1 + obj2)

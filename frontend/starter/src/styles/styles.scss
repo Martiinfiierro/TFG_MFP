@@ -108,6 +108,13 @@ img {
     width: 100%;
 }
 
+.leaflet-tooltip {
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .grid-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
