@@ -22,8 +22,8 @@
         "valor": 3500
     },
     "map": {
-        "latitud": 39,
-        "longitud": -4,
-        "zoom": 6
+        "latitud": 0,
+        "longitud": 0,
+        "zoom": 2
     }
 }

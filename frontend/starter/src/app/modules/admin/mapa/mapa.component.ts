@@ -321,8 +321,7 @@ export class MapaComponent{
   }
 
   initMap(): void {
-    //this.map = L.map('map').setView([this.configuracion.map.latitud, this.configuracion.map.longitud], this.configuracion.map.zoom);
-    this.map = L.map('map').setView([0, 0], 2);
+    this.map = L.map('map').setView([this.configuracion.map.latitud, this.configuracion.map.longitud], this.configuracion.map.zoom);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',

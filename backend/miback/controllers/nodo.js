@@ -31,13 +31,13 @@ const obtenerNodosOrdenados = async(req, res) => {
         
         return res.json({
             ok: true,
-            msg: 'getNodosPrdenados',
+            msg: 'getNodosOrdenados',
             nodos: nodos,
         });
     }catch (error) {
         return res.status(500).json({
             ok: false,
-            msg: 'Error en get all nodos con por orden',
+            msg: 'Error al recuperar los nodos por orden',
             error: error
         });
     }
