@@ -507,7 +507,6 @@ export class GrafoComponent{
                 }, []);
     
                 const option = {
-                    tooltip: {},
                     series: [
                         {
                             type: 'graph',

@@ -155,6 +155,7 @@ export interface balancer{
 
     getEstadoInterno(){
       this.http.readDebug(`${this.data.url}:${this.data.puerto}`).subscribe((res: any) => {
+        console.log(res)
         if(this.tipo.startsWith('Balanceador')){
           this.estado_interno = res;
           this.dataSource = this.estado_interno.Data.balancerList;
