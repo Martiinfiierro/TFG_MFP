@@ -166,7 +166,6 @@ export class MapaComponent{
         const customIcon = L.icon({
           iconUrl: `assets/map/png/${iconUrl}`,
           iconSize: [30, 30],
-          iconAnchor: [22, 41],
           popupAnchor: [1, -34]
         })
         const marker = L.marker([item.nodo.latitud, item.nodo.longitud], { icon: customIcon }).addTo(this.map);
@@ -176,7 +175,7 @@ export class MapaComponent{
         marker.bindTooltip(nodo.nombre, { 
           permanent: true, 
           direction: 'bottom',
-          offset: [-7, -12]  
+          offset: [0, 12]  
         });
         marker.on('click', () => this.dialogo(item.nodo.tipo_nodo, item.nodo.id, item.nodo.url, item.nodo.puerto));
         this.iconos.push(marker);
