@@ -23,7 +23,6 @@ import { Config } from 'app/services/config.service';
 })
 
 export class GrafoComponent{
-    //Variables temporizador
     configuracion: Config;
     activarConexiones: boolean = true;
     myChart: any = null;
@@ -168,7 +167,6 @@ export class GrafoComponent{
                     this.configuracion.processor.pngDes;
             }
             
-            // Determinar la zona correspondiente al tipo de nodo
             const zona = tipo_nodo.startsWith('Balanceador') 
                 ? this.zonas['Balanceador'] : tipo_nodo.startsWith('Controlador') 
                 ? this.zonas['Controlador'] : this.zonas[tipo_nodo];
@@ -176,23 +174,19 @@ export class GrafoComponent{
             const anchoZona = zona.xFin - zona.xInicio;
             const altoZona = this.alto - 2 * this.margenZona;
 
-            // Índice local dentro de la zona
             const nodosZona = res.filter((n: any) => n.nodo.tipo_nodo.startsWith(tipo_nodo.split(" ")[0]));
             const indexZona = nodosZona.findIndex((n: any) => n.nodo.id === nodo.id);
 
-             // Calcular la cantidad dinámica de columnas
-            const nodosPorColumna = Math.floor(Math.sqrt(nodosZona.length)); // Basado en un layout cuadrado
-            const espacioX = anchoZona / nodosPorColumna; // Espacio horizontal entre columnas
-            const espacioY = altoZona / Math.ceil(nodosZona.length / nodosPorColumna); // Espacio vertical entre filas
+            const nodosPorColumna = Math.floor(Math.sqrt(nodosZona.length));
+            const espacioX = anchoZona / nodosPorColumna;
+            const espacioY = altoZona / Math.ceil(nodosZona.length / nodosPorColumna);
 
-            // Calcular posición del nodo
-            const columna = indexZona % nodosPorColumna; // Columna actual
-            const fila = Math.floor(indexZona / nodosPorColumna); // Fila actual
+            const columna = indexZona % nodosPorColumna;
+            const fila = Math.floor(indexZona / nodosPorColumna);
 
             const x = zona.xInicio + columna * espacioX + this.margenZona;
             const y = this.margenZona + fila * espacioY;
 
-            // Retornar nodo con posición calculada
             return { 
                 id: nodo.id,
                 name: nodo.nombre, 
@@ -349,7 +343,6 @@ export class GrafoComponent{
                 const chartDom = document.getElementById('grafo');
                 this.myChart = echarts.init(chartDom!);
     
-                // Procesa los nodos para `data`
                 const data = res.map((item: any) => {
                     const { nodo, status } = item;
                     const { nombre, tipo_nodo } = nodo;
@@ -368,7 +361,6 @@ export class GrafoComponent{
                             this.configuracion.processor.pngDes;
                     }
                     
-                    // Determinar la zona correspondiente al tipo de nodo
                     const zona = tipo_nodo.startsWith('Balanceador') 
                         ? this.zonas['Balanceador'] : tipo_nodo.startsWith('Controlador') 
                         ? this.zonas['Controlador'] : this.zonas[tipo_nodo];
@@ -376,18 +368,15 @@ export class GrafoComponent{
                     const anchoZona = zona.xFin - zona.xInicio;
                     const altoZona = this.alto - 2 * this.margenZona;
 
-                    // Índice local dentro de la zona
                     const nodosZona = res.filter((n: any) => n.nodo.tipo_nodo.startsWith(tipo_nodo.split(" ")[0]));
                     const indexZona = nodosZona.findIndex((n: any) => n.nodo.id === nodo.id);
 
-                     // Calcular la cantidad dinámica de columnas
-                    const nodosPorColumna = Math.floor(Math.sqrt(nodosZona.length)); // Basado en un layout cuadrado
-                    const espacioX = anchoZona / nodosPorColumna; // Espacio horizontal entre columnas
-                    const espacioY = altoZona / Math.ceil(nodosZona.length / nodosPorColumna); // Espacio vertical entre filas
-
-                    // Calcular posición del nodo
-                    const columna = indexZona % nodosPorColumna; // Columna actual
-                    const fila = Math.floor(indexZona / nodosPorColumna); // Fila actual
+                    const nodosPorColumna = Math.floor(Math.sqrt(nodosZona.length));
+                    const espacioX = anchoZona / nodosPorColumna;
+                    const espacioY = altoZona / Math.ceil(nodosZona.length / nodosPorColumna);
+                    
+                    const columna = indexZona % nodosPorColumna;
+                    const fila = Math.floor(indexZona / nodosPorColumna);
 
                     const x = zona.xInicio + columna * espacioX + this.margenZona;
                     const y = this.margenZona + fila * espacioY;
@@ -406,7 +395,6 @@ export class GrafoComponent{
                     };
                 });
     
-                // Construye enlaces `links`
                 const links = res.reduce((acc: any[], item2: any) => {
                     const { nodo, status, datos } = item2;
                     
@@ -553,11 +541,7 @@ export class GrafoComponent{
                     ]
                 };
                 
-                
-                // Establece las opciones del gráfico
                 this.myChart.setOption(option);
-    
-                // Manejar clic en los nodos
                 this.myChart.on('click', (params: any) => {
                     if (params.dataType === 'node') {
                         console.log(params)
@@ -573,31 +557,5 @@ export class GrafoComponent{
                 this.comprobar();
             });
         });
-    }
-    
-
-    grey(hexColor: any) {
-        // Convertir el color hexadecimal a RGB
-        const rgb = parseInt(hexColor.slice(1), 16);
-        const r = (rgb >> 16) & 0xff;
-        const g = (rgb >>  8) & 0xff;
-        const b = (rgb >>  0) & 0xff;
-    
-        // Calcular el gris como un promedio ponderado de los componentes RGB
-        const grayValue = Math.round((r * 0.3) + (g * 0.59) + (b * 0.11));
-        
-        // Definir el nuevo color grisáceo, incrementando la influencia del gris
-        const newColor = {
-            r: Math.round((r + grayValue * 0.1) / 2),  // 80% del gris
-            g: Math.round((g + grayValue * 0.1) / 2),  // 80% del gris
-            b: Math.round((b + grayValue * 0.1) / 2),  // 80% del gris
-        };
-        
-        // Convertir el color de nuevo a formato hexadecimal
-        const rgbToHex = (r:any, g:any, b:any) => {
-            return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
-        };
-    
-        return rgbToHex(newColor.r, newColor.g, newColor.b);
     }
 }

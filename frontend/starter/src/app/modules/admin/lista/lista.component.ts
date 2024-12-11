@@ -26,8 +26,6 @@ import {
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
-
-// Define la interfaz para los elementos de la tabla
 export interface NodeData {
   id: number,
   tipo_nodo: string;
@@ -60,14 +58,10 @@ export interface NodeData {
     ]
 })
 export class ListaComponent{
-
-  //Lista
   listaNodos: NodeData[] = [];
   displayedColumns: string[] = ['tipo_nodo', 'nombre', 'url', 'puerto', 'geolocalizacion', 'actions'];
   dataSource = new MatTableDataSource<NodeData>(this.listaNodos);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-
-  //Dialogo
   readonly dialog = inject(MatDialog);
 
   constructor(private http: GrafoService, private router: Router) {}
@@ -97,8 +91,6 @@ export class ListaComponent{
     this.listaNodos = nodos;
     this.dataSource.data = this.listaNodos;
   }
-
-  //Botones
 
     irAGrafo(): void {
         this.router.navigate(['/grafo']);
@@ -141,21 +133,17 @@ export class ListaComponent{
     }
     
     descargar(): void {
-      // Llama al servicio para obtener los datos
       this.http.getNodos().subscribe(
         (data) => {
-          // Convierte los datos a una cadena JSON
           const jsonData = JSON.stringify(data, null, 2);
           const blob = new Blob([jsonData], { type: 'application/json' });
           const url = window.URL.createObjectURL(blob);
   
-          // Crea un enlace temporal para descargar el archivo
           const a = document.createElement('a');
           a.href = url;
           a.download = 'listaNodos.json';
           a.click();
   
-          // Limpia la URL del objeto
           window.URL.revokeObjectURL(url);
         },
         (error) => {

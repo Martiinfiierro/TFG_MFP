@@ -13,7 +13,6 @@ export class GrafoService {
 
   constructor( private http:HttpClient ) { }
 
-  // Leer del endpoint de debug
   readDebug (url:string): Observable<object> {
     return this.http.post(url+'/sfmp',{UID:0, Type:'REQUEST', Operation:'DEBUG', Data:{} })
   }

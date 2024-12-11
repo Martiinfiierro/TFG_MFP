@@ -37,7 +37,6 @@ import { Config } from 'app/services/config.service';
     ]
 })
 export class MapaComponent{
-  //Dialogo
   readonly dialog = inject(MatDialog);
   configuracion: Config;
   datosDelSistema: any;
@@ -182,7 +181,6 @@ export class MapaComponent{
       }
     });
 
-    //Nuevas lineas
     const links = res.reduce((acc: any[], item2: any) => {
       const { nodo, status, datos } = item2;
                     
